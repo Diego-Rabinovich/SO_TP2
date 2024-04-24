@@ -1,0 +1,6 @@
+#ifndef TPEARQUI_SHELLMAIN_H
+#define TPEARQUI_SHELLMAIN_H
+
+int shell();
+
+#endif //TPEARQUI_SHELLMAIN_H
