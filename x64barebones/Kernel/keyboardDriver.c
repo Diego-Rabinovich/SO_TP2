@@ -38,15 +38,15 @@ unsigned char scan_codes[][84] = {
 };
 
 unsigned char getStringFromCode(unsigned char code){
-    char alternate = checkAlternate(code);
+    unsigned char alternate = checkAlternate(code);
     if(code&RELEASE){
         code-=RELEASE;
     }
     return scan_codes[alternate][code];
 }
 
-char checkAlternate(unsigned char code) {
-    char alternate = 0;
+unsigned char checkAlternate(unsigned char code) {
+    unsigned char alternate = 0;
     char isLetter = (code >= 0x10 && code <= 0x19) || (code >= 0x1E && code <= 0x26) || (code >= 0x2C && code <= 0x32);
     alternate = (isLetter && caps_enabled);
     if(shift_enabled) {

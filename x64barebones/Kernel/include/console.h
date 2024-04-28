@@ -2,6 +2,7 @@
 #define CONSOLE_H
 
 #include <stdint.h>
+#include "./lib.h"
 
 void print(const char * string);
 void printChar(char character);

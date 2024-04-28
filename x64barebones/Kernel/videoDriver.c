@@ -37,7 +37,7 @@ struct vbe_mode_info_structure {
     uint8_t reserved_position;
     uint8_t direct_color_attributes;
 
-    uint32_t framebuffer;		// physical address of the linear frame buffer; write here to draw to the screen
+    uint64_t framebuffer;		// physical address of the linear frame buffer; write here to draw to the screen
     uint32_t off_screen_mem_off;
     uint16_t off_screen_mem_size;	// size of memory in the framebuffer but not being displayed on the screen
     uint8_t reserved1[206];
@@ -70,7 +70,7 @@ uint32_t getPixel(uint64_t x, uint64_t y) {
 
 
 //region FontBitmaps
-const char font8x8_basic[128][8] = {
+const unsigned char font8x8_basic[128][8] = {
         { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0000 (nul)
         { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0001
         { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0002

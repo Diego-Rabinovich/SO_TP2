@@ -25,7 +25,7 @@
 
 
 unsigned char getStringFromCode(unsigned char code);
-char checkAlternate(unsigned char code);
+unsigned char checkAlternate(unsigned char code);
 void keyboardHandler();
 void alignPointers();
 char hasNext();
