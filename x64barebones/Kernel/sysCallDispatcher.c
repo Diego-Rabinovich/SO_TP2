@@ -22,7 +22,7 @@ char stored();
 int hardRead(uint64_t fd, char *buf, uint64_t count);
 void processBuf(char * buf,int *idx);
 
-int sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3,
+uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3,
                       uint64_t arg4, uint64_t arg5, uint64_t RAX) {
 
     switch (RAX) {
@@ -53,9 +53,9 @@ int sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3
             beep(arg0,arg1);
             return RAX;
         case 10:
-            return memAlloc(arg0);
+            return (uint64_t) memAlloc(arg0);
         case 11:
-            return memCalloc(arg0,arg1);
+            return (uint64_t) memCalloc(arg0,arg1);
         default:
             return -1;
     }
