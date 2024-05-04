@@ -8,6 +8,8 @@ GLOBAL sys_blankArea
 GLOBAL sys_waitNMillis
 GLOBAL sys_hardRead
 GLOBAL sys_beep
+GLOBAL sys_malloc
+GLOBAL sys_calloc
 GLOBAL make_invalid_opCode
 
 section .text
@@ -60,6 +62,15 @@ sys_hardRead:
 
 sys_beep:
     mov rax, 9
+    int 80h
+    ret
+
+sys_malloc:
+    mov rax, 10
+    int 80h
+    ret
+sys_calloc:
+    mov rax, 11
     int 80h
     ret
 

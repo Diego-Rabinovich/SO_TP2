@@ -4,6 +4,7 @@
 #include "include/videoDriver.h"
 #include "include/interrupts.h"
 #include "include/audioDriver.h"
+#include "include/memoryManager.h"
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -14,8 +15,10 @@ extern uint8_t endOfKernel;
 
 static const uint64_t PageSize = 0x1000;
 
-static void * const shellCodeAdress = (void*)0x400000;
-static void * const shellDataAdress = (void*)0x500000;
+static void * endOfModules;
+
+static void * const userCodeAddress = (void*)0x400000;
+static void * const userDataAddress = (void*)0x500000;
 
 typedef int (*EntryPoint)();
 
@@ -37,11 +40,11 @@ void * getStackBase()
 void * initializeKernelBinary()
 {
     void * moduleAddresses[] = {
-            shellCodeAdress,
-            shellDataAdress
+            userCodeAddress,
+            userDataAddress
     };
 
-    loadModules(&endOfKernelBinary, moduleAddresses);
+    endOfModules = loadModules(&endOfKernelBinary, moduleAddresses);
 
     clearBSS(&bss, &endOfKernel - &bss);
 
@@ -64,6 +67,8 @@ int main(){
     load_idt();
     startUpMusic();
     resetScreen();
-    loadUserContext();
+    memInit(endOfModules, 1048576);
+    loadUserContext(userCodeAddress);
+
     return 0;
 }

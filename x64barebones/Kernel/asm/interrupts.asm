@@ -237,8 +237,8 @@ _exception06Handler:
     exceptionHandler 6
 
 loadUserContext:
-    mov rax, userLand
-    ;ret UserLand
+    ;ret contextToLoad
+    mov rax, rdi
     mov [rsp], rax
     ;Code Segment
     mov rax, 0x8

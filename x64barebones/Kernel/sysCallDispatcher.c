@@ -7,7 +7,7 @@
 #include "include/lib.h"
 #include "include/audioDriver.h"
 #include "include/interrupts.h"
-
+#include "include/memoryManager.h"
 
 int read(uint64_t fd, char *buf, uint64_t count);
 
@@ -52,6 +52,10 @@ int sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3
         case 9:
             beep(arg0,arg1);
             return RAX;
+        case 10:
+            return memAlloc(arg0);
+        case 11:
+            return memCalloc(arg0,arg1);
         default:
             return -1;
     }
