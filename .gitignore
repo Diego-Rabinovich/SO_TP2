@@ -2,3 +2,5 @@ desktop.ini
 .desktop
 .desktop.ini
 .ini
+*.o
+./x64barebones/run.sh

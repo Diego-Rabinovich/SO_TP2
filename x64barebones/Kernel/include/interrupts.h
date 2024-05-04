@@ -34,5 +34,6 @@ void picSlaveMask(uint8_t mask);
 //Termina la ejecución de la cpu.
 void haltcpu(void);
 void loadUserContext(void* contextToLoad);
+void interesting_handler(void);
 
 #endif /* INTERRUPS_H_ */

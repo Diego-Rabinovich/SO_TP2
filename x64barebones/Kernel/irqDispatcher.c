@@ -21,6 +21,9 @@ void irqDispatcher(uint64_t irq) {
 
 void int_20() {
     timer_handler();
+    if(ticks_elapsed()%3==0){
+        return interesting_handler;
+    }
 }
 
 void int_21(){
