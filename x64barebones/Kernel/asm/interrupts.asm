@@ -9,6 +9,8 @@ GLOBAL loadUserContext
 GLOBAL dumpRegs
 GLOBAL stored
 
+GLOBAL scheduler_handler
+
 GLOBAL _irq00Handler
 GLOBAL _irq01Handler
 GLOBAL _irq02Handler
@@ -268,6 +270,16 @@ dumpRegs:
 stored:
     mov rax,[saved]
     ret
+
+scheduler_handler:
+    pushState
+    mov rdi, rsp
+    call schedule
+    mov rsp,rax
+    mov al, 20h
+    out 20h, al
+    popState
+    iretq
 
 section .data
 saved dd 0
