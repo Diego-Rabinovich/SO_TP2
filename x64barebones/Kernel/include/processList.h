@@ -3,9 +3,9 @@
 
 #include "include/lib.h"
 
-typedef enum {RUNNING, BLOCKED, READY, TERMINATED} PState;
+typedef enum PState {RUNNING, BLOCKED, READY, TERMINATED} PState;
 
-typedef struct {
+typedef struct Registers{
     uint64_t rax;
     uint64_t rbx;
     uint64_t rcx;
@@ -24,7 +24,7 @@ typedef struct {
     uint64_t r15;
 } Registers;
 
-typedef struct {
+typedef struct PCB{
     uint32_t id;
     PState p_state;
 
@@ -37,12 +37,13 @@ typedef struct {
     uint32_t mem_size;
 } PCB;
 
-typedef struct {
+typedef struct QueueNode{
     PCB pcb;
     QueueNode* next;
+    QueueNode* prev;
 } QueueNode;
 
-typedef struct {
+typedef struct QueueHeader {
     QueueNode* first;
     QueueNode* last;
     uint32_t count;
@@ -54,5 +55,8 @@ void PushProcess(QueueHeader* queue, PCB* process_pcb);
 
 PCB* Iterate(QueueHeader* queue);
 uint32_t RestartIterate(QueueHeader* queue);
+
+void RemoveProcess(QueueHeader * queue, uint32_t pid);
+void TerminateProcess(QueueHeader * queue, uint32_t pid);
 
 #endif //SO_TP2_PROCESSLIST_H
