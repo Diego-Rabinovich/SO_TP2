@@ -12,7 +12,7 @@ userData:
 
 clean:
 	cd User; make clean
-	rm -rf *.bin
+	rm -rf *.bin *.elf
 
 
 .PHONY: userCode all clean

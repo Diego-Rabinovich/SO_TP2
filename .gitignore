@@ -4,3 +4,6 @@ desktop.ini
 .ini
 *.o
 ./x64barebones/run.sh
+.gdb_history
+.bash_history
+.viminfo

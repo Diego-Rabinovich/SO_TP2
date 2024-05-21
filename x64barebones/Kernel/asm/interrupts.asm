@@ -273,7 +273,7 @@ stored:
 interesting_handler:
     pushState
     mov rdi, rsp
-    call schedule
+    ;call schedule
     mov rsp,rax
     mov al, 20h
     out 20h, al
