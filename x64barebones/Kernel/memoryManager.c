@@ -12,7 +12,7 @@
 typedef struct Block
 {
     unsigned long long size;
-    Block *next;
+    struct Block *next;
 } Block;
 
 static Block *free_lists[MAX_EXP + 1];
@@ -134,8 +134,8 @@ void memFree(void *ptr){
 
 typedef struct Node{
     unsigned long long size;
-    Node* next;
-    Node* prev;
+    struct Node* next;
+    struct Node* prev;
 }Node;
 
 Node * free_list = NULL;
@@ -143,7 +143,7 @@ Node * allocated_list = NULL;
 
 void memInit(void* start_ptr, unsigned long size_bytes){
     if(size_bytes < MIN_BLOCK_SIZE )
-        return NULL;
+        return;
 
 
     Node* aligned_start_ptr = (Node*)start_ptr;
@@ -175,11 +175,15 @@ void * memAllocInner(unsigned long bytes){
         Node * newNode = best + bytes; //no uso sizeof(Node) porque bytes ya lo incluye
         newNode->next = best->next;
         newNode->prev = best->prev;
+        newNode->size = best->size - bytes;
+
         //Saco al best de free_list
-        if(newNode->prev != NULL)
+        if(newNode->prev != NULL){
             newNode->prev->next = newNode;
-        if(newNode->next != NULL)
+        }
+        if(newNode->next != NULL){
             newNode->next->prev = newNode;
+        }
 
         //Inserto best en allocated_list
         best->prev = NULL;
@@ -190,6 +194,11 @@ void * memAllocInner(unsigned long bytes){
     return best;
 }
 
+/**
+ *  Si un proceso pide 4097 bytes se le pasa un bloque de 4128: 4097 (solicitado) + 24 (header de nuevo nodo) + 7 (alineación)
+ * @param bytes
+ * @return
+ */
 void* memAlloc(unsigned long bytes){
     bytes += sizeof(Node);  //Agrego el tamaño del header para que entre el header de lo que sobre
                             //(aka el header del nuevo elemento de freelist)
@@ -205,12 +214,19 @@ void* memAlloc(unsigned long bytes){
 }
 
 void memFreeInner(Node *node){
-    //Saco a node de allocated_list
-    if(node->prev != NULL)
-        node->prev->next = node->next;
-    if(node->next != NULL)
-        node->next->prev = node->prev;
+    if(node == NULL) return;
 
+    //Saco a node de allocated_list
+    if (node->prev == NULL && node->next == NULL){
+        allocated_list = NULL;
+    } else {
+        if(node->prev != NULL){
+            node->prev->next = node->next;
+        }
+        if(node->next != NULL){
+            node->next->prev = node->prev;
+        }
+    }
 
     Node *current = free_list;
     //Busco el nodo que predeceria a node en free_list (ordenado por address) (o caso borde, node va al comienzo)
