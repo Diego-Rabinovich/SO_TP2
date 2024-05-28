@@ -1,7 +1,8 @@
 #include "include/memoryManager.h"
 
-#ifdef BUDDY
 #define MIN_BLOCK_SIZE 4096
+
+#ifdef BUDDY
 #define MAX_EXP 17
 
 
@@ -9,9 +10,8 @@
 #define BLOCKSIZE(i) ((unsigned long long)(1 << (i)) * MIN_BLOCK_SIZE)
 #define GET_BUDDY(b, i) ((Block *)((long long)(b) ^ (BLOCKSIZE(i))))
 
-typedef struct Block
-{
-    unsigned long size;
+typedef struct Block{
+    unsigned long long size;
     Block *next;
 } Block;
 
@@ -26,6 +26,9 @@ int obtainIndex(unsigned long size) {
 }
 
 void memInit(void *start_ptr, unsigned long size_bytes){
+    if(size_bytes<MIN_BLOCK_SIZE){
+        return
+    }
     for (int i = 0; i < MAX_EXP + 1; i++)
         free_lists[i] = NULL;
 
@@ -35,27 +38,16 @@ void memInit(void *start_ptr, unsigned long size_bytes){
     {
         i = MAX_EXP;
     }
-    else if (i < 0)
-    {
-        // ERROR
-    }
 
     free_lists[i] = (Block *)start_ptr;
     free_lists[i]->next = NULL;
     free_lists[i]->size = BLOCKSIZE(i);
 }
 
-void * memAlloc(unsigned long bytes){
-    Block* ptr = memAllocRec(bytes + sizeof(Block));
-    if(ptr){
-        return (void*)(ptr + sizeof(Block));        
-    }
-    return NULL;
-}
 
 Block *memAllocRec(unsigned long bytes){
     int i = obtainIndex(bytes);
-    
+
     if(i > MAX_EXP + 1){
         //NO HAY ESPACIO
         return NULL;
@@ -80,8 +72,15 @@ Block *memAllocRec(unsigned long bytes){
     return block;
 }
 
-void memFree(void *ptr){
-    memFreeRec(((Block *)ptr) - sizeof(Block));
+void * memAlloc(unsigned long bytes){
+     if(bytes<MIN_BLOCK_SIZE){
+        return NULL;
+    }
+    Block* ptr = memAllocRec(bytes + sizeof(Block));
+    if(ptr){
+        return (void*)(ptr + sizeof(Block));
+    }
+    return NULL;
 }
 
 void memFreeRec(void* ptr){
@@ -120,10 +119,68 @@ void memFreeRec(void* ptr){
             memFreeRec(ptr);
         }
     }
-     
+
+}
+void memFree(void *ptr){
+    memFreeRec(((Block *)ptr) - sizeof(Block));
 }
 #else
 
-    
+
+typedef struct Node {
+    Node* next;
+    Node* prev;
+    unsigned long long size;
+} Node;
+
+Node* free_men;
+Node* used_mem;
+
+void memInit(void *start_ptr, unsigned long size_bytes){
+    if(size_bytes<MIN_BLOCK_SIZE){
+        return;
+    }
+
+    free_men=(Node *) ((start_ptr)%8==0? (start_ptr):(start_ptr + 8- (start_ptr)%8));
+    used_mem=NULL;
+    free_men->next=NULL;
+    free_men->prev=NULL;
+    free_men->size=size_bytes;
+}
+
+
+void * memAlloc(unsigned long bytes){
+    if(bytes<MIN_BLOCK_SIZE){
+        return NULL;
+    }
+    unsigned long size = (bytes + sizeof(Node))%8==0? (bytes + sizeof(Node)):(bytes + sizeof(Node) + 8- (bytes + sizeof(Node)%8));
+
+    Node* current=free_men;
+    Node* best=NULL;
+    //buscamos el mejor lugar para alojar
+    while(current!=NULL){
+        if(best==NULL||current->size < best->size){
+            if(current->size>=size){
+                best=current;
+            }
+        }
+        current=current->next;
+    }
+    if(best!=NULL){
+        //particionamos
+
+
+    }else{
+        //no hay lugar
+        return NULL;
+    }
+
+}
+
+void memFree(void *ptr){
+
+}
+
+
 
 #endif
