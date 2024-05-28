@@ -5,6 +5,7 @@
 
 void memInit(void* startPtr, unsigned long  sizeBytes);
 void* memAlloc(unsigned long  bytes);
-void* memCalloc(unsigned long  units, unsigned long  unitSize);
+void memFree(void *ptr);
+
 
 #endif //SO_TP2_MEMORYMANAGER_H
