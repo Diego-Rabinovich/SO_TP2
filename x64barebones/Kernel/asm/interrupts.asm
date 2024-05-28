@@ -8,7 +8,6 @@ GLOBAL sysCallHandler
 GLOBAL loadUserContext
 GLOBAL dumpRegs
 GLOBAL stored
-GLOBAL interesting_handler
 
 GLOBAL _irq00Handler
 GLOBAL _irq01Handler
@@ -270,10 +269,10 @@ stored:
     mov rax,[saved]
     ret
 
-interesting_handler:
+scheduler_handler:
     pushState
     mov rdi, rsp
-    ;call schedule
+    call schedule
     mov rsp,rax
     mov al, 20h
     out 20h, al
