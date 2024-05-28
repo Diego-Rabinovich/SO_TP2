@@ -49,14 +49,6 @@ void memInit(void *start_ptr, unsigned long size_bytes){
     free_lists[i]->size = BLOCKSIZE(i);
 }
 
-void * memAlloc(unsigned long bytes){
-    Block* ptr = memAllocRec(bytes + sizeof(Block));
-    if(ptr){
-        return (void*)(ptr + sizeof(Block));
-    }
-    return NULL;
-}
-
 Block *memAllocRec(unsigned long bytes){
     int i = obtainIndex(bytes);
 
@@ -86,7 +78,7 @@ Block *memAllocRec(unsigned long bytes){
 }
 
 void * memAlloc(unsigned long bytes){
-     if(bytes<MIN_BLOCK_SIZE){
+    if(bytes<MIN_BLOCK_SIZE){
         return NULL;
     }
     Block* ptr = memAllocRec(bytes + sizeof(Block));
