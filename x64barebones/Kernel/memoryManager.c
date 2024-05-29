@@ -132,18 +132,10 @@ void memFree(void *ptr){
 }
 #else
 
-typedef struct Node{
-    unsigned long long size;
-    struct Node* next;
-    struct Node* prev;
-}Node;
-
-Node * free_list = NULL;
-Node * allocated_list = NULL;
-
 void memInit(void* start_ptr, unsigned long size_bytes){
-    if(size_bytes < MIN_BLOCK_SIZE )
-        return;
+    if(size_bytes < MIN_BLOCK_SIZE ){
+        return ;
+    }
 
 
     Node* aligned_start_ptr = (Node*)start_ptr;
@@ -172,24 +164,31 @@ void * memAllocInner(unsigned long bytes){
     //Encontre uno, tengo que partirlo
     if(best != NULL){
         //Creo el nuevo nodo resultado de la particion y lo pongo en la freelist
-        Node * newNode = best + bytes; //no uso sizeof(Node) porque bytes ya lo incluye
+        Node * newNode = (void *) best + bytes; //no uso sizeof(Node) porque bytes ya lo incluye
         newNode->next = best->next;
         newNode->prev = best->prev;
         newNode->size = best->size - bytes;
+        best->size = bytes - sizeof(Node);
 
         //Saco al best de free_list
-        if(newNode->prev != NULL){
-            newNode->prev->next = newNode;
-        }
-        if(newNode->next != NULL){
-            newNode->next->prev = newNode;
+        if(newNode->next == NULL && newNode->prev == NULL){
+            free_list = newNode;
+        } else{
+            if(newNode->prev != NULL){
+                newNode->prev->next = newNode;
+            }
+            if(newNode->next != NULL){
+                newNode->next->prev = newNode;
+            }
         }
 
         //Inserto best en allocated_list
         best->prev = NULL;
         best->next = allocated_list;
-        allocated_list->prev = best;
-        allocated_list = best;
+        if(allocated_list != NULL){
+            allocated_list->prev = best;
+        }
+        allocated_list = (void *)best;
     }
     return best;
 }
@@ -210,7 +209,7 @@ void* memAlloc(unsigned long bytes){
         bytes = bytes + (8 - bytes%8);  //Redondea a la proxima palabra
     }
 
-    return memAllocInner(bytes);
+    return memAllocInner(bytes) + sizeof(Node);
 }
 
 void memFreeInner(Node *node){
@@ -247,7 +246,7 @@ void memFreeInner(Node *node){
     }
 
     //Chequeamos si podemos mergear con nuestro next
-    if(node->next != NULL && node->next == node + sizeof(Node) + node->size){
+    if(node->next != NULL && node->next == (void *) node + sizeof(Node) + node->size){
         node->size += sizeof(Node) + node->next->size;
         node->next = node->next->next;
         if(node->next->next != NULL){
@@ -256,7 +255,7 @@ void memFreeInner(Node *node){
     }
 
     //Chequeamos si podemos mergear con nuestro prev
-    if(node->prev != NULL && node == node->prev + sizeof(Node) + node->prev->size){
+    if(node->prev != NULL && node == (void *) node->prev + sizeof(Node) + node->prev->size){
         node->prev->size += sizeof(Node) + node->size;
         node->prev->next = node->next;
         if(node->next != NULL){
@@ -266,6 +265,6 @@ void memFreeInner(Node *node){
 }
 
 void memFree(void *ptr){
-    memFreeInner((Node*)ptr - sizeof(Node));    //el ptr q me pasan esta a sizeof(Node) del comienzo del bloque
+    memFreeInner((Node*)(ptr - sizeof(Node)));    //el ptr q me pasan esta a sizeof(Node) del comienzo del bloque
 }
 #endif
