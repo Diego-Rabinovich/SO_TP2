@@ -132,6 +132,15 @@ void memFree(void *ptr){
 }
 #else
 
+typedef struct Node{
+    unsigned long long size;
+    struct Node * next;
+    struct Node * prev;
+} Node;
+
+Node * free_list = NULL;
+Node * allocated_list = NULL;
+
 void memInit(void* start_ptr, unsigned long size_bytes){
     if(size_bytes < MIN_BLOCK_SIZE ){
         return ;
@@ -146,7 +155,7 @@ void memInit(void* start_ptr, unsigned long size_bytes){
     free_list = aligned_start_ptr;
     free_list->next = NULL;
     free_list->prev = NULL;
-    free_list->size = size_bytes;
+    free_list->size = size_bytes - sizeof(Node) ;
 }
 
 void * memAllocInner(unsigned long bytes){
@@ -229,38 +238,42 @@ void memFreeInner(Node *node){
 
     Node *current = free_list;
     //Busco el nodo que predeceria a node en free_list (ordenado por address) (o caso borde, node va al comienzo)
-    while (current != NULL && current > node && current->next != NULL && current->next < node) {
+    while (current != NULL && current < node && current->next != NULL && current->next < node) {
         current = current->next;
     }
     //Encontre uno
     if(current != NULL && current < node){
         node->prev = current;
         node->next = current->next;
-        current->next = node;
-        if(current->next != NULL)
+        if(current->next != NULL){
             current->next->prev = node;
+        }
+        current->next = node;
     } else {
         free_list = node;
         node->prev = NULL;
         node->next = current;
+        if(current !=NULL){
+            current->prev = node;
+        }
     }
 
     //Chequeamos si podemos mergear con nuestro next
     if(node->next != NULL && node->next == (void *) node + sizeof(Node) + node->size){
         node->size += sizeof(Node) + node->next->size;
-        node->next = node->next->next;
         if(node->next->next != NULL){
             node->next->next->prev = node;
         }
+        node->next = node->next->next;
     }
 
     //Chequeamos si podemos mergear con nuestro prev
     if(node->prev != NULL && node == (void *) node->prev + sizeof(Node) + node->prev->size){
         node->prev->size += sizeof(Node) + node->size;
-        node->prev->next = node->next;
         if(node->next != NULL){
             node->next->prev = node->prev;
         }
+        node->prev->next = node->next;
     }
 }
 
