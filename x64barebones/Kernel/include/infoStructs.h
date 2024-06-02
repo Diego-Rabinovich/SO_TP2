@@ -13,7 +13,7 @@ typedef struct ProcessInfo {
     void *rsp;
     char *name;
     uint8_t piority;
-    PState status;
+    PState p_state;
     uint8_t fg;
 } ProcessInfo;
 

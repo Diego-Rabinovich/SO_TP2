@@ -8,6 +8,7 @@ GLOBAL sysCallHandler
 GLOBAL loadUserContext
 GLOBAL dumpRegs
 GLOBAL stored
+GLOBAL create_sf
 
 GLOBAL _irq00Handler
 GLOBAL _irq01Handler
@@ -280,8 +281,28 @@ scheduler_handler:
     popState
     iretq
 
+create_sf:
+	mov r11, rsp
+	mov r9, rbp
+	mov rsp, rdx
+	mov rbp, rdx
+	push 0x0
+	push rdx
+	push 0x202
+	push 0x8
+	push rdi
+	mov rdi, rsi
+	mov rsi, r10
+	mov rdx, r8
+	pushState
+	mov rax, rsp
+	mov rsp, r11
+	mov rbp, r9
+	ret
+
 section .data
 saved dd 0
+
 regStruct:
     reg_rdi dq 0
     reg_rsi dq 0

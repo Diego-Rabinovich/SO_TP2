@@ -229,3 +229,11 @@ int strLen(const char * s){
     }
     return i;
 }
+
+int arrayLen(void **array){
+    int len = 0;
+    while (*(array++) != NULL){
+        len++;
+    }
+    return len;
+}
