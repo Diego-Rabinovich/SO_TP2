@@ -15,7 +15,6 @@ extern uint8_t endOfKernel;
 
 static const uint64_t PageSize = 0x1000;
 
-static void * endOfModules;
 
 static void * const userCodeAddress = (void*)0x400000;
 static void * const userDataAddress = (void*)0x500000;
@@ -44,9 +43,11 @@ void * initializeKernelBinary()
             userDataAddress
     };
 
+    void * endOfModules;
     endOfModules = loadModules(&endOfKernelBinary, moduleAddresses);
 
     clearBSS(&bss, &endOfKernel - &bss);
+    memInit(endOfModules, 128*1024*1024); //Le damos 128MB
 
     return getStackBase();
 }
@@ -67,7 +68,6 @@ int main(){
     load_idt();
     startUpMusic();
     resetScreen();
-    memInit(endOfModules, 1048576);
     loadUserContext(userCodeAddress);
 
     return 0;
