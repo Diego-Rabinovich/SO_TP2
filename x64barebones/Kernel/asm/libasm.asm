@@ -3,6 +3,7 @@ GLOBAL cpuGetTime
 GLOBAL getKeyPress
 GLOBAL inb
 GLOBAL outb
+GLOBAL callTimerTick
 
 section .text
 
@@ -87,3 +88,5 @@ timeStruct:
     min resb 4
     sec resb 4
 
+callTimerTick:
+    int 20h

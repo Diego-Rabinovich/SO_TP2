@@ -71,7 +71,7 @@ ProcessInfo *loadInfo(ProcessInfo *info, PCB *pcb){
     info->pid = pcb->pid;
     info->parent_pid = pcb->parent_pid;
     info->piority = pcb->priority;
-    info->name = allocMEMo(strLen(process->name) + 1);
+    info->name = memAlloc(strLen(pcb->name) + 1);
     memcpy(info->name, pcb->name, strLen(pcb->name));
     info->p_state = pcb->p_state;
     info->rsb = pcb->rsb;

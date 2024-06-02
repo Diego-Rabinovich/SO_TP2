@@ -3,9 +3,9 @@
 #include "include/memoryManager.h"
 #include "include/linkedList.h"
 
-#define IDLE_PID 0
+#define TRIVIAL_PID 0
 #define QTY_PRIORITIES 4
-#define MAX_PROCESSES (1 << 12)
+#define MAX_PROCESSES 4096
 
 typedef struct Scheluler
 {
@@ -14,7 +14,7 @@ typedef struct Scheluler
 	uint16_t running_pid;
 	uint16_t next_pid;
 	uint16_t process_count;
-	int8_t quantum_left;
+	uint8_t quantum_left;
 	int8_t kill_fg_flag;
 } Scheduler;
 
@@ -25,7 +25,7 @@ void schedulerInit(){
         scheduler.processes[i] = NULL;
     }
     for (int i = 0; i < QTY_PRIORITIES + 1; i++) {
-        scheduler.process_lists[i] = createLinkedListADT();
+        scheduler.process_lists[i] = createLinkedList();
     }
     scheduler.next_pid = 0;
 	scheduler.kill_fg_flag = 0;
@@ -35,18 +35,18 @@ static uint16_t getNextPID(){
     PCB *pcb = NULL;
 	for (int prio = QTY_PRIORITIES - 1; prio >= 0 && pcb == NULL; prio--){
         if (!isEmpty(scheduler.process_lists[prio])) {
-            pcb = (PCB *) (pop(scheduler.process_lists[prio]))->data;
+            pcb = (PCB *) (peek(scheduler.process_lists[prio]))->data;
         }
     }
 	if (pcb == NULL) {
-        return IDLE_PID;
+        return TRIVIAL_PID;
     }
     return pcb->pid;
 }
 
 int32_t setPriority(uint16_t pid, uint8_t new_prio){
     Node *node = scheduler.processes[pid];
-	if (node == NULL || pid == IDLE_PID) {
+	if (node == NULL || pid == TRIVIAL_PID) {
         return -1;
     }
     PCB *pcb = (PCB *) node->data;
@@ -56,15 +56,16 @@ int32_t setPriority(uint16_t pid, uint8_t new_prio){
     }
 	if (pcb->p_state == READY || pcb->p_state == RUNNING) {
 		remove(scheduler.process_lists[pcb->priority], node);
-		scheduler.processes[pcb->pid] = queue(scheduler.process_lists[new_prio], node);
+        queue(scheduler.process_lists[new_prio], node);
+        scheduler.processes[pcb->pid] = node;
 	}
 	pcb->priority = new_prio;
 	return new_prio;
 }
 
-int8_t setState(uint16_t pid, uint8_t new_state) {
+uint8_t setState(uint16_t pid, uint8_t new_state) {
     Node *node = scheduler.processes[pid];
-    if (node == NULL || pid == IDLE_PID){
+    if (node == NULL || pid == TRIVIAL_PID){
         return -1;
     }
     PCB *pcb = (PCB *) node->data;
@@ -134,7 +135,7 @@ void* schedule(void* last_rsp) {
 	return current_process_pcb->rsp;
 }
 
-int16_t createProcess(Main main_func, char **args, char *name,
+uint16_t createProcess(Main main_func, char **args, char *name,
     uint8_t priority, int16_t fds[]) {
     if (scheduler.process_count >= MAX_PROCESSES || main_func == NULL || priority < 0 || priority > 3 || fds == NULL){
         return -1;
@@ -143,12 +144,13 @@ int16_t createProcess(Main main_func, char **args, char *name,
 	initializeProcess(pcb, scheduler.next_pid, scheduler.running_pid, main_func, args, name, priority, fds);
 
 	Node *process_node;
-	if (pcb->pid != IDLE_PID)
-		process_node = queue(scheduler.process_lists[pcb->priority], (void *) pcb);
-	else {
-		process_node = memAlloc(sizeof(Node));
-		process_node->data = (void *) pcb;
-	}
+    process_node = memAlloc(sizeof(Node));
+    process_node->data = (void *) pcb;
+
+    if (pcb->pid != TRIVIAL_PID){
+        queue(scheduler.process_lists[pcb->priority],  process_node);
+    }
+
 	scheduler.processes[pcb->pid] = process_node;
 
 	while (scheduler.processes[scheduler.next_pid] != NULL)
@@ -158,7 +160,7 @@ int16_t createProcess(Main main_func, char **args, char *name,
 }
 
 int32_t killCurrent(int32_t ret){
-    return killProcess(scheduler.running_pid, ret);
+    return kill(scheduler.running_pid, ret);
 }
 
 int32_t kill(uint16_t pid, int32_t ret){
@@ -194,11 +196,11 @@ uint16_t getPid(){
 }
 
 ProcessInfoArray *getProcessArray(){
-    ProcessInfoArray *info_array = allocMemory(sizeof(ProcessInfoArray));
-	ProcessInfo *array = allocMemory(scheduler.process_count * sizeof(ProcessInfo));
+    ProcessInfoArray *info_array = memAlloc(sizeof(ProcessInfoArray));
+	ProcessInfo *array = memAlloc(scheduler.process_count * sizeof(ProcessInfo));
 	int process_idx = 0;
 
-	loadInfo(&array[process_idx++], (PCB *) scheduler.processes[IDLE_PID]->data);
+	loadInfo(&array[process_idx++], (PCB *) scheduler.processes[TRIVIAL_PID]->data);
 
 	for (int prio = QTY_PRIORITIES; prio >= 0; prio--) {
 		startIterator(scheduler.process_lists[prio]);
@@ -225,7 +227,7 @@ void yield(){
 //TODO implementar con IPC
 //int8_t changeFD(uint16_t pid, uint8_t fd_idx, int16_t new_fd){
 //    Node *processNode = scheduler.processes[pid];
-//	if (pid == IDLE_PID || processNode == NULL)
+//	if (pid == TRIVIAL_PID || processNode == NULL)
 //		return -1;
 //	PCB *process = (PCB *) processNode->data;
 //	process->fds[fd_idx] = new_fd;

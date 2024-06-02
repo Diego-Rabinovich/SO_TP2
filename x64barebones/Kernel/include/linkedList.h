@@ -10,10 +10,11 @@ typedef struct Node {
 }Node;
 
 LinkedList createLinkedList();
-Node *createElement(LinkedList list, void* data);
-Node *queue(LinkedList list, Node *node);
-Node *push(LinkedList list, Node *node);
-void *remove(LinkedList list, Node *node);
+void queue(LinkedList list, Node *node);
+void push(LinkedList list, Node *node);
+void remove(LinkedList list, Node *node);
+void removeAndFree(LinkedList list, Node * node);
+Node *peek(LinkedList list);
 Node *pop(LinkedList list);
 int isEmpty(LinkedList list);
 void startIterator(LinkedList list);

@@ -5,14 +5,14 @@
 #include "process.h"
 
 void schedulerInit();
-int16_t createProcess(Main main_func, char **args, char *name, uint8_t priority,
+uint16_t createProcess(Main main_func, char **args, char *name, uint8_t priority,
                       int16_t fds[]);
 int32_t kill(uint16_t pid, int32_t ret);
 int32_t killCurrent(int32_t ret);
 uint16_t getPid();
 PState getPState(uint16_t pid);
 int32_t setPriority(uint16_t pid, uint8_t new_prio);
-int8_t setState(uint16_t pid, uint8_t new_state);
+uint8_t setState(uint16_t pid, uint8_t new_state);
 ProcessInfoArray *getProcessArray();
 int32_t isAlive(uint16_t pid);
 void yield();
