@@ -26,7 +26,7 @@ EXTERN exceptionDispatcher
 EXTERN sysCallDispatcher
 EXTERN infoRegs
 EXTERN getStackBase
-EXTERN Schedule
+EXTERN schedule
 
 
 
@@ -274,7 +274,7 @@ stored:
 scheduler_handler:
     pushState
     mov rdi, rsp
-    call Schedule
+    call schedule
     mov rsp, rax
     mov al, 20h
     out 20h, al

@@ -204,8 +204,8 @@ ProcessInfoArray *getProcessArray(){
 
 	for (int prio = QTY_PRIORITIES; prio >= 0; prio--) {
 		startIterator(scheduler.process_lists[prio]);
-		while (hasNext(scheduler.process_lists[prio])) {
-			PCB *current = (PCB *) next(scheduler.process_lists[prio]);
+		while (listHasNext(scheduler.process_lists[prio])) {
+			PCB *current = (PCB *) listNext(scheduler.process_lists[prio]);
 			loadInfo(&array[process_idx], current);
 			process_idx++;
 		}

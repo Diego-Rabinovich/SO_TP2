@@ -18,8 +18,8 @@ Node *peek(LinkedList list);
 Node *pop(LinkedList list);
 int isEmpty(LinkedList list);
 void startIterator(LinkedList list);
-int hasNext(LinkedList list);
-void *next(LinkedList list);
+int listHasNext(LinkedList list);
+void *listNext(LinkedList list);
 int getLength(LinkedList list);
 
 void freeList(LinkedList list);

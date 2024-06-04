@@ -232,7 +232,7 @@ int strLen(const char * s){
 
 int arrayLen(void **array){
     int len = 0;
-    while (*(array++) != NULL){
+    while (*(array++) != 0x00000000){
         len++;
     }
     return len;

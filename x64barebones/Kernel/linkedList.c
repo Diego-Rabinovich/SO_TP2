@@ -97,14 +97,14 @@ void startIterator(LinkedList list){
     list->current = list->first;
 }
 
-int hasNext(LinkedList list){
+int listHasNext(LinkedList list){
     if(list == NULL) return 0;
 
     return list->current != NULL;
 }
 
-void *next(LinkedList list){
-    if (list != NULL && hasNext(list)){
+void *listNext(LinkedList list){
+    if (list != NULL && listHasNext(list)){
         Node * aux = list->current;
         list->current = list->current->next;
         return aux;
@@ -121,8 +121,8 @@ int getLength(LinkedList list){
 void freeList(LinkedList list){
     if(list == NULL) return;
 
-    while(hasNext(list)){
-        Node * current = next(list);
+    while(listHasNext(list)){
+        Node * current = listNext(list);
         memFree(current);
     }
 

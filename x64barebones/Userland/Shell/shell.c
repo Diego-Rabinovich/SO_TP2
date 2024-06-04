@@ -35,8 +35,6 @@ void resetBuffer() {
 int shell() {
     sys_getScreenDimensions(&dims);
     clear();
-    char * args[] = {"536870912"};
-    (int) test_mm(1, args);
     while (1) {
         int size = sys_read(0, buffer + idx, 1);
         if (size > 0 && !(buffer[idx] & 0x80)) {
