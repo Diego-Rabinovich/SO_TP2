@@ -192,7 +192,7 @@ APICapic:
 	lodsb				; APIC ID
 	xchg eax, edx			; Save the APIC ID to EDX
 	lodsd				; Flags (Bit 0 set if enabled/usable)
-	bt eax, 0			; Test to see if usable
+	bt eax, 0			; Testing to see if usable
 	jnc readAPICstructures		; Read the next structure if CPU not usable
 	inc word [cpu_detected]
 	xchg eax, edx			; Restore the APIC ID back to EAX
@@ -246,7 +246,7 @@ APICx2apic:
 	lodsd
 	xchg eax, edx			; Save the x2APIC ID to EDX
 	lodsd				; Flags (Bit 0 set if enabled/usable)
-	bt eax, 0			; Test to see if usable
+	bt eax, 0			; Testing to see if usable
 	jnc APICx2apicEnd		; Read the next structure if CPU not usable
 	xchg eax, edx			; Restore the x2APIC ID back to EAX
 	call os_debug_dump_eax

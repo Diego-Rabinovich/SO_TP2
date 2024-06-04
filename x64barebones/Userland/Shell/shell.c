@@ -5,7 +5,7 @@
 #include "include/commands.h"
 #include "../Snake/include/snakeMain.h"
 #include "../Math/include/math.h"
-
+#include "../Testing/testing.h"
 
 
 char buffer[BUFF_SIZE] = {0};
@@ -35,6 +35,8 @@ void resetBuffer() {
 int shell() {
     sys_getScreenDimensions(&dims);
     clear();
+    char * args[] = {"536870912"};
+    (int) test_mm(1, args);
     while (1) {
         int size = sys_read(0, buffer + idx, 1);
         if (size > 0 && !(buffer[idx] & 0x80)) {

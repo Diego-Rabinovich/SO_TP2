@@ -9,7 +9,8 @@ GLOBAL sys_waitNMillis
 GLOBAL sys_hardRead
 GLOBAL sys_beep
 GLOBAL sys_malloc
-GLOBAL sys_calloc
+GLOBAL sys_free
+GLOBAL sys_memset
 GLOBAL make_invalid_opCode
 
 section .text
@@ -69,8 +70,12 @@ sys_malloc:
     mov rax, 10
     int 80h
     ret
-sys_calloc:
+sys_free:
     mov rax, 11
+    int 80h
+    ret
+sys_memset:
+    mov rax, 12
     int 80h
     ret
 

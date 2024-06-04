@@ -19,6 +19,7 @@ int sys_hardRead(uint64_t fd,char * buf,uint64_t count);
 int sys_waitNMillis(uint64_t millis);
 void sys_beep(uint32_t frequency, uint32_t millis);
 void* sys_malloc(unsigned long bytes);
-void* sys_calloc(unsigned long  units, unsigned long  unitSize);
+void sys_free( void *  ptr);
+void sys_memset(void * dest, char character, uint64_t length);
 void make_invalid_opCode();
 #endif //TPEARQUI_USERLIBASM_H

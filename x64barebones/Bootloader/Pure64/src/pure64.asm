@@ -76,7 +76,7 @@ clearcs:
 	jbe no_long_mode		; If not, no long mode.
 	mov eax, 0x80000001		; Extended-function 8000001h.
 	cpuid				; Now EDX = extended-features flags.
-	bt edx, 29			; Test if long mode is supported.
+	bt edx, 29			; Testing if long mode is supported.
 	jnc no_long_mode		; Exit if not supported.
 
 	call init_isa			; Setup legacy hardware

@@ -55,7 +55,10 @@ uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t
         case 10:
             return (uint64_t) memAlloc(arg0);
         case 11:
-            return (uint64_t) memCalloc(arg0,arg1);
+            memFree((void *) arg0);
+            return RAX;
+        case 12:
+            memset((void *) arg0, (char) arg1, arg2);
         default:
             return -1;
     }
