@@ -1,7 +1,7 @@
 #include "test_util.h"
 #include <stdint.h>
-#include "userLibAsm.h"
-#include "userLib.h"
+#include "../User/include/userLibAsm.h"
+#include "../User/include/userLib.h"
 
 #define MAX_BLOCKS 128
 
@@ -20,7 +20,7 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
   if (argc != 1)
     return -1;
 
-  if ((max_memory = satoi(argv[0])/2) <= 0)
+  if ((max_memory = satoi(argv[0])) <= 0)
     return -1;
 
   while (1) {
@@ -34,7 +34,7 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
 
       if (mm_rqs[rq].address) {
           total += mm_rqs[rq].size;
-          print("mem has been allocated", 0xffffff, 2);
+//          print("mem has been allocated", 0xffffff, 2);
           rq++;
       } else {
           break;
@@ -60,9 +60,7 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
       if (mm_rqs[i].address)
         sys_free(mm_rqs[i].address);
 
-    return 0;
   }
-
 }
 
 //int main(void){

@@ -65,7 +65,7 @@ void startUpMusic(){
 
 int main(){
     load_idt();
-    startUpMusic();
+    //startUpMusic();
     resetScreen();
     loadUserContext();
     return 0;

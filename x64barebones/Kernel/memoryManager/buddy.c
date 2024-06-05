@@ -4,7 +4,7 @@
 //Usamos unsigned long long porque las direcciones son de 8 bytes y tener void* en la macro no funcionaba
 #define BLOCKSIZE(i) ((unsigned long long)(1 << (i)) * MIN_BLOCK_SIZE)
 #define GET_BUDDY(b, i) ((((unsigned long long )(b)) ^ (BLOCKSIZE(i))))
-
+#include "videoDriver.h"
 typedef struct Block
 {
     unsigned long long size;
@@ -78,6 +78,7 @@ Block *memAllocRec(unsigned long bytes){
 }
 
 void * memAlloc(unsigned long bytes){
+    drawChar('B', 5);
     if(bytes<MIN_BLOCK_SIZE){
         return NULL;
     }
