@@ -15,8 +15,8 @@ IMGSIZE=6291456
 
 all: $(IMG) $(VMDK) $(QCOW2)
 
-$(KERNEL):
-	cd ../Kernel; make
+#$(KERNEL):
+#	cd ../Kernel; make
 
 $(PACKEDKERNEL): $(KERNEL) $(USERLAND)
 	$(MP) $(KERNEL) $(USERLAND) -o $(PACKEDKERNEL)
