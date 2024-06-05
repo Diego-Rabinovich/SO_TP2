@@ -5,10 +5,11 @@ GLOBAL picSlaveMask
 GLOBAL haltcpu
 GLOBAL _hlt
 GLOBAL sysCallHandler
-GLOBAL loadUserContext
+; GLOBAL loadUserContext
 GLOBAL dumpRegs
 GLOBAL stored
 GLOBAL create_sf
+;GLOBAL scheduler_handler
 
 GLOBAL _irq00Handler
 GLOBAL _irq01Handler
@@ -184,7 +185,16 @@ picSlaveMask:
 
 ;8254 Timer (Timer Tick)
 _irq00Handler:
-	irqHandlerMaster 0
+	pushState
+	mav rdi, 0h
+	call irqDispatcher
+    mov rdi, rsp
+    call schedule
+    mov rsp, rax
+    mov al, 20h
+    out 20h, al
+    popState
+    iretq
 
 ;Keyboard
 _irq01Handler:
@@ -238,23 +248,24 @@ _exception06Handler:
     saveRegs
     exceptionHandler 6
 
-loadUserContext:
-    mov rax, userLand
-    ;ret UserLand
-    mov [rsp], rax
-    ;Code Segment
-    mov rax, 0x8
-    mov [rsp + 8], rax
-    ;RFLAGS
-    mov rax, 0x202
-    mov [rsp + 8*2], rax
-    ;StackBase
-    call getStackBase
-    mov [rsp + 8*3], rax
-    ;Stack Segment
-    mov rax, 0x0
-    mov [rsp + 8*4], rax
-    iretq
+
+;loadUserContext:
+;    mov rax, userLand
+;    ;ret UserLand
+;    mov [rsp], rax
+;    ;Code Segment
+;    mov rax, 0x8
+;    mov [rsp + 8], rax
+;    ;RFLAGS
+;    mov rax, 0x202
+;    mov [rsp + 8*2], rax
+;    ;StackBase
+;    call getStackBase
+;    mov [rsp + 8*3], rax
+;    ;Stack Segment
+;    mov rax, 0x0
+;    mov [rsp + 8*4], rax
+;    iretq
 
 haltcpu:
 	cli
@@ -270,16 +281,6 @@ dumpRegs:
 stored:
     mov rax,[saved]
     ret
-
-scheduler_handler:
-    pushState
-    mov rdi, rsp
-    call schedule
-    mov rsp, rax
-    mov al, 20h
-    out 20h, al
-    popState
-    iretq
 
 create_sf:
 	mov r11, rsp

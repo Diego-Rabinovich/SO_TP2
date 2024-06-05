@@ -12,7 +12,7 @@ void runProcess(Main main_func, char **args, int argc) {
 
 void initializeProcess(PCB *process_pcb, uint16_t pid, uint16_t parent_pid,
                        Main main_func, char **args, char *name,
-                       uint8_t priority, int16_t fds[]) {
+                       uint8_t priority) { //, int16_t fds[]
   process_pcb->pid = pid;
   process_pcb->parent_pid = parent_pid;
   process_pcb->priority = priority;

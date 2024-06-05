@@ -79,6 +79,11 @@ sys_memset:
     int 80h
     ret
 
+sys_fork:
+    mov rax, 13
+    int 80h
+    ret
+
 make_invalid_opCode:
     ud2
     ret

@@ -32,7 +32,7 @@ void resetBuffer() {
 }
 
 
-int shell() {
+int shell(int argc, char **args) {
     sys_getScreenDimensions(&dims);
     clear();
     while (1) {

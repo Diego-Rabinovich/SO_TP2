@@ -5,8 +5,7 @@
 #include "process.h"
 
 void schedulerInit();
-uint16_t createProcess(Main main_func, char **args, char *name, uint8_t priority,
-                      int16_t fds[]);
+uint16_t createProcess(Main main_func, char **args, char *name, uint8_t priority); //int16_t fds[]
 int32_t kill(uint16_t pid, int32_t ret);
 int32_t killCurrent(int32_t ret);
 uint16_t getPid();

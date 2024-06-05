@@ -8,6 +8,8 @@
 #include "include/audioDriver.h"
 #include "include/interrupts.h"
 #include "include/memoryManager.h"
+#include "include/scheduler.h"
+#include "include/infoStructs.h"
 
 int read(uint64_t fd, char *buf, uint64_t count);
 
@@ -59,6 +61,9 @@ uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t
             return RAX;
         case 12:
             memset((void *) arg0, (char) arg1, arg2);
+            return RAX;
+        case 13:
+            return createProcess((Main) arg0, (char**) arg1, (char*) arg2, (uint8_t) arg3);
         default:
             return -1;
     }

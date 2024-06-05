@@ -2,6 +2,8 @@
 #define TPEARQUI_USERLIBASM_H
 
 #include <stdint.h>
+typedef int (*Main)(int argc, char **args);
+
 typedef struct {
     uint64_t x;
     uint64_t y;
@@ -21,5 +23,6 @@ void sys_beep(uint32_t frequency, uint32_t millis);
 void* sys_malloc(unsigned long bytes);
 void sys_free( void *  ptr);
 void sys_memset(void * dest, char character, uint64_t length);
+uint16_t sys_fork(Main main_func, char** args, char* name, uint8_t priority);
 void make_invalid_opCode();
 #endif //TPEARQUI_USERLIBASM_H

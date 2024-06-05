@@ -5,6 +5,7 @@
 #include "include/interrupts.h"
 #include "include/audioDriver.h"
 #include "include/memoryManager.h"
+#include "include/scheduler.h"
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -63,10 +64,19 @@ void startUpMusic(){
     beep(880,500);
 }
 
+void trivial(int argc, char **args){
+    char * args[] = {NULL};
+    createProcess(userCodeAddress, args, "user", 0);
+    while (1) {
+        _hlt();
+    }
+}
+
 int main(){
-    load_idt();
     //startUpMusic();
     resetScreen();
-    loadUserContext();
+    char * args[] = {NULL};
+    createProcess(&trivial, args, "TRIVIAL", 0);
+    load_idt();
     return 0;
 }
