@@ -59,6 +59,7 @@ uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t
             return RAX;
         case 12:
             memset((void *) arg0, (char) arg1, arg2);
+            return RAX;
         default:
             return -1;
     }

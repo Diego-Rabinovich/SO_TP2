@@ -1,4 +1,5 @@
 #include "../Shell/include/shellMain.h"
-int main(int argc, char*argv[]) {
+int main() {
     return shell();
+
 }

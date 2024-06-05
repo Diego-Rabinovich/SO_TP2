@@ -1,7 +1,6 @@
 include ../Makefile.inc
 
 MODULE=0000-userCode.bin
-MODULE_ELF=0000-userCode.elf
 SOURCES=$(wildcard [^_]*.c)
 SOURCES_ASM=$(wildcard asm/[^_]*.asm)
 SOURCES_SHELL=$(wildcard ../Shell/[^_]*.c)
@@ -14,12 +13,11 @@ all: $(MODULE)
 
 $(MODULE): $(SOURCES) $(OBJECTS_ASM) $(SOURCES_SHELL) $(SOURCES_GRAPHICS) $(SOURCES_SNAKE) $(SOURCES_MATH)
 	$(GCC) $(GCCFLAGS) -T user.ld _loader.c $(SOURCES) $(SOURCES_SHELL) $(SOURCES_GRAPHICS) $(SOURCES_SNAKE) $(SOURCES_MATH) $(OBJECTS_ASM) -o ../$(MODULE)
-	$(GCC) $(GCCFLAGS) -T user.ld _loader.c -Wl,--oformat=elf64-x86-64 $(SOURCES) $(SOURCES_SHELL) $(SOURCES_GRAPHICS) $(SOURCES_SNAKE) $(SOURCES_MATH) $(OBJECTS_ASM) -o ../$(MODULE_ELF)
 
 %.o : %.asm
 	$(ASM) $(ASMFLAGS) $< -o $@
 
 clean:
-	rm -rf asm/*.o *.o *.bin *.elf
+	rm -rf asm/*.o *.o *.bin
 
 .PHONY: all clean print

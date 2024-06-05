@@ -8,6 +8,7 @@ int strCmp(const char* s1,const char* s2);
 void copyStr(const char * origin, char * destiny, int n);
 int strLen(const char * s);
 int isPrefix(const char * s1, const char * s2, int n);
+int stringToInt(char * str);
 int getRandFromRange (int start, int end);
 void print(char* str, uint32_t fontHexColor, uint32_t fontSize);
 unsigned int concatenate_bits(unsigned char c1, unsigned char c2);

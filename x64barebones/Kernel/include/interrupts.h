@@ -8,7 +8,7 @@
 #ifndef INTERRUPS_H_
 #define INTERRUPS_H_
 
-#include "idtLoader.h"
+#include <idtLoader.h>
 
 void _irq00Handler(void);
 void _irq01Handler(void);
@@ -33,7 +33,7 @@ void picSlaveMask(uint8_t mask);
 
 // Termina la ejecución de la cpu.
 void haltcpu(void);
-void loadUserContext(void *contextToLoad);
+void loadUserContext();
 void scheduler_handler(void);
 void *create_sf(void *run_process, void *rip, void *rsp, void *args, int argc);
 

@@ -56,6 +56,10 @@ cpuGetTime:
 	pop rbp
 	ret
 
+callTimerTick:
+    int 20h
+    ret
+
 getKeyPress:
 	enter 0,0
 
@@ -88,5 +92,4 @@ timeStruct:
     min resb 4
     sec resb 4
 
-callTimerTick:
-    int 20h
+
