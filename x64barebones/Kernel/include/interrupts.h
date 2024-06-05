@@ -33,7 +33,7 @@ void picSlaveMask(uint8_t mask);
 
 // Termina la ejecución de la cpu.
 void haltcpu(void);
-void loadUserContext(void *contextToLoad);
+void loadUserContext();
 void scheduler_handler(void);
 void *create_sf(void *run_process, void *rip, void *rsp, void *args, int argc);
 
