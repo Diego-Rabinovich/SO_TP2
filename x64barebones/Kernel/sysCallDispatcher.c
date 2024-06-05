@@ -9,7 +9,6 @@
 #include "include/interrupts.h"
 #include "include/memoryManager.h"
 #include "include/scheduler.h"
-#include "include/infoStructs.h"
 
 int read(uint64_t fd, char *buf, uint64_t count);
 

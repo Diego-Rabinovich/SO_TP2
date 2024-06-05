@@ -64,12 +64,17 @@ void startUpMusic(){
     beep(880,500);
 }
 
-void trivial(int argc, char **args){
-    char * args[] = {NULL};
-    createProcess(userCodeAddress, args, "user", 0);
+int trivial(int argc, char **args){
+    char * argv[] = {NULL};
+    drawChar('w', 10);
+    createProcess(userCodeAddress, argv, "user", 0);
+    drawChar('D', 10);
     while (1) {
+        drawChar('b', 1);
         _hlt();
+        callTimerTick();
     }
+    return 0;
 }
 
 int main(){
@@ -77,6 +82,7 @@ int main(){
     resetScreen();
     char * args[] = {NULL};
     createProcess(&trivial, args, "TRIVIAL", 0);
+    drawChar('a', 1);
     load_idt();
     return 0;
 }

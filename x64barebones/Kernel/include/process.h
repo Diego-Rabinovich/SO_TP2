@@ -19,9 +19,10 @@ typedef struct PCB {
 
   uint8_t priority;
   PState p_state;
-
+  uint8_t isFg;
   int16_t fds[DEFAULT_FDS];
   int32_t ret;
+
 } PCB;
 
 void initializeProcess(PCB *process, uint16_t pid, uint16_t parent_pid,

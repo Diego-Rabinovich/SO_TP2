@@ -36,9 +36,9 @@ void initializeProcess(PCB *process_pcb, uint16_t pid, uint16_t parent_pid,
     total_args_len += args_len[i];
   }
 
-  char **args_array =
-      (char **)memAlloc(total_args_len + sizeof(char **) * (argc + 1));
-  char *start_ptr = (char *)args_array + (sizeof(char **) * (argc + 1));
+  int size = sizeof(char **) * (argc + 1);
+  char ** args_array = (char **)memAlloc(total_args_len + size);
+  char * start_ptr = (char *)args_array +  size;
 
   for (int i = 0; i < argc; i++) {
     args_array[i] = start_ptr;
@@ -50,8 +50,7 @@ void initializeProcess(PCB *process_pcb, uint16_t pid, uint16_t parent_pid,
   process_pcb->argv[argc] = NULL;
 
   process_pcb->rsb = memAlloc(P_STACK_SIZE);
-  process_pcb->rsp =
-      create_sf(&runProcess, main_func,
+  process_pcb->rsp = create_sf(&runProcess, main_func,
                 (void *)((uint64_t)process_pcb->rsb + P_STACK_SIZE),
                 (void *)process_pcb->argv, argc);
 }
@@ -64,7 +63,7 @@ void freeProcess(PCB *process_pcb) {
 }
 
 int isWaiting(PCB *pcb, uint16_t pid_to_wait) {
-  return pcb->waiting_pid == pid_to_wait && pcb->p_state == BLOCKED;
+  return pcb->waiting_pid == pid_to_wait;
 }
 
 ProcessInfo *loadInfo(ProcessInfo *info, PCB *pcb){

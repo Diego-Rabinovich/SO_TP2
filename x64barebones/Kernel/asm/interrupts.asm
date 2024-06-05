@@ -146,7 +146,7 @@ SECTION .text
 	mov rdi, %1 ; pasaje de parametro
 	call exceptionDispatcher
 	popState
-    call loadUserContext
+    iretq
 %endmacro
 
 
@@ -186,7 +186,7 @@ picSlaveMask:
 ;8254 Timer (Timer Tick)
 _irq00Handler:
 	pushState
-	mav rdi, 0h
+	mov rdi, 0h
 	call irqDispatcher
     mov rdi, rsp
     call schedule
@@ -288,7 +288,7 @@ create_sf:
 	mov rsp, rdx
 	mov rbp, rdx
 	push 0x0
-	push rdx
+	push rbp
 	push 0x202
 	push 0x8
 	push rdi

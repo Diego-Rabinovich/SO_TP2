@@ -10,6 +10,7 @@ GLOBAL sys_hardRead
 GLOBAL sys_beep
 GLOBAL sys_malloc
 GLOBAL sys_free
+GLOBAL sys_fork
 GLOBAL sys_memset
 GLOBAL make_invalid_opCode
 
