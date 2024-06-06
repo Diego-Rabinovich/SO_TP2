@@ -62,7 +62,7 @@ void freeProcess(PCB *process_pcb) {
     memFree(process_pcb);
 }
 
-int isWaiting(PCB *pcb, uint16_t pid_to_wait) {
+int isWaiting(PCB *pcb, int16_t pid_to_wait) {
   return pcb->waiting_pid == pid_to_wait;
 }
 

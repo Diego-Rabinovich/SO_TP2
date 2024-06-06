@@ -1,12 +1,12 @@
-GLOBAL sys_read
-GLOBAL sys_write
+GLOBAL sys_read ;bloqueante
+GLOBAL sys_write ;bloqueante
 GLOBAL sys_paintPixel
 GLOBAL sys_getScreenDimensions
 GLOBAL sys_getCpuTime
 GLOBAL sys_resetCursor
 GLOBAL sys_blankArea
-GLOBAL sys_waitNMillis
-GLOBAL sys_hardRead
+GLOBAL sys_waitNMillis ;bloqueante
+GLOBAL sys_hardRead ;AFUERAAAAAAAAAA
 GLOBAL sys_beep
 GLOBAL sys_malloc
 GLOBAL sys_free
@@ -18,6 +18,7 @@ GLOBAL sys_unblock
 GLOBAL sys_nice
 GLOBAL sys_pid
 GLOBAL sys_yield
+GLOBAL sys_wait_pid
 GLOBAL make_invalid_opCode
 
 section .text
@@ -120,6 +121,11 @@ sys_yield:
      mov rax, 19
      int 80h
      ret
+
+sys_wait_pid:
+    mov rax, 20
+    int 80h
+    ret
 
 make_invalid_opCode:
     ud2

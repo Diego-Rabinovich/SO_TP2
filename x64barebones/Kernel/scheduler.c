@@ -172,8 +172,9 @@ int32_t kill(uint16_t pid, int32_t ret){
 	Node *parent_node = scheduler.processes[to_kill_pcb->parent_pid];
 	if (parent_node != NULL) {
 		PCB *parent_pcb = (PCB *) parent_node->data;
-		if (isWaiting(parent_pcb, to_kill_pcb->pid)) {
+		if (isWaiting(parent_pcb, to_kill_pcb->pid)|| isWaiting(parent_pcb,-1)) {
             setState(to_kill_pcb->parent_pid, READY);
+            ((PCB*)parent_node->data)->ret=ret;
         }
 	}
 
@@ -216,4 +217,10 @@ void yield(){
 
 void killFG(){
     kill(scheduler.fg_pid, -1);
+}
+
+uint64_t waitPid(int16_t pid){
+    ((PCB *)scheduler.processes[scheduler.running_pid]->data)->waiting_pid=pid;
+    setState(scheduler.running_pid,BLOCKED);
+    return ((PCB*)scheduler.processes[scheduler.running_pid]->data)->ret;
 }

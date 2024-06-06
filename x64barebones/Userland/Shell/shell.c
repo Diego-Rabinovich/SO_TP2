@@ -253,17 +253,49 @@ char startCommand() {
 
         return 0;
     }
+    else if(strCmp(arguments[0], C_MEM) == 0 ){
+        return 0;
+    }
+    else if(strCmp(arguments[0],C_PS ) == 0 ){
+        return 0;
+    }
+    else if(strCmp(arguments[0], C_LOOP) == 0 ){
+        return 0;
+    }
+    else if(strCmp(arguments[0], C_KILL) == 0 ){
+        return 0;
+    }
+    else if(strCmp(arguments[0], C_NICE) == 0 ){
+        return 0;
+    }
+    else if(strCmp(arguments[0], C_BLOCK) == 0 ){
+        return 0;
+    }
+    else if(strCmp(arguments[0], C_CAT) == 0 ){
+        return 0;
+    }
+    else if(strCmp(arguments[0], C_WC) == 0 ){
+        return 0;
+    }
+    else if(strCmp(arguments[0],C_FILTER ) == 0 ){
+        return 0;
+    }
+    else if(strCmp(arguments[0], C_PHYLO) == 0 ){
+        return 0;
+    }
 
     else if (strCmp(arguments[0], C_TEST) == 0 && argsCount > 1){
         if (strCmp(arguments[1], "mm") == 0 && argsCount > 2){
             int m_requested;
             strToInt(arguments[2], &m_requested);
             if (m_requested > 0 && m_requested <= 128){
-                char * args[1];
+                char * args[1]={0};
                 uintToBase(m_requested*1024*1024, args[0], 10);
                 print("\nnow allocating: ", 0xffffff, 2);
                 print(args[0], 0xffffff, 2);
-                test_mm(1, args);
+                char *argsAux[2]={args[0],0};
+                int16_t pid=sys_fork((Main) test_mm,argsAux,"test_mm",3);
+                sys_wait_pid(pid);
             } else {
                 print("\nThe requested memory space must be between 1MB and 128MB", 0xff0000, 2);
             }
@@ -272,14 +304,17 @@ char startCommand() {
             int p_requested;
             strToInt(arguments[2], &p_requested);
             if (p_requested > 0 && p_requested <= 4000) {
-                char * args[1] = {arguments[2]};
-                test_processes(1, args);
+                char * argsAux[2] = {arguments[2],0};
+                int16_t pid=sys_fork((Main) test_processes,argsAux,"test_ps",3);
+                sys_wait_pid(pid);
             } else {
                 print("\nThe requested max processes must be between 1 and 4000", 0xff0000, 2);
             }
         }
         else if (strCmp(arguments[1], "priority") == 0) {
-                test_prio();
+            char * argsNull[]={0};
+            int16_t pid=sys_fork((Main)test_prio,argsNull,"test_prio",3);
+            sys_wait_pid(pid);
         }
         else {
             print("\nBad arguments, run <help test> for more info", 0xff0000, 2);

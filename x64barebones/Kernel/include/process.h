@@ -9,7 +9,7 @@
 typedef struct PCB {
   uint16_t pid;
   uint16_t parent_pid;
-  uint16_t waiting_pid;
+  int16_t waiting_pid;
 
   void *rsb;
   void *rsp;
@@ -31,7 +31,7 @@ void initializeProcess(PCB *process, uint16_t pid, uint16_t parent_pid,
 
 void freeProcess(PCB *pcb);
 
-int isWaiting(PCB *pcb, uint16_t pid_to_wait);
+int isWaiting(PCB *pcb, int16_t pid_to_wait);
 
 ProcessInfo *loadInfo(ProcessInfo *info, PCB *pcb);
 

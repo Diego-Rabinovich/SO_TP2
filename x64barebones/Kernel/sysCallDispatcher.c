@@ -76,6 +76,8 @@ uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t
         case 19:
             yield();
             return RAX;
+        case 20:
+            return waitPid(arg0);
         default:
             return -1;
     }
