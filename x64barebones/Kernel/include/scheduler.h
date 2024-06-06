@@ -13,7 +13,7 @@ PState getPState(uint16_t pid);
 int32_t setPriority(uint16_t pid, uint8_t new_prio);
 uint8_t setState(uint16_t pid, uint8_t new_state);
 ProcessInfoArray *getProcessArray();
-int32_t isAlive(uint16_t pid);
+void * schedule(void* last_rsp);
 void yield();
 int8_t changeFD(uint16_t pid, uint8_t fd_idx, int16_t new_fd);
 int16_t getFD(uint8_t fd_idx);

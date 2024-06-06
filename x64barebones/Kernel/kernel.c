@@ -66,23 +66,24 @@ void startUpMusic(){
 
 int trivial(int argc, char **args){
     char * argv[] = {NULL};
-    drawChar('w', 10);
     createProcess(userCodeAddress, argv, "user", 0);
-    drawChar('D', 10);
+    // callTimerTick();
     while (1) {
-        drawChar('b', 1);
+        //drawChar('B', 4);
         _hlt();
-        callTimerTick();
     }
     return 0;
 }
 
+
+
 int main(){
     //startUpMusic();
     resetScreen();
+    schedulerInit();
     char * args[] = {NULL};
-    createProcess(&trivial, args, "TRIVIAL", 0);
-    drawChar('a', 1);
+    createProcess(trivial, args, "TRIVIAL", 0);
     load_idt();
+    callTimerTick();
     return 0;
 }

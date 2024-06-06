@@ -3,7 +3,6 @@
 #include "include/memoryManager.h"
 #include "include/linkedList.h"
 #include "include/lib.h"
-#include "include/videoDriver.h"
 #define TRIVIAL_PID 0
 #define QTY_PRIORITIES 4
 #define MAX_PROCESSES 4096
@@ -16,7 +15,7 @@ typedef struct Scheluler
 	uint16_t next_pid;
 	uint16_t process_count;
     uint16_t fg_pid;
-	uint8_t remaining_rounds;
+	int8_t remaining_rounds;
 } Scheduler;
 
 Scheduler scheduler;
@@ -28,6 +27,8 @@ void schedulerInit(){
     scheduler.ready_processes = createLinkedList();
     scheduler.next_pid = 0;
     scheduler.fg_pid = 0;
+    scheduler.remaining_rounds = 0;
+    scheduler.running_pid = 0;
 }
 
 /**
@@ -40,12 +41,12 @@ static void setNextPID(){
 }
 
 static uint16_t getNextReadyProcess(){
-    PCB *pcb = NULL;
-    pcb = (PCB *)((Node *) listNext(scheduler.ready_processes))->data;
-	if (pcb == NULL) {
+    startIterator(scheduler.ready_processes);
+    Node * node =  ((Node *) listNext(scheduler.ready_processes));
+	if (node == NULL) {
         return TRIVIAL_PID;
     }
-    return pcb->pid;
+    return ((PCB *)node->data)->pid;
 }
 
 int32_t setPriority(uint16_t pid, uint8_t new_prio){
@@ -64,7 +65,6 @@ uint8_t setState(uint16_t pid, uint8_t new_state) {
         return -1;
     }
     PCB *pcb = (PCB *) node->data;
-	PState old_state = pcb->p_state;
 	if (new_state == pcb->p_state){
 		return new_state;
     }
@@ -90,22 +90,35 @@ PState getPState(uint16_t pid){
 }
 
 void* schedule(void* last_rsp) {
+    static int first_round = 1;
     scheduler.remaining_rounds--;
     Node * running = scheduler.processes[scheduler.running_pid];
     if (scheduler.remaining_rounds > 0 && running!=NULL){
         return last_rsp;
     }
-    if(((PCB *)running->data)->p_state == RUNNING){
-        ((PCB *)running->data)->priority--;
+    if(((PCB *)running->data)->p_state == RUNNING && scheduler.running_pid != TRIVIAL_PID){
+        if(((PCB *)running->data)->priority > 0){
+            ((PCB *)running->data)->priority--;
+        }
         ((PCB *)running->data)->p_state = READY;
+        remove(scheduler.ready_processes, running);
+        queue(scheduler.ready_processes, running);
     }
+
     uint16_t new_PID = getNextReadyProcess();
-    scheduler.remaining_rounds = ((PCB *) scheduler.processes[new_PID]->data)->priority + 1;
-    return ((PCB *)scheduler.processes[new_PID]->data)->rsp;
+    PCB * new_P = scheduler.processes[new_PID]->data;
+    scheduler.remaining_rounds = new_P->priority + 1;
+    if(!first_round){
+        ((PCB *)running->data)->rsp = last_rsp;
+    } else{
+        first_round = 0;
+    }
+    new_P->p_state = RUNNING;
+    scheduler.running_pid = new_PID;
+    return new_P->rsp;
 }
 
-uint16_t createProcess(Main main_func, char **args, char *name,
-    uint8_t priority) { //int16_t fds[]
+uint16_t createProcess(Main main_func, char **args, char *name, uint8_t priority) { //int16_t fds[]
     if (scheduler.process_count >= MAX_PROCESSES || main_func == NULL || priority < 0 || priority > 3 ){ // fds == NULL
         return -1;
     }
@@ -118,6 +131,7 @@ uint16_t createProcess(Main main_func, char **args, char *name,
 
     if (pcb->pid != TRIVIAL_PID){
         queue(scheduler.ready_processes,  process_node);
+        pcb->p_state = READY;
     }
 
 	scheduler.processes[pcb->pid] = process_node;

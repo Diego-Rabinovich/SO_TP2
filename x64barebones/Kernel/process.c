@@ -16,7 +16,7 @@ void initializeProcess(PCB *process_pcb, uint16_t pid, uint16_t parent_pid,
   process_pcb->pid = pid;
   process_pcb->parent_pid = parent_pid;
   process_pcb->priority = priority;
-  int name_len = strLen(name + 1);
+  int name_len = strLen(name)+1;
   process_pcb->name = memAlloc(name_len);
   memcpy(process_pcb->name, name, name_len);
   process_pcb->waiting_pid = 0;
@@ -50,7 +50,7 @@ void initializeProcess(PCB *process_pcb, uint16_t pid, uint16_t parent_pid,
   process_pcb->argv[argc] = NULL;
 
   process_pcb->rsb = memAlloc(P_STACK_SIZE);
-  process_pcb->rsp = create_sf(&runProcess, main_func,
+  process_pcb->rsp = create_sf(runProcess, main_func,
                 (void *)((uint64_t)process_pcb->rsb + P_STACK_SIZE),
                 (void *)process_pcb->argv, argc);
 }
