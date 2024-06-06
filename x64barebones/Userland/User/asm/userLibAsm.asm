@@ -12,6 +12,9 @@ GLOBAL sys_malloc
 GLOBAL sys_free
 GLOBAL sys_fork
 GLOBAL sys_memset
+GLOBAL sys_kill
+GLOBAL sys_block
+GLOBAL sys_unblock
 GLOBAL make_invalid_opCode
 
 section .text
@@ -82,6 +85,21 @@ sys_memset:
 
 sys_fork:
     mov rax, 13
+    int 80h
+    ret
+
+sys_kill:
+    mov rax, 14
+    int 80h
+    ret
+
+sys_block:
+    mov rax, 15
+    int 80h
+    ret
+
+sys_unblock:
+    mov rax, 16
     int 80h
     ret
 

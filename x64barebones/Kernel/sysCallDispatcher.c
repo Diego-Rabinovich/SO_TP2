@@ -63,6 +63,12 @@ uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t
             return RAX;
         case 13:
             return createProcess((Main) arg0, (char**) arg1, (char*) arg2, (uint8_t) arg3);
+        case 14:
+            return kill(arg0, -1);
+        case 15:
+            return setState(arg0, BLOCKED);
+        case 16:
+            return setState(arg0, READY);
         default:
             return -1;
     }

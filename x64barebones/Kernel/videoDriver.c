@@ -1,8 +1,8 @@
 #include "include/videoDriver.h"
-
+#include "include/lib.h"
 #define SCREEN_DIR 0x0000000000005C00
 void cursorDown(uint32_t fontSize);
-void lineUp(int y, uint32_t fontSize);
+void lineUp(int y, uint32_t blockSize,uint32_t fontSize);
 
 //region struct_mode_info
 struct vbe_mode_info_structure {
@@ -318,32 +318,31 @@ void resetScreen(){
     blankArea(0, X_FULLSIZE, 0, Y_FULLSIZE, 0);
 }
 
-void scrollDown(uint32_t fontSize){
-    int y;
-    for ( y = Y_START_OFFSET; y < Y_LIMIT - (fontSize*8); y++){
-        lineUp(y, fontSize);
-    }
-    blankArea(X_START_OFFSET, X_LIMIT, y, Y_LIMIT, 0);
+void scrollDown(uint32_t fontSize) {
+    int blockSize = fontSize * 8;  // Tamaño de bloque en píxeles
+    lineUp(Y_START_OFFSET, Y_LIMIT, blockSize);
+    blankArea(X_START_OFFSET, X_LIMIT, Y_LIMIT - blockSize, Y_LIMIT, 0);
 }
 
-void blankArea(int x0, int xf, int y0, int yf,  uint32_t hexColor){
-    for (int i = x0; i <= xf; i++){
-        for (int j =  y0; j <= yf; j++){
-            putPixel(hexColor, i, j);
-        }
-    }
+void blankArea(int x0, int xf, int y0, int yf, uint32_t hexColor) {
+    int width = xf - x0 + 1;
+    int height = yf - y0 + 1;
+    uint64_t total_bytes = width * height * (VBE_mode_info->bpp / 8);
+    uint8_t *framebuffer = (uint8_t *)VBE_mode_info->framebuffer;
+    uint64_t area_offset = (y0 * VBE_mode_info->pitch) + (x0 * (VBE_mode_info->bpp / 8));
+    memset(&framebuffer[area_offset], hexColor, total_bytes+104*1024);
 }
 
-//sube la linea proxima a la altura de la actual
-void lineUp(int y, uint32_t fontSize){
-    for (int x = X_START_OFFSET; x <= X_LIMIT; x++){
-        uint8_t * framebuffer = (uint8_t *) VBE_mode_info->framebuffer;
-        uint64_t next_offset = (x * ((VBE_mode_info->bpp)/8)) + ((y + fontSize*8+2) * VBE_mode_info->pitch);
-        uint64_t actual_offset = (x * ((VBE_mode_info->bpp)/8)) + (y * VBE_mode_info->pitch);
-        framebuffer[actual_offset]     =  framebuffer[next_offset];
-        framebuffer[actual_offset+1]   =  framebuffer[next_offset+1];
-        framebuffer[actual_offset+2]   =  framebuffer[next_offset+2];
-    }
+void lineUp(int y_start, uint32_t y_end, uint32_t blockSize) {
+    uint8_t *framebuffer = (uint8_t *) VBE_mode_info->framebuffer;
+    int pitch = VBE_mode_info->pitch;
+
+    uint32_t total_lines = y_end - y_start - blockSize;
+    uint32_t block_size_bytes = total_lines * pitch;
+
+    uint64_t source_offset = (y_start + blockSize) * pitch;
+    uint64_t dest_offset = y_start * pitch;
+    memcpy(&framebuffer[dest_offset], &framebuffer[source_offset], block_size_bytes);
 }
 
 CURSOR savedCursor = {0, 0};

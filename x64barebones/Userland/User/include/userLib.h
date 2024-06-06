@@ -12,6 +12,7 @@ int getRandFromRange (int start, int end);
 void print(char* str, uint32_t fontHexColor, uint32_t fontSize);
 unsigned int concatenate_bits(unsigned char c1, unsigned char c2);
 int rgbToInt(char red, char green, char blue);
+typedef int (*Main)(int argc, char **args);
 
 
 #define NOT_USABLE 0

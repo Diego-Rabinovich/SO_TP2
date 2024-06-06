@@ -258,16 +258,27 @@ char startCommand() {
         if (strCmp(arguments[1], "mm") == 0 && argsCount > 2){
             int m_requested;
             strToInt(arguments[2], &m_requested);
-            if (m_requested > 0 && m_requested < 128){
+            if (m_requested > 0 && m_requested <= 128){
                 char * args[1];
                 uintToBase(m_requested*1024*1024, args[0], 10);
                 print("\nnow allocating: ", 0xffffff, 2);
                 print(args[0], 0xffffff, 2);
                 test_mm(1, args);
             } else {
-                print("\nThe requested memory space must be between 0MB and 128MB", 0xff0000, 2);
+                print("\nThe requested memory space must be between 1MB and 128MB", 0xff0000, 2);
             }
-        } else {
+        }
+        else if (strCmp(arguments[1], "processes") == 0 && argsCount > 2) {
+            int p_requested;
+            strToInt(arguments[2], &p_requested);
+            if (p_requested > 0 && p_requested <= 4000) {
+                char * args[1] = {arguments[2]};
+                test_processes(1, args);
+            } else {
+                print("\nThe requested max processes must be between 1 and 4000", 0xff0000, 2);
+            }
+        }
+        else {
             print("\nBad arguments, run <help test> for more info", 0xff0000, 2);
         }
     }

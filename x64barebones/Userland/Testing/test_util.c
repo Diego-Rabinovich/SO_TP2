@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "syscall.h"
+#include "../User/include/userLib.h"
 
 // Random
 static uint32_t m_z = 362436069;
@@ -65,10 +66,11 @@ void endless_loop() {
 }
 
 void endless_loop_print(uint64_t wait) {
-  int64_t pid = my_getpid();
-
+  int64_t pid = my_getpid(); //TODO: syscall
   while (1) {
-//    printf("%d ", pid);
-    bussy_wait(wait);
+      char pid_str[5];
+      uintToBase(pid, pid_str, 10);
+      print(pid_str, 0xffffff, 2);
+      bussy_wait(wait);
   }
 }

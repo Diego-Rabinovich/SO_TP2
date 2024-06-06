@@ -25,4 +25,7 @@ void sys_free( void *  ptr);
 void sys_memset(void * dest, char character, uint64_t length);
 uint16_t sys_fork(Main main_func, char** args, char* name, uint8_t priority);
 void make_invalid_opCode();
+int32_t sys_kill(uint16_t pid);
+int32_t sys_block(uint16_t pid);
+int32_t sys_unblock(uint16_t pid);
 #endif //TPEARQUI_USERLIBASM_H
