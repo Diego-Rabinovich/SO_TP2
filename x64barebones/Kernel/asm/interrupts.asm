@@ -293,7 +293,7 @@ create_sf:
 	push 0x8
 	push rdi
 	mov rdi, rsi
-	mov rsi, r10
+	mov rsi, rcx
 	mov rdx, r8
 	pushState
 	mov rax, rsp

@@ -47,7 +47,7 @@ void * initializeKernelBinary()
     loadModules(&endOfKernelBinary, moduleAddresses);
 
     clearBSS(&bss, &endOfKernel - &bss);
-    memInit((void *) 0x600000, 128*1024*1024); //Le damos 128MB
+    memInit((void *) 0x600000, 256*1024*1024); //Le damos 256MB
 
     return getStackBase();
 }

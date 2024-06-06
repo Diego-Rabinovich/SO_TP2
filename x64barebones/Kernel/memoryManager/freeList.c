@@ -1,5 +1,5 @@
 #include "../include/memoryManager.h"
-#define MIN_BLOCK_SIZE 4096
+#define MIN_BLOCK_SIZE 128
 
 typedef struct Node{
     unsigned long long size;

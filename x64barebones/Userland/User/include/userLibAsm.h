@@ -30,4 +30,5 @@ int32_t sys_block(uint16_t pid);
 int32_t sys_unblock(uint16_t pid);
 int32_t sys_nice(uint16_t pid, uint8_t new_prio);
 int32_t sys_pid();
+void sys_yield();
 #endif //TPEARQUI_USERLIBASM_H

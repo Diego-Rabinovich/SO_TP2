@@ -17,6 +17,7 @@ GLOBAL sys_block
 GLOBAL sys_unblock
 GLOBAL sys_nice
 GLOBAL sys_pid
+GLOBAL sys_yield
 GLOBAL make_invalid_opCode
 
 section .text
@@ -114,6 +115,11 @@ sys_pid:
     mov rax, 18
     int 80h
     ret
+
+sys_yield:
+     mov rax, 19
+     int 80h
+     ret
 
 make_invalid_opCode:
     ud2

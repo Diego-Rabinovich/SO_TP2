@@ -2,7 +2,6 @@
 #include "include/process.h"
 #include "include/memoryManager.h"
 #include "include/linkedList.h"
-#include "include/videoDriver.h"
 #include "include/lib.h"
 #define TRIVIAL_PID 0
 #define QTY_PRIORITIES 4
@@ -36,6 +35,7 @@ void schedulerInit(){
  * Sets next_pid to the first null of the process array
  */
 static void setNextPID(){
+    scheduler.next_pid=0;
     while (scheduler.processes[scheduler.next_pid] != NULL){
         scheduler.next_pid = (scheduler.next_pid + 1) % MAX_PROCESSES;
     }
@@ -92,12 +92,12 @@ PState getPState(uint16_t pid){
 
 void* schedule(void* last_rsp) {
     static int first_round = 1;
-    scheduler.remaining_rounds--;
     Node * running = scheduler.processes[scheduler.running_pid];
     if (scheduler.remaining_rounds > 0 && running!=NULL){
+        scheduler.remaining_rounds--;
         return last_rsp;
     }
-    if(((PCB *)running->data)->p_state == RUNNING && scheduler.running_pid != TRIVIAL_PID){
+    if( running!=NULL && ((PCB *)running->data)->p_state == RUNNING && scheduler.running_pid != TRIVIAL_PID){
         if(((PCB *)running->data)->priority > 0){
             ((PCB *)running->data)->priority--;
         }
@@ -109,10 +109,16 @@ void* schedule(void* last_rsp) {
     uint16_t new_PID = getNextReadyProcess();
     PCB * new_P = scheduler.processes[new_PID]->data;
     scheduler.remaining_rounds = new_P->priority + 1;
-    if(!first_round){
+    if(!first_round && running!=NULL){
         ((PCB *)running->data)->rsp = last_rsp;
     } else{
         first_round = 0;
+    }
+    if(running!=NULL && ((PCB *)running->data)->p_state==TERMINATED){
+        scheduler.processes[((PCB *)running->data)->pid]=NULL;
+        freeProcess(running->data);
+        memFree(running);
+        scheduler.process_count--;
     }
     new_P->p_state = RUNNING;
     scheduler.running_pid = new_PID;
@@ -170,6 +176,9 @@ int32_t kill(uint16_t pid, int32_t ret){
             setState(to_kill_pcb->parent_pid, READY);
         }
 	}
+
+    scheduler.processes[pid]=NULL;
+
 
 	if (pid == scheduler.running_pid){
 		yield();

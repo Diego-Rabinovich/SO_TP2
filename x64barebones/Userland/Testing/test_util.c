@@ -75,6 +75,7 @@ int endless_loop_print(int argc, char * argv[]) {
       char pid_str[5];
       uintToBase(pid, pid_str, 10);
       print(pid_str, 0xffffff, 2);
+//      print("\n",0xffffff,2);
       bussy_wait(wait);
   }
 }
