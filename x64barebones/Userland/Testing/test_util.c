@@ -65,8 +65,12 @@ void endless_loop() {
     ;
 }
 
-void endless_loop_print(uint64_t wait) {
-  int64_t pid = my_getpid(); //TODO: syscall
+int endless_loop_print(int argc, char * argv[]) {
+  int64_t pid = sys_pid(); //TODO: syscall
+  int wait = 0;
+  if (argc > 0){
+      strToInt(argv[0], &wait);
+  }
   while (1) {
       char pid_str[5];
       uintToBase(pid, pid_str, 10);

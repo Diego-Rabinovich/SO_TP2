@@ -1,6 +1,7 @@
 include Makefile.inc
 
 KERNEL=kernel.bin
+#KERNEL_ELF=kernel.elf
 SOURCES=$(wildcard *.c)
 MMFL=memoryManager/freeList.c
 MMBD=memoryManager/buddy.c

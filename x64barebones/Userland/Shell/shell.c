@@ -278,6 +278,9 @@ char startCommand() {
                 print("\nThe requested max processes must be between 1 and 4000", 0xff0000, 2);
             }
         }
+        else if (strCmp(arguments[1], "priority") == 0) {
+                test_prio();
+        }
         else {
             print("\nBad arguments, run <help test> for more info", 0xff0000, 2);
         }

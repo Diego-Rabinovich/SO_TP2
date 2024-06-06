@@ -69,6 +69,10 @@ uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t
             return setState(arg0, BLOCKED);
         case 16:
             return setState(arg0, READY);
+        case 17:
+            return setPriority(arg0, arg1);
+        case 18:
+            return getPid();
         default:
             return -1;
     }

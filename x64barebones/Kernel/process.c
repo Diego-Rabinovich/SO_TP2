@@ -2,10 +2,15 @@
 #include "include/interrupts.h"
 #include "include/lib.h"
 #include "include/memoryManager.h"
+#include "include/videoDriver.h"
 #include "include/scheduler.h"
 #define P_STACK_SIZE 4096
 
 void runProcess(Main main_func, char **args, int argc) {
+    for (int i = 0 ; i < argc; i++){
+        drawString(args[0], 100, 2);
+        drawString("\n", 5, 2);
+    }
   int32_t ret = main_func(argc, args);
   killCurrent(ret);
 }
@@ -53,6 +58,9 @@ void initializeProcess(PCB *process_pcb, uint16_t pid, uint16_t parent_pid,
   process_pcb->rsp = create_sf(runProcess, main_func,
                 (void *)((uint64_t)process_pcb->rsb + P_STACK_SIZE),
                 (void *)process_pcb->argv, argc);
+  char v[100];
+    uintToBase((uint64_t)process_pcb->argv, v, 16);
+    drawString(v, 100, 2);
 }
 
 void freeProcess(PCB *process_pcb) {

@@ -2,6 +2,7 @@
 #include "include/process.h"
 #include "include/memoryManager.h"
 #include "include/linkedList.h"
+#include "include/videoDriver.h"
 #include "include/lib.h"
 #define TRIVIAL_PID 0
 #define QTY_PRIORITIES 4

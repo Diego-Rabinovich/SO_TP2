@@ -15,6 +15,8 @@ GLOBAL sys_memset
 GLOBAL sys_kill
 GLOBAL sys_block
 GLOBAL sys_unblock
+GLOBAL sys_nice
+GLOBAL sys_pid
 GLOBAL make_invalid_opCode
 
 section .text
@@ -100,6 +102,16 @@ sys_block:
 
 sys_unblock:
     mov rax, 16
+    int 80h
+    ret
+
+sys_nice:
+    mov rax, 17
+    int 80h
+    ret
+
+sys_pid:
+    mov rax, 18
     int 80h
     ret
 

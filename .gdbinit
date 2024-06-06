@@ -1,4 +1,4 @@
-target remote 172.17.0.1:1234
+target remote  host.docker.internal:1234
 add-symbol-file x64barebones/Kernel/kernel.elf 0x100000
 add-symbol-file x64barebones/Userland/0000-userCode.elf 0x400000
 
