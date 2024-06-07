@@ -141,12 +141,13 @@ uint16_t createProcess(Main main_func, char **args, char *name, uint8_t priority
     process_node = memAlloc(sizeof(Node));
     process_node->data = (void *) pcb;
 
-    PCB * parent_pcb = (PCB *)scheduler.processes[scheduler.running_pid]->data;
-    parent_pcb->children[parent_pcb->childrenCount++] = scheduler.next_pid;
+
 
     if (pcb->pid != TRIVIAL_PID){
         queue(scheduler.ready_processes,  process_node);
         pcb->p_state = READY;
+        PCB * parent_pcb = (PCB *)scheduler.processes[scheduler.running_pid]->data;
+        parent_pcb->children[parent_pcb->childrenCount++] = scheduler.next_pid;
     }
 
 	scheduler.processes[pcb->pid] = process_node;

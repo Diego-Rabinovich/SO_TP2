@@ -80,9 +80,6 @@ void * memAlloc(unsigned long bytes){
     if(bytes==0){
         return NULL;
     }
-    if(bytes<MIN_BLOCK_SIZE){
-        bytes=MIN_BLOCK_SIZE;
-    }
     Block* ptr = memAllocRec(bytes + sizeof(Block));
     if(ptr){
         return (void*)(ptr + sizeof(Block));

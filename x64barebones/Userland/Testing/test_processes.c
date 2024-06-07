@@ -85,6 +85,5 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
         }
     }
       print("No more processes alive\n", 0xffffff, 2);
-    return 0;
   }
 }
