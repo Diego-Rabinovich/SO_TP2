@@ -256,9 +256,12 @@ char startCommand() {
     else if(strCmp(arguments[0], C_MEM) == 0 ){
         return 0;
     }
+
     else if(strCmp(arguments[0],C_PS ) == 0 ){
-        return 0;
+        char * argsAux[1] = {0};
+        sys_wait_pid(sys_fork((Main) sys_ps, argsAux, "ps", 3));
     }
+
     else if(strCmp(arguments[0], C_LOOP) == 0 ){
         return 0;
     }

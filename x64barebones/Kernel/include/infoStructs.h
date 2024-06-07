@@ -1,5 +1,3 @@
-#define READ 0
-#define WRITE 1
 #include "lib.h"
 
 typedef enum PState {RUNNING, BLOCKED, READY, TERMINATED} PState;
@@ -21,8 +19,3 @@ typedef struct ProcessInfoArray {
 	uint16_t length;
 	ProcessInfo *array;
 } ProcessInfoArray;
-
-
-#define STDIN 0
-#define STDOUT 1
-#define STDERR 2

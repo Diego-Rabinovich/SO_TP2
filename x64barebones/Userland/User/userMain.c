@@ -5,6 +5,5 @@
 
 int main(int argc, char*argv[]) {
     char * args[] = {0x00000000};
-    sys_fork(shell, args , "shell", 3);
-    return 0;
+    return sys_wait_pid(sys_fork(shell, args , "sh", 3));
 }

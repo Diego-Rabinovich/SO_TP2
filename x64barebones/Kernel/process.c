@@ -22,7 +22,6 @@ void initializeProcess(PCB *process_pcb, uint16_t pid, uint16_t parent_pid,
   process_pcb->waiting_pid = 0;
   process_pcb->p_state = READY;
   process_pcb->ret = NULL;
-
   // TODO asignar fds
   // process_pcb->fds;
 
@@ -79,3 +78,4 @@ ProcessInfo *loadInfo(ProcessInfo *info, PCB *pcb){
     //info->fg = pcb->fds[STDIN] == STDIN;
     return info;
 }
+

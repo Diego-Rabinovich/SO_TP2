@@ -22,7 +22,7 @@ typedef struct PCB {
   uint8_t isFg;
   int16_t fds[DEFAULT_FDS];
   int32_t ret;
-
+  char eternal; // p is eternal if p cannot be killed
 } PCB;
 
 void initializeProcess(PCB *process, uint16_t pid, uint16_t parent_pid,

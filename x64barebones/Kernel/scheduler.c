@@ -35,7 +35,6 @@ void schedulerInit(){
  * Sets next_pid to the first null of the process array
  */
 static void setNextPID(){
-    scheduler.next_pid=0;
     while (scheduler.processes[scheduler.next_pid] != NULL){
         scheduler.next_pid = (scheduler.next_pid + 1) % MAX_PROCESSES;
     }
@@ -104,6 +103,8 @@ void* schedule(void* last_rsp) {
         ((PCB *)running->data)->p_state = READY;
         remove(scheduler.ready_processes, running);
         queue(scheduler.ready_processes, running);
+    } else if (running != NULL && scheduler.running_pid == TRIVIAL_PID){
+        ((PCB *)running->data)->p_state = READY;
     }
 
     uint16_t new_PID = getNextReadyProcess();
@@ -114,12 +115,12 @@ void* schedule(void* last_rsp) {
     } else{
         first_round = 0;
     }
-    if(running!=NULL && ((PCB *)running->data)->p_state==TERMINATED){
-        scheduler.processes[((PCB *)running->data)->pid]=NULL;
-        freeProcess(running->data);
-        memFree(running);
-        scheduler.process_count--;
-    }
+//    if(running!=NULL && ((PCB *)running->data)->p_state==TERMINATED){
+//        scheduler.processes[((PCB *)running->data)->pid]=NULL;
+//        freeProcess(running->data);
+//        memFree(running);
+//        scheduler.process_count--;
+//    }
     new_P->p_state = RUNNING;
     scheduler.running_pid = new_PID;
     return new_P->rsp;
@@ -153,7 +154,8 @@ int32_t killCurrent(int32_t ret){
 
 int32_t kill(uint16_t pid, int32_t ret){
     Node *to_kill_node = scheduler.processes[pid];
-	if (to_kill_node == NULL || pid == TRIVIAL_PID) {
+	if (to_kill_node == NULL || pid == TRIVIAL_PID || pid <= 2) {
+        //note that if pid <= 2 then p is either sh, user, or trivial
         return -1;
     }
 	PCB *to_kill_pcb = (PCB *) to_kill_node->data;
@@ -178,6 +180,9 @@ int32_t kill(uint16_t pid, int32_t ret){
         }
 	}
 
+    freeProcess(to_kill_pcb);
+    memFree(to_kill_node);
+    scheduler.process_count--;
     scheduler.processes[pid]=NULL;
 
 
@@ -216,7 +221,9 @@ void yield(){
 //TODO implementar con IPC
 
 void killFG(){
-    kill(scheduler.fg_pid, -1);
+    if(scheduler.fg_pid > 2){
+        kill(scheduler.fg_pid, -1);
+    }
 }
 
 uint64_t waitPid(int16_t pid){

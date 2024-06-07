@@ -19,6 +19,7 @@ GLOBAL sys_nice
 GLOBAL sys_pid
 GLOBAL sys_yield
 GLOBAL sys_wait_pid
+GLOBAL sys_ps
 GLOBAL make_invalid_opCode
 
 section .text
@@ -124,6 +125,11 @@ sys_yield:
 
 sys_wait_pid:
     mov rax, 20
+    int 80h
+    ret
+
+sys_ps:
+    mov rax, 21
     int 80h
     ret
 
