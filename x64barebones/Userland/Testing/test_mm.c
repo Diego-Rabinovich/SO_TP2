@@ -34,7 +34,7 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
 
       if (mm_rqs[rq].address) {
           total += mm_rqs[rq].size;
-//          print("mem has been allocated", 0xffffff, 2);
+          print("mem has been allocated\n", 0xffffff, 2);
           rq++;
       } else {
           break;
@@ -56,9 +56,11 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
         }
 
     // Free
-    for (i = 0; i < rq; i++)
-      if (mm_rqs[i].address)
-        sys_free(mm_rqs[i].address);
-
+    for (i = 0; i < rq; i++){
+      if (mm_rqs[i].address) {
+          print("mem has been freed\n", 0xffffff, 2);
+          sys_free(mm_rqs[i].address);
+      }
+    }
   }
 }

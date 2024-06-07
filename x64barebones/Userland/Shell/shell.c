@@ -289,13 +289,15 @@ char startCommand() {
             int m_requested;
             strToInt(arguments[2], &m_requested);
             if (m_requested > 0 && m_requested <= 128){
-                char * args[1]={0};
+                char ** args= sys_malloc(sizeof (char *)*2+10);
+                args[0]=(char*)args+ sizeof(char*)*2;
                 uintToBase(m_requested*1024*1024, args[0], 10);
                 print("\nnow allocating: ", 0xffffff, 2);
                 print(args[0], 0xffffff, 2);
                 char *argsAux[2]={args[0],0};
                 int16_t pid=sys_fork((Main) test_mm,argsAux,"test_mm",3);
                 sys_wait_pid(pid);
+                sys_free(args);
             } else {
                 print("\nThe requested memory space must be between 1MB and 128MB", 0xff0000, 2);
             }
