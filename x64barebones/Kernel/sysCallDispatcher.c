@@ -210,12 +210,12 @@ void ps(){
         uintToBase((uint64_t) p_list->array[i].rsp, p_rsp, 16);
         drawString("Process: ", 10, 2); drawStringWithColor(p_list->array[i].name, strLen(p_list->array[i].name), 0xffff00, 0x000000, 2) ; drawString("\n", 2, 2 );
         drawString("    PID: ", 10, 2); drawString(p_pid, 4, 2);
-        drawString("    |    Parent PID: ", 22, 2) ; drawString((p_list->array[i].pid == 0) ? "-" : p_parent_pid, 5, 2) ;drawString("\n", 2, 2 );
-        drawString("    Priority: ", 14, 2); drawString(p_prio, 2, 2); drawString("\n", 2, 2 );
-        drawString("    RSB: ",10, 2); drawString(p_rsb, 16, 2);
-        drawString("    |    RSP: ",15, 2); drawString(p_rsp, 16, 2); drawString("\n", 2, 2 );
+        drawString("        Parent PID: ", 22, 2) ; drawString((p_list->array[i].pid == 0) ? "-" : p_parent_pid, 5, 2) ;drawString("\n", 2, 2 );
+        drawString("    Priority: ", 14, 2); drawString((p_list->array[i].pid == 0) ? "-" : p_prio, 2, 2); drawString("\n", 2, 2 );
+        drawString("    RSB: #",11, 2); drawString(p_rsb, 16, 2);
+        drawString("        RSP: #",16, 2); drawString(p_rsp, 16, 2); drawString("\n", 2, 2 );
         drawString(p_list->array[i].fg ? "    Foreground"  : "    Background", 15, 2);
-        drawString("    |    State: ", 17, 2);
+        drawString("        State: ", 17, 2);
         switch (p_list->array[i].p_state) {
             case READY:
                 drawStringWithColor("READY", 6,0x00ff00,0x000000 , 2);
