@@ -3,26 +3,29 @@
 
 #include "infoStructs.h"
 #include "lib.h"
+#define MAX_PROCESSES 128
 
 #define DEFAULT_FDS 3
 
 typedef struct PCB {
-  uint16_t pid;
-  uint16_t parent_pid;
-  int16_t waiting_pid;
+    uint16_t pid;
+    uint16_t parent_pid;
+    int16_t waiting_pid;
 
-  void *rsb;
-  void *rsp;
+    void *rsb;
+    void *rsp;
 
-  char **argv;
-  char *name;
+    char **argv;
+    char *name;
 
-  uint8_t priority;
-  PState p_state;
-  uint8_t isFg;
-  int16_t fds[DEFAULT_FDS];
-  int32_t ret;
-  char eternal; // p is eternal if p cannot be killed
+    uint8_t priority;
+    PState p_state;
+    uint8_t isFg;
+    int16_t fds[DEFAULT_FDS];   //Los FDs pueden ser reemplazados por pipes pero no se agregan nuevos FDs
+    int32_t ret;
+    uint16_t children[MAX_PROCESSES];
+    unsigned char childrenCount;
+
 } PCB;
 
 void initializeProcess(PCB *process, uint16_t pid, uint16_t parent_pid,

@@ -4,8 +4,9 @@
 #include "include/linkedList.h"
 #include "include/lib.h"
 #define TRIVIAL_PID 0
+#define INIT 1
 #define QTY_PRIORITIES 4
-#define MAX_PROCESSES 4096
+#define MAX_PROCESSES 128
 
 typedef struct Scheluler
 {
@@ -36,7 +37,10 @@ void schedulerInit(){
  */
 static void setNextPID(){
     while (scheduler.processes[scheduler.next_pid] != NULL){
-        scheduler.next_pid = (scheduler.next_pid + 1) % MAX_PROCESSES;
+        scheduler.next_pid = scheduler.next_pid + 1;
+        if(scheduler.next_pid == MAX_PROCESSES) {
+            scheduler.next_pid = 0;
+        }
     }
 }
 
@@ -137,6 +141,9 @@ uint16_t createProcess(Main main_func, char **args, char *name, uint8_t priority
     process_node = memAlloc(sizeof(Node));
     process_node->data = (void *) pcb;
 
+    PCB * parent_pcb = (PCB *)scheduler.processes[scheduler.running_pid]->data;
+    parent_pcb->children[parent_pcb->childrenCount++] = scheduler.next_pid;
+
     if (pcb->pid != TRIVIAL_PID){
         queue(scheduler.ready_processes,  process_node);
         pcb->p_state = READY;
@@ -179,6 +186,14 @@ int32_t kill(uint16_t pid, int32_t ret){
             ((PCB*)parent_node->data)->ret=ret;
         }
 	}
+
+    for (int i = 0; i < to_kill_pcb->childrenCount; ++i) {
+        uint16_t child_pid = to_kill_pcb->children[i];
+
+        if(scheduler.processes[child_pid] != NULL) { //if child not DEAD
+            ((PCB *)scheduler.processes[child_pid]->data)->parent_pid = INIT;
+        }
+    }
 
     freeProcess(to_kill_pcb);
     memFree(to_kill_node);

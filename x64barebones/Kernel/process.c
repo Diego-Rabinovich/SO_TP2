@@ -22,6 +22,12 @@ void initializeProcess(PCB *process_pcb, uint16_t pid, uint16_t parent_pid,
   process_pcb->waiting_pid = 0;
   process_pcb->p_state = READY;
   process_pcb->ret = NULL;
+
+    for (int i = 0; i < MAX_PROCESSES; ++i) {
+        process_pcb->children[i] = 0;
+    }
+    process_pcb->childrenCount = 0;
+
   // TODO asignar fds
   // process_pcb->fds;
 
