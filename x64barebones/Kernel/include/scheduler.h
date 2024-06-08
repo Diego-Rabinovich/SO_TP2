@@ -16,7 +16,7 @@ ProcessInfoArray *getProcessArray();
 void * schedule(void* last_rsp);
 void yield();
 int8_t changeFD(uint16_t pid, uint8_t fd_idx, int16_t new_fd);
-int16_t getFD(uint8_t fd_idx);
 void killFG();
 uint64_t waitPid(int16_t pid);
+void getFDs(int16_t target[3]);
 #endif // SO_TP2_SCHEDULER_H

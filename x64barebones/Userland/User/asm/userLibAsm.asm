@@ -10,7 +10,7 @@ GLOBAL sys_hardRead ;AFUERAAAAAAAAAA
 GLOBAL sys_beep
 GLOBAL sys_malloc
 GLOBAL sys_free
-GLOBAL sys_fork
+GLOBAL sys_createProcess
 GLOBAL sys_memset
 GLOBAL sys_kill
 GLOBAL sys_block
@@ -20,6 +20,7 @@ GLOBAL sys_pid
 GLOBAL sys_yield
 GLOBAL sys_wait_pid
 GLOBAL sys_ps
+GLOBAL sys_get_FDs
 GLOBAL make_invalid_opCode
 
 section .text
@@ -88,7 +89,7 @@ sys_memset:
     int 80h
     ret
 
-sys_fork:
+sys_createProcess:
     mov rax, 13
     int 80h
     ret
@@ -130,6 +131,11 @@ sys_wait_pid:
 
 sys_ps:
     mov rax, 21
+    int 80h
+    ret
+
+sys_get_FDs:
+    mov rax, 22
     int 80h
     ret
 

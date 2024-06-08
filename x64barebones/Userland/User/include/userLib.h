@@ -28,4 +28,9 @@ typedef int (*Main)(int argc, char **args);
 #define UP_ARROW 12
 #define DOWN_ARROW 13
 
+#define STDIN 0
+#define STDOUT 1
+#define STDERR 2
+#define DEV_NULL -1
+
 #endif //TPEARQUI_USERLIB_H

@@ -32,7 +32,7 @@ void initializeProcess(PCB *process_pcb, uint16_t pid, uint16_t parent_pid,
         process_pcb->fds[i] = fds[i];
     }
 
-   process_pcb->isFg = (fds[0] == 0) ? 1 : 0; // if p interacts with user stdin then is fg.
+   process_pcb->isFg = (fds[STDIN] == STDIN) ? 1 : 0; // if p interacts with user stdin then is fg.
 
   // CONFIGURAMOS LOS ARGUMENTOS
   int argc = arrayLen((void *)args);
@@ -83,8 +83,7 @@ ProcessInfo *loadInfo(ProcessInfo *info, PCB *pcb){
     info->p_state = pcb->p_state;
     info->rsb = pcb->rsb;
     info->rsp = pcb->rsp;
-    //TODO implementar con IPC
-    //info->fg = pcb->fds[STDIN] == STDIN;
+    info->fg = pcb->isFg;
     return info;
 }
 

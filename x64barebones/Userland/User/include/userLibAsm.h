@@ -25,7 +25,7 @@ int sys_write(uint64_t fd, char * text, uint64_t len, uint32_t fontHexColor, uin
 int sys_read(uint64_t fd,char *buf,uint64_t count);
 int sys_hardRead(uint64_t fd,char * buf,uint64_t count);
 int sys_waitNMillis(uint64_t millis);
-int16_t sys_fork(Main main_func, char** args, char* name, uint8_t priority);
+int16_t sys_createProcess(Main main_func, char** args, char* name, uint8_t priority, int16_t fds[]);
 int32_t sys_kill(uint16_t pid);
 int32_t sys_block(uint16_t pid);
 int32_t sys_unblock(uint16_t pid);
@@ -33,4 +33,5 @@ int32_t sys_nice(uint16_t pid, uint8_t new_prio);
 int32_t sys_pid();
 void sys_ps();
 uint64_t sys_wait_pid(int16_t pid);
+void sys_get_FDs(int16_t target[3]);
 #endif //TPEARQUI_USERLIBASM_H

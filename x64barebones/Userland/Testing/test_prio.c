@@ -1,4 +1,5 @@
 #include <stdint.h>
+
 #include "test_util.h"
 #include "../User/include/userLibAsm.h"
 #include "../User/include/userLib.h"
@@ -18,8 +19,13 @@ void test_prio() {
   char *argv[] = {MINOR_WAIT, 0};
   uint64_t i;
 
-  for (i = 0; i < TOTAL_PROCESSES; i++)
-    pids[i] = sys_fork(endless_loop_print, argv,"endless_loop_print", 0);
+  for (i = 0; i < TOTAL_PROCESSES; i++) {
+    int16_t* fds = sys_malloc(3*sizeof(int16_t));
+    sys_get_FDs(fds);
+    fds[0] = DEV_NULL;
+
+    pids[i] = sys_createProcess(endless_loop_print, argv,"endless_loop_print", 0, fds);
+  }
 
   bussy_wait(WAIT);
   print("\nCHANGING PRIORITIES...\n", 0xffffff, 2);

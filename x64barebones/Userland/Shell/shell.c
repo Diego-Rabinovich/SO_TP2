@@ -32,6 +32,7 @@ void resetBuffer() {
     idx = 0;
 }
 
+int16_t fg_fds[3] = {STDIN, STDOUT, STDERR};
 
 int shell(int argc, char **args) {
     unsigned char ctrl_press = 0;
@@ -267,7 +268,7 @@ char startCommand() {
 
     else if(strCmp(arguments[0],C_PS ) == 0 ){
         char * argsAux[1] = {0};
-        sys_wait_pid(sys_fork((Main) sys_ps, argsAux, "ps", 3));
+        sys_wait_pid(sys_createProcess((Main) sys_ps, argsAux, "ps", 3, fg_fds));
     }
 
     else if(strCmp(arguments[0], C_LOOP) == 0 ){
@@ -306,7 +307,7 @@ char startCommand() {
                 print("\nnow allocating: ", 0xffffff, 2);
                 print(args[0], 0xffffff, 2);
                 char *argsAux[2]={args[0],0};
-                int16_t pid=sys_fork((Main) test_mm,argsAux,"test_mm",3);
+                int16_t pid=sys_createProcess((Main) test_mm,argsAux,"test_mm",3, fg_fds);
                 sys_wait_pid(pid);
                 sys_free(args);
             } else {
@@ -318,15 +319,15 @@ char startCommand() {
             strToInt(arguments[2], &p_requested);
             if (p_requested > 0 && p_requested <= 4000) {
                 char * argsAux[2] = {arguments[2],0};
-                int16_t pid=sys_fork((Main) test_processes,argsAux,"test_ps",3);
-                sys_wait_pid(pid);
+                int16_t fdsAux[3] = {DEV_NULL, STDOUT, STDERR};
+                sys_createProcess((Main) test_processes,argsAux,"test_ps",3, fdsAux);
             } else {
                 print("\nThe requested max processes must be between 1 and 4000", 0xff0000, 2);
             }
         }
         else if (strCmp(arguments[1], "priority") == 0) {
             char * argsNull[]={0};
-            int16_t pid=sys_fork((Main)test_prio,argsNull,"test_prio",3);
+            int16_t pid=sys_createProcess((Main)test_prio,argsNull,"test_prio",3, fg_fds);
             sys_wait_pid(pid);
         }
         else {

@@ -66,7 +66,10 @@ void startUpMusic(){
 
 int trivial(int argc, char **args){
     char * argv[] = {NULL};
-    createProcess(userCodeAddress, argv, "init", 0);
+    int16_t* fds = memAlloc(3*sizeof(int16_t));
+    getFDs(fds);
+    createProcess(userCodeAddress, argv, "init", 0, fds);
+    memFree(fds);
     // callTimerTick();
     while (1) {
         _hlt();
@@ -80,7 +83,8 @@ int main(){
     resetScreen();
     schedulerInit();
     char * args[] = {NULL};
-    createProcess(trivial, args, "trivial", 0);     //Halt process in case of no active processes
+    int16_t fds[3] = {STDIN, STDOUT, STDERR};
+    createProcess(trivial, args, "trivial", 0, fds);     //Halt process in case of no active processes
     load_idt();
     callTimerTick();
     return 0;

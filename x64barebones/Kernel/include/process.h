@@ -6,6 +6,10 @@
 #define MAX_PROCESSES 128
 
 #define DEFAULT_FDS 3
+#define STDIN 0
+#define STDOUT 1
+#define STDERR 2
+#define DEV_NULL 9
 
 typedef struct PCB {
     uint16_t pid;

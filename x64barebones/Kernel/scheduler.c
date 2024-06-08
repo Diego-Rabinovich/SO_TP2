@@ -20,6 +20,7 @@ typedef struct Scheluler
 } Scheduler;
 
 Scheduler scheduler;
+char is_creating = 0;
 
 void schedulerInit(){
 	for (int i = 0; i < MAX_PROCESSES; i++) {
@@ -94,6 +95,9 @@ PState getPState(uint16_t pid){
 }
 
 void* schedule(void* last_rsp) {
+    if(is_creating) {
+        return last_rsp;
+    }
     static int first_round = 1;
     Node * running = scheduler.processes[scheduler.running_pid];
     if (scheduler.remaining_rounds > 0 && running!=NULL){
@@ -131,16 +135,32 @@ void* schedule(void* last_rsp) {
 }
 
 uint16_t createProcess(Main main_func, char **args, char *name, uint8_t priority, int16_t fds[]) {
+    is_creating = 1;
     if (scheduler.process_count >= MAX_PROCESSES || main_func == NULL || priority < 0 || priority > 3 || fds == NULL){
+        is_creating =0;
         return -1;
     }
 	PCB *pcb = (PCB *) memAlloc(sizeof(PCB));
+
+    if(scheduler.next_pid != TRIVIAL_PID && fds[0] == STDIN) {
+        PCB * parent = (PCB *)scheduler.processes[scheduler.running_pid]->data;
+        if(parent->isFg){
+            parent->fds[0] = DEV_NULL;
+            parent->isFg = 0;
+            scheduler.fg_pid = scheduler.next_pid;
+        }
+        else{
+            is_creating = 0;
+            return -1;
+        }
+    }
+
     initializeProcess(pcb, scheduler.next_pid, scheduler.running_pid, main_func, args, name, priority, fds);
+
 
 	Node *process_node;
     process_node = memAlloc(sizeof(Node));
     process_node->data = (void *) pcb;
-
 
 
     if (pcb->pid != TRIVIAL_PID){
@@ -153,6 +173,7 @@ uint16_t createProcess(Main main_func, char **args, char *name, uint8_t priority
 	scheduler.processes[pcb->pid] = process_node;
 	scheduler.process_count++;
     setNextPID();
+    is_creating = 0;
 	return pcb->pid;
 }
 
@@ -186,13 +207,17 @@ int32_t kill(uint16_t pid, int32_t ret){
             setState(to_kill_pcb->parent_pid, READY);
             ((PCB*)parent_node->data)->ret=ret;
         }
+        if(to_kill_pcb->isFg) {
+            scheduler.fg_pid = to_kill_pcb->parent_pid;
+            parent_pcb->isFg = 1;
+            parent_pcb->fds[0] = STDIN;
+        }
 	}
 
     for (int i = 0; i < to_kill_pcb->childrenCount; ++i) {
         uint16_t child_pid = to_kill_pcb->children[i];
-
         if(scheduler.processes[child_pid] != NULL) { //if child not DEAD
-            ((PCB *)scheduler.processes[child_pid]->data)->parent_pid = INIT;
+            ((PCB *)scheduler.processes[child_pid]->data)->parent_pid = to_kill_pcb->parent_pid;
         }
     }
 
@@ -246,4 +271,11 @@ uint64_t waitPid(int16_t pid){
     ((PCB *)scheduler.processes[scheduler.running_pid]->data)->waiting_pid=pid;
     setState(scheduler.running_pid,BLOCKED);
     return ((PCB*)scheduler.processes[scheduler.running_pid]->data)->ret;
+}
+
+void getFDs(int16_t target[3]){
+    int16_t* fds = ((PCB*)scheduler.processes[scheduler.running_pid]->data)->fds;
+    for (int i = 0; i < 3; ++i) {
+        target[i]=fds[i];
+    }
 }

@@ -63,7 +63,7 @@ uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t
             memset((void *) arg0, (char) arg1, arg2);
             return RAX;
         case 13:
-            return createProcess((Main) arg0, (char**) arg1, (char*) arg2, (uint8_t) arg3);
+            return createProcess((Main) arg0, (char**) arg1, (char*) arg2, (uint8_t) arg3, (int16_t*)arg4);
         case 14:
             return kill(arg0, -1);
         case 15:
@@ -82,6 +82,9 @@ uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t
         case 21:
              ps();
              return RAX;
+        case 22:
+            getFDs((int16_t *)arg0);
+            return RAX;
         default:
             return -1;
     }
