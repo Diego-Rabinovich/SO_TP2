@@ -5,11 +5,6 @@
 void cursorDown(uint32_t fontSize);
 void lineUp(int y, uint32_t blockSize,uint32_t fontSize);
 
-FileDescriptor stdout;
-FileDescriptor stderr;
-
-void initStdoutStderr(){}
-
 //region struct_mode_info
 struct vbe_mode_info_structure {
     uint16_t attributes;		// deprecated, only bit 7 should be of interest to you, and it indicates the mode supports a linear frame buffer.

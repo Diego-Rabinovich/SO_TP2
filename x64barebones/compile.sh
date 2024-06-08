@@ -1,6 +1,4 @@
 cd Toolchain
-make clear
-make all
+make clean all
 cd ..
-make clear
-make all
+make clean all

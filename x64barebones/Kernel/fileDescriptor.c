@@ -1,6 +1,8 @@
 //
 
 #include "include/fileDescriptor.h"
+
+#include "videoDriver.h"
 #include "include/keyboardDriver.h"
 #include "include/memoryManager.h"
 #include "include/lib.h"
@@ -62,37 +64,49 @@ FileDescriptor initFd(){
 
 
 
-int writeOnFile(FileDescriptor fd, const unsigned char * buf, unsigned long len){
+int writeOnFile(FileDescriptor fd, const unsigned char * buf, unsigned long len, uint32_t hexFontColor, uint32_t hexBGColor, uint32_t fontSize){
     if(fd==NULL){
         return -1;
     }
     //pedir acceso exclusivo
-    char awoken=0;
-    for(int i=0;i<len;i++) {
-        if(fd->used >= BUFF_SIZE) {//pregunto si no tiene espacio
-            uint16_t pid = getPid();
-            processes_wating[pid].fd = fd->fd;
-            processes_wating[pid].r_w = WAITING_WRITE;
-            //cedo el acceso
-            setState(pid, BLOCKED);
-            _cli();
-            awoken=0;
-            //pido acceso
-        }
-        fd->buff[fd->writeIdx]=buf[i];
-        fd->writeIdx=(fd->writeIdx + 1)%BUFF_SIZE;
-        fd->used++;
-        if(!awoken){
-            awoken=1;
-            //despertar a los reads
-            for(int j=0;j<MAX_PROCESSES;j++){
-                if(processes_wating[j].r_w==WAITING_READ&&processes_wating[j].fd==fd->fd){
-                    setState(j,READY);
-                    break;
+    switch (fd->fd){
+        case STDOUT:
+            drawStringWithColor((char *)buf, len, hexFontColor, hexBGColor, fontSize);
+            break;
+        case STDERR:
+            drawStringWithColor((char *)buf, len, 0xff0000, 0x000000, fontSize);
+            break;
+        case DEV_NULL: break;
+        default:
+            char awoken=0;
+            for(int i=0;i<len;i++) {
+                if(fd->used >= BUFF_SIZE) {//pregunto si no tiene espacio
+                    uint16_t pid = getPid();
+                    processes_wating[pid].fd = fd->fd;
+                    processes_wating[pid].r_w = WAITING_WRITE;
+                    //cedo el acceso
+                    setState(pid, BLOCKED);
+                    _cli();
+                    awoken=0;
+                    //pido acceso
+                }
+                fd->buff[fd->writeIdx]=buf[i];
+                fd->writeIdx=(fd->writeIdx + 1)%BUFF_SIZE;
+                fd->used++;
+                if(!awoken){
+                    awoken=1;
+                    //despertar a los reads
+                    for(int j=0;j<MAX_PROCESSES;j++){
+                        if(processes_wating[j].r_w==WAITING_READ&&processes_wating[j].fd==fd->fd){
+                            setState(j,READY);
+                            break;
+                        }
+                    }
                 }
             }
-        }
+            break;
     }
+
     //ceder el acceso
     return (int)len;
 
@@ -100,9 +114,10 @@ int writeOnFile(FileDescriptor fd, const unsigned char * buf, unsigned long len)
 
 int readOnFile(FileDescriptor fd, unsigned char * target, unsigned long len){
     //pedir acceso exclusivo
-    if(fd==NULL){
+    if(fd==NULL || fd->fd == DEV_NULL){
         return -1;
     }
+
     char awoken=0;
     for(int i=0;i<len;) {
         if(fd->used == 0) {//pregunto si no tiene nada para leer

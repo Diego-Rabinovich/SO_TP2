@@ -34,13 +34,5 @@ static void invalid_opcode(){
     drawStringWithColor("\nException by invalid opcode\n",29, 0x00FF0000,0, 2);
 }
 void handler(){
-    drawString("\nPress esc to restart\n",25, 2);
-    char g=0;
-    alignPointers();
-    do {
-        _hlt();
-        if(hasNext()){
-            g=next();
-        }
-    } while (g!=1);
+    drawString("\nPlease restart kernel\n",25, 2);
 }

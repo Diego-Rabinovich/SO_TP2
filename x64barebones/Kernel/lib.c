@@ -1,4 +1,7 @@
 #include "include/lib.h"
+
+#include "fileDescriptor.h"
+#include "scheduler.h"
 #include "include/videoDriver.h"
 #include "include/keyboardDriver.h"
 #include "include/interrupts.h"
@@ -207,14 +210,11 @@ void infoRegs(){
         resetCursor();
         printRegs();
 
-        unsigned char g=0;
-        alignPointers();
-        do {
-            _hlt();
-            if(hasNext()){
-                g=next();
-            }
-        } while (g!=0xA9);
+        unsigned char g[1]={0};
+        turnOnPriority();
+        while(g[0] != 0xA9) {
+            readOnFile(getFd(STDIN), g, 1);
+        }
 
         loadScreenState();
 

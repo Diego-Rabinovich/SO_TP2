@@ -30,9 +30,9 @@ uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t
 
     switch (RAX) {
         case 0:
-            return read(arg0, (char *) arg1, arg2);
+            return readOnFile((FileDescriptor)arg0, (unsigned char *) arg1, arg2);
         case 1:
-            return write(arg0, (char *) arg1, arg2, arg3, arg4);
+            return writeOnFile((FileDescriptor)arg0, (unsigned char *) arg1, arg2, arg3, arg4, arg5);
         case 2:
             printPixel(arg0, arg1, (uint32_t) arg2);
             return RAX;
@@ -91,43 +91,26 @@ uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t
     }
 }
 
-int read(uint64_t fd, char *buf, uint64_t count) {
-    switch (fd) {
-        case 0: {
-            int idx = 0;
-            alignPointers();
-            while (idx < count) {
-                _hlt();
-                _cli();
-                if(hasNext()){
-                    processBuf(buf,&idx);
-                }
-            }
-            return idx;
-        }
-        default:
-            return -1;
-    }
-
-}
-
 
 
 int hardRead(uint64_t fd, char *buf, uint64_t count){
+/*
     switch (fd) {
         case 1:{
             int idx = 0;
             while (idx < count && hasNext()) {
                 processBuf(buf, &idx);
             }
-            alignPointers();
+            //alignPointers();
             return idx;
         }
     }
+    */
     return 0;
 }
 
 int write(uint64_t fd, char *text, uint64_t len, uint32_t font_hexColor, uint32_t fontSize) {
+/*
     switch (fd) {
         case 1:
             drawStringWithColor(text,len,font_hexColor,0x00000000, fontSize);
@@ -136,6 +119,8 @@ int write(uint64_t fd, char *text, uint64_t len, uint32_t font_hexColor, uint32_
             drawStringWithColor(text,len,0x00FF0000,0x00000000, fontSize); //rojo y negro respectivamente
             break;
     }
+    */
+
     return 0;
 }
 

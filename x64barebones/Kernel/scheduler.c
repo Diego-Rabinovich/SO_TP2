@@ -1,4 +1,6 @@
 #include "include/scheduler.h"
+
+#include "videoDriver.h"
 #include "include/process.h"
 #include "include/memoryManager.h"
 #include "include/linkedList.h"
@@ -21,7 +23,7 @@ typedef struct Scheluler
 } Scheduler;
 
 Scheduler scheduler;
-char is_creating = 0;
+char is_priority = 0;
 
 void schedulerInit(){
 	for (int i = 0; i < MAX_PROCESSES; i++) {
@@ -40,7 +42,7 @@ void schedulerInit(){
 static void setNextPID(){
     while (scheduler.processes[scheduler.next_pid] != NULL){
         scheduler.next_pid = scheduler.next_pid + 1;
-        if(scheduler.next_pid == MAX_PROCESSES) {
+        if(scheduler.next_pid >= MAX_PROCESSES) {
             scheduler.next_pid = 0;
         }
     }
@@ -96,7 +98,7 @@ PState getPState(uint16_t pid){
 }
 
 void* schedule(void* last_rsp) {
-    if(is_creating) {
+    if(is_priority) {
         return last_rsp;
     }
     static int first_round = 1;
@@ -136,9 +138,9 @@ void* schedule(void* last_rsp) {
 }
 
 uint16_t createProcess(Main main_func, char **args, char *name, uint8_t priority, int16_t fds[]) {
-    is_creating = 1;
+    is_priority = 1;
     if (scheduler.process_count >= MAX_PROCESSES || main_func == NULL || priority < 0 || priority > 3 || fds == NULL){
-        is_creating =0;
+        is_priority =0;
         return -1;
     }
 	PCB *pcb = (PCB *) memAlloc(sizeof(PCB));
@@ -151,7 +153,7 @@ uint16_t createProcess(Main main_func, char **args, char *name, uint8_t priority
             scheduler.fg_pid = scheduler.next_pid;
         }
         else{
-            is_creating = 0;
+            is_priority = 0;
             return -1;
         }
     }
@@ -174,7 +176,7 @@ uint16_t createProcess(Main main_func, char **args, char *name, uint8_t priority
 	scheduler.processes[pcb->pid] = process_node;
 	scheduler.process_count++;
     setNextPID();
-    is_creating = 0;
+    is_priority = 0;
 	return pcb->pid;
 }
 
@@ -184,7 +186,10 @@ int32_t killCurrent(int32_t ret){
 
 int32_t kill(uint16_t pid, int32_t ret){
     Node *to_kill_node = scheduler.processes[pid];
-	if (to_kill_node == NULL || pid == TRIVIAL_PID || pid <= 2) {
+	if (to_kill_node == NULL ||  pid <= 2) {
+        char pidStr[4];
+	    uintToBase(pid, pidStr, 10);
+	    drawStringWithColor(pidStr, 3, 0xff0000, 0x000000, 2);
         //note that if pid <= 2 then p is either sh, user, or trivial
         return -1;
     }
@@ -280,4 +285,12 @@ void getFDs(int16_t target[3]){
     for (int i = 0; i < 3; ++i) {
         target[i]=fds[i];
     }
+}
+
+void turnOnPriority() {
+    is_priority = 1;
+}
+
+void turnOffPriority() {
+    is_priority = 0;
 }

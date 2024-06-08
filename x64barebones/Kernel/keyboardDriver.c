@@ -80,7 +80,7 @@ void setKeyFlags(unsigned char key){
 
 void keyboardHandler(){
     unsigned char key[1]={getKeyPress()};
-    writeOnFile( fd,key,1);
+    writeOnFile( fd,key,1, 0x000000, 0x000000, 2);
     setKeyFlags(key[0]);
     if(ctrl_enabled && key[0] == 0x2E){
         killFG();
