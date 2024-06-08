@@ -9,3 +9,4 @@ desktop.ini
 .viminfo
 .vscode/settings.json
 *.gdbinit
+./x64barebones/compile.sh
