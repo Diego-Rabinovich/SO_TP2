@@ -9,6 +9,7 @@
 #include "include/interrupts.h"
 #include "include/memoryManager.h"
 #include "include/scheduler.h"
+#include "include/fileDescriptor.h"
 
 int read(uint64_t fd, char *buf, uint64_t count);
 
@@ -97,6 +98,7 @@ int read(uint64_t fd, char *buf, uint64_t count) {
             alignPointers();
             while (idx < count) {
                 _hlt();
+                _cli();
                 if(hasNext()){
                     processBuf(buf,&idx);
                 }
@@ -110,56 +112,7 @@ int read(uint64_t fd, char *buf, uint64_t count) {
 }
 
 
-void processBuf(char * buf,int *idx){
-    unsigned char code = next();
-    if (code == E_KEYS) {
-        code = next();
-        char flag = 0;
-        if (code & RELEASE) {
-            flag = 1;
-            code -= RELEASE;
-        }
-        switch (code) {
-            case GREY_UP_SCAN:
-                code = UP_ARROW;
-                break;
-            case GREY_LEFT_SCAN:
-                code = LEFT_ARROW;
-                break;
-            case GREY_RIGHT_SCAN:
-                code = RIGHT_ARROW;
-                break;
-            case GREY_DOWN_SCAN:
-                code = DOWN_ARROW;
-                break;
-            case (R_CTRL_SCAN | R_ALT_SCAN):
-                code = getStringFromCode(code);
-                break;
-            default:
-                code = 0;
-                break;
-        }
-        if (code) {
-            if (flag) {
-                code += RELEASE;
-            }
-            buf[(*idx)++] = code;
-        }
-    } else {
-        char flag = 0;
-        if (code & RELEASE) {
-            flag = 1;
-        }
-        char c = getStringFromCode(code);
 
-        if (c != NOT_USABLE) {
-            if (flag) {
-                c += RELEASE;
-            }
-            buf[(*idx)++] = c;
-        }
-    }
-}
 int hardRead(uint64_t fd, char *buf, uint64_t count){
     switch (fd) {
         case 1:{

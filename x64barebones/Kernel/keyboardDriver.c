@@ -7,19 +7,20 @@
 #define L_CTRL_PRESS 0x1D
 #define L_CTRL_RELEASE 0x9D
 
+#include "include/fileDescriptor.h"
 #define F1 0xAA
 #define CAPS_LOCK 0x3A
 #define BUFF_SIZE 64
-
 char getKeyPress();
 
 char caps_enabled = 0;
 char shift_enabled = 0;
 char ctrl_enabled = 0;
 
-unsigned char buffer[BUFF_SIZE] = {0};
-unsigned char readIdx = 0;
-unsigned char writeIdx = 0;
+FileDescriptor fd;
+void initSTDIN(){
+    fd=initFd();
+}
 unsigned char scan_codes[][84] = {
         {//SIN SHIFT
                 NOT_USABLE, ESC, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-',
@@ -59,43 +60,39 @@ unsigned char checkAlternate(unsigned char code) {
     return alternate;
 }
 
-void setKeyFlags(){
-    if(buffer[writeIdx] == CAPS_LOCK){
+void setKeyFlags(unsigned char key){
+    if(key == CAPS_LOCK){
         caps_enabled = !caps_enabled;
     }
-    else if (buffer[writeIdx] == R_SHIFT_PRESS || buffer[writeIdx] == L_SHIFT_PRESS){
+    else if (key == R_SHIFT_PRESS || key == L_SHIFT_PRESS){
         shift_enabled = 1;
     }
-    else if(buffer[writeIdx] == R_SHIFT_RELEASE || buffer[writeIdx] == L_SHIFT_RELEASE){
+    else if(key== R_SHIFT_RELEASE || key == L_SHIFT_RELEASE){
         shift_enabled = 0;
     }
-    else if(buffer[writeIdx] == L_CTRL_PRESS){
+    else if(key== L_CTRL_PRESS){
         ctrl_enabled = 1;
     }
-    else if(buffer[writeIdx] == L_CTRL_RELEASE){
+    else if(key == L_CTRL_RELEASE){
         ctrl_enabled = 0;
     }
 }
 
 void keyboardHandler(){
-    buffer[writeIdx] = getKeyPress();
-    setKeyFlags();
-    if(ctrl_enabled && buffer[writeIdx] == 0x2E){
+    unsigned char key[1]={getKeyPress()};
+    writeOnFile( fd,key,1);
+    setKeyFlags(key[0]);
+    if(ctrl_enabled && key[0] == 0x2E){
         killFG();
     }
-    writeIdx = (writeIdx+1)%BUFF_SIZE;
 }
 
-void alignPointers(){
-    readIdx=writeIdx;
-}
 
-char next(){
-    unsigned char toReturn = buffer[readIdx];
-    readIdx = (readIdx + 1)%BUFF_SIZE;
-    return toReturn;
-}
 
-char hasNext(){
-    return readIdx != writeIdx;
-}
+
+
+
+//LA HISTORIA DE AMOR
+//void alignPointers(){
+//    readIdx=writeIdx;
+//}

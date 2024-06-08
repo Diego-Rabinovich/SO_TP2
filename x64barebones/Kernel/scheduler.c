@@ -3,6 +3,7 @@
 #include "include/memoryManager.h"
 #include "include/linkedList.h"
 #include "include/lib.h"
+#include "include/interrupts.h"
 #define TRIVIAL_PID 0
 #define INIT 1
 #define QTY_PRIORITIES 4
@@ -256,6 +257,7 @@ ProcessInfoArray *getProcessArray(){
 
 void yield(){
     scheduler.remaining_rounds = 0;
+    _sti();
 	callTimerTick();
 }
 

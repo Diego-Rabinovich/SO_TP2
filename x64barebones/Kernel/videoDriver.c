@@ -1,8 +1,14 @@
 #include "include/videoDriver.h"
 #include "include/lib.h"
+#include "include/fileDescriptor.h"
 #define SCREEN_DIR 0x0000000000005C00
 void cursorDown(uint32_t fontSize);
 void lineUp(int y, uint32_t blockSize,uint32_t fontSize);
+
+FileDescriptor stdout;
+FileDescriptor stderr;
+
+void initStdoutStderr(){}
 
 //region struct_mode_info
 struct vbe_mode_info_structure {
