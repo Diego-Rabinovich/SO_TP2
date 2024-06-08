@@ -6,9 +6,10 @@
 #include "../Snake/include/snakeMain.h"
 #include "../Math/include/math.h"
 #include "../Testing/testing.h"
+#define CTRL_PRESS 2
+#define CTRL_RELEASE 0x82
 
-
-char buffer[BUFF_SIZE] = {0};
+unsigned char buffer[BUFF_SIZE] = {0};
 char  arguments[MAX_ARGS][128];
 int idx = 0;
 int fontSize = 2;
@@ -33,43 +34,50 @@ void resetBuffer() {
 
 
 int shell(int argc, char **args) {
+    unsigned char ctrl_press = 0;
     sys_getScreenDimensions(&dims);
     clear();
     while (1) {
-        int size = sys_read(0, buffer + idx, 1);
-        if (size > 0 && !(buffer[idx] & 0x80)) {
-            switch (buffer[idx]) {
-                case '\n': {
-                    char f = startCommand();
-                    if (f == 0){
-                        newLine(fontSize);
-                    }else if (f == 1){
-                        clear();
+        int size = sys_read(0,(char *) buffer + idx, 1);
+        if (size > 0) {
+            if (buffer[idx] == CTRL_PRESS) {
+                ctrl_press = 1;
+            } else if (buffer[idx] == CTRL_RELEASE){
+                ctrl_press = 0;
+            } else if (!(buffer[idx] & 0x80) && !ctrl_press) {
+                switch (buffer[idx]) {
+                    case '\n': {
+                        char f = startCommand();
+                        if (f == 0) {
+                            newLine(fontSize);
+                        } else if (f == 1) {
+                            clear();
+                        }
+                        resetBuffer();
+                        break;
                     }
-                    resetBuffer();
-                    break;
+                    case '\b':
+                        buffer[idx] = 0;
+                        if (idx > 0) {
+                            idx--;
+                            print("\b", 0xffffff, fontSize);
+                        }
+                        break;
+                    case '\t':
+                        for (int i = 0; i < 4; i++) {
+                            buffer[idx++] = ' ';
+                            print(buffer + idx - 1, 0, fontSize);
+                        }
+                        break;
+                    default:
+                        if (idx + 1 < BUFF_SIZE && !isSpecial(buffer[idx])) {
+                            print(buffer + idx, fontColor, fontSize);
+                            idx++;
+                        } else if (idx + 1 < BUFF_SIZE) {
+                            buffer[idx] = 0; //borro las especiales que no nos importan aquí
+                        }
+                        break;
                 }
-                case '\b':
-                    buffer[idx] = 0;
-                    if (idx > 0) {
-                        idx--;
-                        print("\b", 0xffffff, fontSize);
-                    }
-                    break;
-                case '\t':
-                    for (int i = 0; i < 4; i++) {
-                        buffer[idx++] = ' ';
-                        print(buffer + idx - 1, 0, fontSize);
-                    }
-                    break;
-                default:
-                    if (idx + 1 < BUFF_SIZE && !isSpecial(buffer[idx])) {
-                        print(buffer + idx, fontColor, fontSize);
-                        idx++;
-                    } else if (idx + 1 < BUFF_SIZE) {
-                        buffer[idx] = 0; //borro las especiales que no nos importan aquí
-                    }
-                    break;
             }
         }
     }

@@ -30,7 +30,7 @@ typedef struct PCB {
 
 void initializeProcess(PCB *process, uint16_t pid, uint16_t parent_pid,
                        Main main_func, char **args, char *name,
-                       uint8_t priority); //, int16_t fds[]
+                       uint8_t priority, int16_t fds[]);
 
 void freeProcess(PCB *pcb);
 

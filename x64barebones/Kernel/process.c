@@ -12,7 +12,7 @@ void runProcess(Main main_func, char **args, int argc) {
 
 void initializeProcess(PCB *process_pcb, uint16_t pid, uint16_t parent_pid,
                        Main main_func, char **args, char *name,
-                       uint8_t priority) { //, int16_t fds[]
+                       uint8_t priority, int16_t fds[]) {
   process_pcb->pid = pid;
   process_pcb->parent_pid = parent_pid;
   process_pcb->priority = priority;
@@ -28,8 +28,11 @@ void initializeProcess(PCB *process_pcb, uint16_t pid, uint16_t parent_pid,
     }
     process_pcb->childrenCount = 0;
 
-  // TODO asignar fds
-  // process_pcb->fds;
+    for (int i = 0 ; i < 3; i++){
+        process_pcb->fds[i] = fds[i];
+    }
+
+   process_pcb->isFg = (fds[0] == 0) ? 1 : 0; // if p interacts with user stdin then is fg.
 
   // CONFIGURAMOS LOS ARGUMENTOS
   int argc = arrayLen((void *)args);

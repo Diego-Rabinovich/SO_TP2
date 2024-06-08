@@ -1,9 +1,12 @@
 #include "include/keyboardDriver.h"
-
+#include "include/scheduler.h"
 #define R_SHIFT_PRESS 0x36
 #define L_SHIFT_PRESS 0x2A
 #define R_SHIFT_RELEASE 0xB6
 #define L_SHIFT_RELEASE 0xAA
+#define L_CTRL_PRESS 0x1D
+#define L_CTRL_RELEASE 0x9D
+
 #define F1 0xAA
 #define CAPS_LOCK 0x3A
 #define BUFF_SIZE 64
@@ -12,6 +15,7 @@ char getKeyPress();
 
 char caps_enabled = 0;
 char shift_enabled = 0;
+char ctrl_enabled = 0;
 
 unsigned char buffer[BUFF_SIZE] = {0};
 unsigned char readIdx = 0;
@@ -65,11 +69,20 @@ void setKeyFlags(){
     else if(buffer[writeIdx] == R_SHIFT_RELEASE || buffer[writeIdx] == L_SHIFT_RELEASE){
         shift_enabled = 0;
     }
+    else if(buffer[writeIdx] == L_CTRL_PRESS){
+        ctrl_enabled = 1;
+    }
+    else if(buffer[writeIdx] == L_CTRL_RELEASE){
+        ctrl_enabled = 0;
+    }
 }
 
 void keyboardHandler(){
     buffer[writeIdx] = getKeyPress();
     setKeyFlags();
+    if(ctrl_enabled && buffer[writeIdx] == 0x2E){
+        killFG();
+    }
     writeIdx = (writeIdx+1)%BUFF_SIZE;
 }
 
@@ -86,4 +99,3 @@ char next(){
 char hasNext(){
     return readIdx != writeIdx;
 }
-

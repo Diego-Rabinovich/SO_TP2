@@ -68,9 +68,6 @@ getKeyPress:
 
 	leave
 	ret
-        reg_rip dq 0
-        reg_rsp dq 0
-        reg_rbp dq 0
 
 
 outb:

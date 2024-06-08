@@ -130,12 +130,12 @@ void* schedule(void* last_rsp) {
     return new_P->rsp;
 }
 
-uint16_t createProcess(Main main_func, char **args, char *name, uint8_t priority) { //int16_t fds[]
-    if (scheduler.process_count >= MAX_PROCESSES || main_func == NULL || priority < 0 || priority > 3 ){ // fds == NULL
+uint16_t createProcess(Main main_func, char **args, char *name, uint8_t priority, int16_t fds[]) {
+    if (scheduler.process_count >= MAX_PROCESSES || main_func == NULL || priority < 0 || priority > 3 || fds == NULL){
         return -1;
     }
 	PCB *pcb = (PCB *) memAlloc(sizeof(PCB));
-    initializeProcess(pcb, scheduler.next_pid, scheduler.running_pid, main_func, args, name, priority); //fds
+    initializeProcess(pcb, scheduler.next_pid, scheduler.running_pid, main_func, args, name, priority, fds);
 
 	Node *process_node;
     process_node = memAlloc(sizeof(Node));
