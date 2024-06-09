@@ -198,6 +198,7 @@ _irq00Handler:
 
 ;Keyboard
 _irq01Handler:
+    cli
     saveRegs
     xor rax, rax
     in al, 0x60

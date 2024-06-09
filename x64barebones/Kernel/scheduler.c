@@ -79,7 +79,8 @@ uint8_t setState(uint16_t pid, uint8_t new_state) {
 	pcb->p_state = new_state;
 	if (new_state == BLOCKED) {
 		remove(scheduler.ready_processes, node);
-        if (pid == scheduler.running_pid){
+        //drawStringWithColor("Blocked", 8, 0xffff00, 0x0000ff, 2);
+	    if (pid == scheduler.running_pid){
             yield();
         }
 	}
@@ -143,6 +144,7 @@ int16_t createProcess(Main main_func, char **args, char *name, uint8_t priority,
         is_priority =0;
         return -1;
     }
+    setNextPID();
 	PCB *pcb = (PCB *) memAlloc(sizeof(PCB));
 
     if(scheduler.next_pid != TRIVIAL_PID && fds[0] == STDIN) {
@@ -175,7 +177,6 @@ int16_t createProcess(Main main_func, char **args, char *name, uint8_t priority,
 
 	scheduler.processes[pcb->pid] = process_node;
 	scheduler.process_count++;
-    setNextPID();
     is_priority = 0;
 	return pcb->pid;
 }
@@ -191,7 +192,7 @@ int32_t kill(uint16_t pid, int32_t ret){
 	    uintToBase(pid, pidStr, 10);
 	    drawStringWithColor(pidStr, 3, 0xff0000, 0x000000, 2);
         //note that if pid <= 2 then p is either sh, user, or trivial
-        return -1;
+        return 0;
     }
 	PCB *to_kill_pcb = (PCB *) to_kill_node->data;
 

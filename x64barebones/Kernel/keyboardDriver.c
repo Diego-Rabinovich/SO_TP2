@@ -1,4 +1,6 @@
 #include "include/keyboardDriver.h"
+
+#include "interrupts.h"
 #include "include/scheduler.h"
 #include "include/videoDriver.h"
 #include "include/fileDescriptor.h"
@@ -83,6 +85,8 @@ void setKeyFlags(unsigned char key){
 }
 
 void keyboardHandler(){
+    _cli();
+    // drawStringWithColor(" START_K ", 14, 0xffff00, 0, 2);
     char key[1]={getKeyPress()};
     writeOnFile( stdin_fd,key,1, 0x000000, 0x000000, 2);
     setKeyFlags(key[0]);
@@ -90,6 +94,7 @@ void keyboardHandler(){
         killFG();
         drawString("\n$>", 3, 2);
     }
+    // drawStringWithColor(" END-K ", 14, 0xffff00, 0, 2);
 }
 
 

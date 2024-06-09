@@ -38,6 +38,9 @@ int shell(int argc, char **args) {
     unsigned char ctrl_press = 0;
     sys_getScreenDimensions(&dims);
     clear();
+    // char *argsAux[2]={"5",0};
+    // sys_wait_pid(sys_createProcess((Main) test_processes,argsAux,"test_ps",3, fg_fds));
+
     while (1) {
         int size = sys_read(0,(char *) buffer + idx, 1);
         if (size > 0) {

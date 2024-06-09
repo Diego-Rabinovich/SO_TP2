@@ -8,7 +8,7 @@
 #include "include/lib.h"
 #include "include/scheduler.h"
 #include "include/interrupts.h"
-#define BUFF_SIZE 64
+#define BUFF_SIZE 128
 #define MAX_FDS 128
 #define WAITING_NOTHING 0
 #define WAITING_WRITE 1
@@ -21,6 +21,8 @@ typedef struct FileDescriptorCDT
     unsigned char readIdx;
     unsigned char writeIdx;
     unsigned char used;
+    // char locked_write;
+    // char locked_read;
     //sem
 } FileDescriptorCDT;
 
@@ -59,10 +61,20 @@ FileDescriptor initFd(){
     new_fd->readIdx=0;
     new_fd->writeIdx=0;
     new_fd->used=0;
+    // new_fd->locked_read=1;
+    // new_fd->locked_write=0;
     return new_fd;
 }
 
-
+int getSubscribedAmount(int16_t fd, char r_w) {
+    int ret = 0;
+    for (int i = 0; i < MAX_PROCESSES; ++i) {
+        if(processes_wating[i].fd == fd && processes_wating[i].r_w == r_w) {
+            ret++;
+        }
+    }
+    return ret;
+}
 
 int writeOnFile(FileDescriptor fd,  char * buf, unsigned long len, uint32_t hexFontColor, uint32_t hexBGColor, uint32_t fontSize){
     if(fd==NULL){
@@ -79,15 +91,37 @@ int writeOnFile(FileDescriptor fd,  char * buf, unsigned long len, uint32_t hexF
         case DEV_NULL: break;
         default:
             for(int i=0;i<len;i++) {
-                while(fd->used >= BUFF_SIZE) {//pregunto si no tiene espacio
-                    uint16_t pid = getPid();
-                    processes_wating[pid].fd = fd->fd;
-                    processes_wating[pid].r_w = WAITING_WRITE;
-                    setState(pid, BLOCKED);
-                    _cli();
-                    awoken=0;
-                    processes_wating[pid].fd = 0;
-                    processes_wating[pid].r_w = WAITING_NOTHING;
+                // if(fd->fd == STDIN)
+                // {
+                //     char wridx [3];
+                //     uintToBase(fd->writeIdx, wridx, 10);
+                //     drawStringWithColor(wridx, 3, 0xff0000, 0, 2);
+                //
+                //     char rdidx [3];
+                //     uintToBase(fd->readIdx, rdidx, 10);
+                //     drawStringWithColor(rdidx, 3, 0xffff00, 0, 2);
+                // }
+                if(fd->used >= BUFF_SIZE) {//pregunto si no tiene espacio
+                    if(fd->fd == STDIN && getSubscribedAmount(STDIN, WAITING_READ) == 0) {
+                        //Si se llena el buffer de STDIN y no hay lectores, vacialo
+                        fd->used=0;
+                        fd->writeIdx=0;
+                        fd->readIdx=0;
+                    } else
+                    {
+                        uint16_t pid = getPid();
+                        processes_wating[pid].fd = fd->fd;
+                        processes_wating[pid].r_w = WAITING_WRITE;
+                        //drawStringWithColor("WAITING TO WRITE", 17, 0x00ff00, 0, 2);
+                        setState(pid, BLOCKED);
+                        // fd->locked_write = 1;
+                        //     _sti();
+                        //     while (fd->locked_write);
+                        _cli();
+                        awoken=0;
+                        processes_wating[pid].fd = 0;
+                        processes_wating[pid].r_w = WAITING_NOTHING;
+                    }
                 }
                 fd->buff[fd->writeIdx]=buf[i];
                 fd->writeIdx=(fd->writeIdx + 1)%BUFF_SIZE;
@@ -97,6 +131,7 @@ int writeOnFile(FileDescriptor fd,  char * buf, unsigned long len, uint32_t hexF
                     for(int j=0;j<MAX_PROCESSES;j++){
                         if(processes_wating[j].r_w==WAITING_READ&&processes_wating[j].fd==fd->fd){
                             setState(j,READY);
+                            // fd->locked_read = 0;
                             break;
                         }
                     }
@@ -112,15 +147,20 @@ int readOnFile(FileDescriptor fd, unsigned char * target, unsigned long len){
         return -1;
     }
 
-    char awoken=0;
+    char awokenWriters=0;
     for(int i=0;i<len;) {
         if(fd->used == 0) {
             uint16_t pid = getPid();
             processes_wating[pid].fd = fd->fd;
             processes_wating[pid].r_w = WAITING_READ;
+            //drawStringWithColor(" Waiting to read ", 16, 0x00ff00, 0, 2);
             setState(pid, BLOCKED);
+            //drawStringWithColor(" Done reading ", 16, 0xff0000, 0xffffff, 2);
+            // fd->locked_read = 1;
+            // _sti();
+            // while (fd->locked_read);
             _cli();
-            awoken=0;
+            awokenWriters=0;
             processes_wating[pid].r_w = WAITING_NOTHING;
             processes_wating[pid].fd = 0;
         }
@@ -133,11 +173,12 @@ int readOnFile(FileDescriptor fd, unsigned char * target, unsigned long len){
                 i++;
                 fd->used--;
             }
-            if(!awoken){
-                awoken=1;
+            if(!awokenWriters){
+                awokenWriters=1;
                 for(int j=0;j<MAX_PROCESSES;j++){
                     if(processes_wating[j].r_w==WAITING_WRITE&&processes_wating[j].fd==fd->fd){
                         setState(j,READY);
+                        // fd->locked_write = 0;
                         break;
                     }
                 }

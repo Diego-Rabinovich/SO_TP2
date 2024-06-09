@@ -57,10 +57,10 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
                 print("test_processes: ERROR killing process\n", 0xff0000, 2);
                 return -1;
               }
-              // char pepe[10];
-              // uintToBase(p_rqs[rq].pid,pepe,10);
-              // print(pepe,0xFFFFFF,2);
-              // print("\n",0xFFFFFF,2);
+              char pepe[10];
+              uintToBase(p_rqs[rq].pid,pepe,10);
+              print(pepe,0xFFFFFF,2);
+              print("\n",0xFFFFFF,2);
               p_rqs[rq].state = KILLED;
               alive--;
             }
