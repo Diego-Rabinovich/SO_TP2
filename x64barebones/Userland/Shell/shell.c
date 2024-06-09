@@ -303,6 +303,7 @@ char startCommand() {
             if (m_requested > 0 && m_requested <= 128){
                 char ** args= sys_malloc(sizeof (char *)*2+10);
                 args[0]=(char*)args+ sizeof(char*)*2;
+                uintToBase(m_requested*1024*1024, args[0], 10);
                 char *argsAux[2]={args[0],0};
                 int16_t pid=sys_createProcess((Main) test_mm,argsAux,"test_mm",3, fg_fds);
                 sys_wait_pid(pid);
