@@ -13,22 +13,6 @@ void slowInc(int64_t *p, int64_t inc) {
   sys_yield(); // This makes the race condition highly probable
   aux += inc;
   *p = aux;
-//    char dir[18];
-//    uintToBase((uint64_t)p, dir, 16);
-//    print(dir, 0xffffff, 2);
-//    print("\n", 0xffffff, 2);
-//    char globalStr[100];
-//    if (global < 0){
-//        int64_t globalAux = -1* global;
-//        uintToBase(globalAux, globalStr, 10);
-//        print("Global: -", inc > 0 ? 0xffffff : 0xffff00, 2);
-//
-//    } else {
-//        uintToBase(global, globalStr, 10);
-//        print("Global: ", inc > 0 ? 0xffffff : 0xffff00, 2);
-//    }
-//    print(globalStr, inc > 0 ? 0xffffff : 0xffff00, 2);
-//    print("\n", 0xffffff, 2);
 }
 
 uint64_t my_process_inc(uint64_t argc, char *argv[]) {

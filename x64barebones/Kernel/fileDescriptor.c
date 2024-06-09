@@ -8,6 +8,8 @@
 #include "include/lib.h"
 #include "include/scheduler.h"
 #include "include/interrupts.h"
+#include "include/semaphores.h"
+
 #define BUFF_SIZE 128
 #define MAX_FDS 128
 #define WAITING_NOTHING 0
@@ -21,9 +23,9 @@ typedef struct FileDescriptorCDT
     unsigned char readIdx;
     unsigned char writeIdx;
     unsigned char used;
-    // char locked_write;
-    // char locked_read;
-    //sem
+    char semReadName[MAX_NAME];
+    char semWriteName[MAX_NAME];
+    char mutexName[MAX_NAME];
 } FileDescriptorCDT;
 
 
@@ -61,8 +63,17 @@ FileDescriptor initFd(){
     new_fd->readIdx=0;
     new_fd->writeIdx=0;
     new_fd->used=0;
-    // new_fd->locked_read=1;
-    // new_fd->locked_write=0;
+    char idxStr[10];
+    uintToBase(new_fd_idx, idxStr, 10);
+    memcpy(new_fd->mutexName, "mutex_fd_", 9);
+    memcpy((void *) new_fd->mutexName + 9, idxStr, strLen(idxStr)+1);
+    memcpy(new_fd->semReadName, "read_fd_", 8);
+    memcpy((void *) new_fd->semReadName + 8, idxStr, strLen(idxStr)+1);
+    memcpy(new_fd->mutexName, "write_fd_", 9);
+    memcpy((void *) new_fd->mutexName + 9, idxStr, strLen(idxStr)+1);
+    newSemaphore(new_fd->mutexName, 1);
+    newSemaphore(new_fd->semReadName, 0);
+    newSemaphore(new_fd->semWriteName, BUFF_SIZE);
     return new_fd;
 }
 
@@ -76,66 +87,29 @@ int getSubscribedAmount(int16_t fd, char r_w) {
     return ret;
 }
 
-int writeOnFile(FileDescriptor fd,  char * buf, unsigned long len, uint32_t hexFontColor, uint32_t hexBGColor, uint32_t fontSize){
+int writeOnFile(FileDescriptor fd,  char * buff, unsigned long len, uint32_t hexFontColor, uint32_t hexBGColor, uint32_t fontSize){
     if(fd==NULL){
         return -1;
     }
-    char awoken = 0;
     switch (fd->fd){
         case STDOUT:
-            drawStringWithColor(buf, len, hexFontColor, hexBGColor, fontSize);
+            drawStringWithColor(buff, len, hexFontColor, hexBGColor, fontSize);
             break;
         case STDERR:
-            drawStringWithColor(buf, len, 0xff0000, 0x000000, fontSize);
+            drawStringWithColor(buff, len, 0xff0000, 0x000000, fontSize);
             break;
         case DEV_NULL: break;
         default:
             for(int i=0;i<len;i++) {
-                // if(fd->fd == STDIN)
-                // {
-                //     char wridx [3];
-                //     uintToBase(fd->writeIdx, wridx, 10);
-                //     drawStringWithColor(wridx, 3, 0xff0000, 0, 2);
-                //
-                //     char rdidx [3];
-                //     uintToBase(fd->readIdx, rdidx, 10);
-                //     drawStringWithColor(rdidx, 3, 0xffff00, 0, 2);
-                // }
-                if(fd->used >= BUFF_SIZE) {//pregunto si no tiene espacio
-                    if(fd->fd == STDIN && getSubscribedAmount(STDIN, WAITING_READ) == 0) {
-                        //Si se llena el buffer de STDIN y no hay lectores, vacialo
-                        fd->used=0;
-                        fd->writeIdx=0;
-                        fd->readIdx=0;
-                    } else
-                    {
-                        uint16_t pid = getPid();
-                        processes_wating[pid].fd = fd->fd;
-                        processes_wating[pid].r_w = WAITING_WRITE;
-                        //drawStringWithColor("WAITING TO WRITE", 17, 0x00ff00, 0, 2);
-                        setState(pid, BLOCKED);
-                        // fd->locked_write = 1;
-                        //     _sti();
-                        //     while (fd->locked_write);
-                        _cli();
-                        awoken=0;
-                        processes_wating[pid].fd = 0;
-                        processes_wating[pid].r_w = WAITING_NOTHING;
-                    }
+                if(fd == STDIN && fd->used == BUFF_SIZE){
                 }
-                fd->buff[fd->writeIdx]=buf[i];
-                fd->writeIdx=(fd->writeIdx + 1)%BUFF_SIZE;
-                fd->used++;
-                if(!awoken){
-                    awoken=1;
-                    for(int j=0;j<MAX_PROCESSES;j++){
-                        if(processes_wating[j].r_w==WAITING_READ&&processes_wating[j].fd==fd->fd){
-                            setState(j,READY);
-                            // fd->locked_read = 0;
-                            break;
-                        }
-                    }
-                }
+                semWait(fd->semWriteName);
+                semWait(fd->mutexName);
+                fd->buff[fd->writeIdx] = buff[i];
+                fd->writeIdx = (fd->writeIdx + 1) % BUFF_SIZE;
+                i++;
+                semPost(fd->semReadName);
+                semPost(fd->mutexName);
             }
             break;
     }
@@ -146,44 +120,19 @@ int readOnFile(FileDescriptor fd, unsigned char * target, unsigned long len){
     if(fd==NULL || fd->fd == DEV_NULL){
         return -1;
     }
-
-    char awokenWriters=0;
     for(int i=0;i<len;) {
-        if(fd->used == 0) {
-            uint16_t pid = getPid();
-            processes_wating[pid].fd = fd->fd;
-            processes_wating[pid].r_w = WAITING_READ;
-            //drawStringWithColor(" Waiting to read ", 16, 0x00ff00, 0, 2);
-            setState(pid, BLOCKED);
-            //drawStringWithColor(" Done reading ", 16, 0xff0000, 0xffffff, 2);
-            // fd->locked_read = 1;
-            // _sti();
-            // while (fd->locked_read);
-            _cli();
-            awokenWriters=0;
-            processes_wating[pid].r_w = WAITING_NOTHING;
-            processes_wating[pid].fd = 0;
+        semWait(fd->semReadName);
+        semWait(fd->mutexName);
+        if (fd->fd == STDIN){
+            processBuf(target, &i, fd);
         }
-        if(fd->used > 0) {
-            if(fd->fd==STDIN) {
-                processBuf(target,&i,fd);
-            } else {
-                target[i]=fd->buff[fd->readIdx];
-                fd->readIdx=(fd->readIdx+1)%BUFF_SIZE;
-                i++;
-                fd->used--;
-            }
-            if(!awokenWriters){
-                awokenWriters=1;
-                for(int j=0;j<MAX_PROCESSES;j++){
-                    if(processes_wating[j].r_w==WAITING_WRITE&&processes_wating[j].fd==fd->fd){
-                        setState(j,READY);
-                        // fd->locked_write = 0;
-                        break;
-                    }
-                }
-            }
+        else{
+            target[i] = fd->buff[fd->readIdx];
+            fd->readIdx = (fd->readIdx + 1) % BUFF_SIZE;
+            i++;
         }
+        semPost(fd->semWriteName);
+        semPost(fd->mutexName);
     }
     return (int)len;
 }

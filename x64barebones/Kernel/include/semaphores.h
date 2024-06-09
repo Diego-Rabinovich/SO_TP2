@@ -2,7 +2,7 @@
 #include "linkedList.h"
 #ifndef SO_TP2_SEMAPHORES_H
 #define SO_TP2_SEMAPHORES_H
-#define MAX_NAME 16
+#define MAX_NAME 24
 
 typedef struct  Semaphore{
     char name[MAX_NAME];
