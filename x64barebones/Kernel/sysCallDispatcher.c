@@ -29,7 +29,7 @@ uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t
         case 0:
             return readOnFile(getFd(arg0), (unsigned char *) arg1, arg2);
         case 1:
-            return writeOnFile(getFd(arg0), (unsigned char *) arg1, arg2, arg3, arg4, arg5);
+            return writeOnFile(getFd(arg0), (char *) arg1, arg2, arg3, arg4, arg5);
         case 2:
             printPixel(arg0, arg1, (uint32_t) arg2);
             return RAX;

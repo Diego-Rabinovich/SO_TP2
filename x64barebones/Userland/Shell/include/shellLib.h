@@ -17,6 +17,6 @@
 #define MAX_ARGS ( BUFF_SIZE / 2 )
 void newLine(uint32_t fontSize);
 char isSpecial(char c);
-int parseArgs(const char *buffer,char args[MAX_ARGS][BUFF_SIZE], int size, char parser, char end);
+int parseArgs(const unsigned char *buffer,char args[MAX_ARGS][BUFF_SIZE], int size, char parser, char end);
 void commandNotFound(uint32_t fontSize);
 #endif //TPEARQUI_SHELLLIB_H

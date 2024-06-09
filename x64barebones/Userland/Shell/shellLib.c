@@ -8,7 +8,7 @@ char isSpecial(char c) {
     return NOT_USABLE <= c && c <= DOWN_ARROW;
 }
 
-int parseArgs(const char *buffer, char args[MAX_ARGS][BUFF_SIZE], int size, char parser, char end) {
+int parseArgs(const unsigned char *buffer, char args[MAX_ARGS][BUFF_SIZE], int size, char parser, char end) {
     int i = 0, idJ = 0, idX = 0;
     if (size > 0) {
         do {

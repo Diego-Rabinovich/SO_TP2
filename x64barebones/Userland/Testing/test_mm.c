@@ -47,7 +47,7 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
             // print(totalStr, 0x00ff00, 2);
             // print("\n", 0xffffff, 2);
     }
-      char rqstr[4];
+      //char rqstr[4];
       // uintToBase(rq, rqstr, 10);
       // print("SET with rq: \n", 0xffffff, 2);
       // print(rqstr, 0xff0000, 2);

@@ -67,12 +67,12 @@ int shell(int argc, char **args) {
                     case '\t':
                         for (int i = 0; i < 4; i++) {
                             buffer[idx++] = ' ';
-                            print(buffer + idx - 1, 0, fontSize);
+                            print((char*)buffer + idx - 1, 0, fontSize);
                         }
                         break;
                     default:
                         if (idx + 1 < BUFF_SIZE && !isSpecial(buffer[idx])) {
-                            print(buffer + idx, fontColor, fontSize);
+                            print((char *)buffer + idx, fontColor, fontSize);
                             idx++;
                         } else if (idx + 1 < BUFF_SIZE) {
                             buffer[idx] = 0; //borro las especiales que no nos importan aquí
