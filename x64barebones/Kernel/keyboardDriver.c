@@ -1,6 +1,7 @@
 #include "include/keyboardDriver.h"
 
 #include "interrupts.h"
+#include "sysCallDispatcher.h"
 #include "include/scheduler.h"
 #include "include/videoDriver.h"
 #include "include/fileDescriptor.h"
@@ -88,6 +89,10 @@ void keyboardHandler(){
     _cli();
     // drawStringWithColor(" START_K ", 14, 0xffff00, 0, 2);
     char key[1]={getKeyPress()};
+    if(key[0] == 0x2C){
+        //APRIETO Z
+        ps();
+    }
     writeOnFile( stdin_fd,key,1, 0x000000, 0x000000, 2);
     setKeyFlags(key[0]);
     if(ctrl_enabled && key[0] == 0x2E){
