@@ -86,6 +86,8 @@ int writeOnFile(FileDescriptor fd,  char * buf, unsigned long len, uint32_t hexF
                     setState(pid, BLOCKED);
                     _cli();
                     awoken=0;
+                    processes_wating[pid].fd = 0;
+                    processes_wating[pid].r_w = WAITING_NOTHING;
                 }
                 fd->buff[fd->writeIdx]=buf[i];
                 fd->writeIdx=(fd->writeIdx + 1)%BUFF_SIZE;
@@ -119,6 +121,8 @@ int readOnFile(FileDescriptor fd, unsigned char * target, unsigned long len){
             setState(pid, BLOCKED);
             _cli();
             awoken=0;
+            processes_wating[pid].r_w = WAITING_NOTHING;
+            processes_wating[pid].fd = 0;
         }
         if(fd->used > 0) {
             if(fd->fd==STDIN) {

@@ -19,10 +19,10 @@ char caps_enabled = 0;
 char shift_enabled = 0;
 char ctrl_enabled = 0;
 
-FileDescriptor fd;
+FileDescriptor stdin_fd;
 
 void initSTDIN(){
-    fd=initFd();
+    stdin_fd=initFd();
 }
 
 unsigned char scan_codes[][84] = {
@@ -84,7 +84,7 @@ void setKeyFlags(unsigned char key){
 
 void keyboardHandler(){
     unsigned char key[1]={getKeyPress()};
-    writeOnFile( fd,key,1, 0x000000, 0x000000, 2);
+    writeOnFile( stdin_fd,key,1, 0x000000, 0x000000, 2);
     setKeyFlags(key[0]);
     if(ctrl_enabled && key[0] == 0x2E){
         killFG();
