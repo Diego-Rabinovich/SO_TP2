@@ -137,7 +137,7 @@ void* schedule(void* last_rsp) {
     return new_P->rsp;
 }
 
-uint16_t createProcess(Main main_func, char **args, char *name, uint8_t priority, int16_t fds[]) {
+int16_t createProcess(Main main_func, char **args, char *name, uint8_t priority, int16_t fds[]) {
     is_priority = 1;
     if (scheduler.process_count >= MAX_PROCESSES || main_func == NULL || priority < 0 || priority > 3 || fds == NULL){
         is_priority =0;
