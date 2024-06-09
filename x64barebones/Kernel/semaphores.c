@@ -53,7 +53,10 @@ static void acquireLock(Semaphore * sem){
 
 int32_t newSemaphore(char * name , uint32_t initial_value){
     int nameLen = strLen(name);
-    if ( semCount >= MAX_SEMS || nameLen >= MAX_NAME || getSem(name) != -1){
+    if (getSem(name) != -1){
+        return 0;
+    }
+    if ( semCount >= MAX_SEMS || nameLen >= MAX_NAME ){
         return -1;
     }
     sems[nextID] = memAlloc(sizeof (Semaphore));

@@ -9,10 +9,26 @@
 int64_t global; // shared memory
 
 void slowInc(int64_t *p, int64_t inc) {
-  uint64_t aux = *p;
+  int64_t aux = *p; //we made aux int64_t instead of uint64_t so that if a dec goes below 0 global does not go to int max.
   sys_yield(); // This makes the race condition highly probable
   aux += inc;
   *p = aux;
+//    char dir[18];
+//    uintToBase((uint64_t)p, dir, 16);
+//    print(dir, 0xffffff, 2);
+//    print("\n", 0xffffff, 2);
+//    char globalStr[100];
+//    if (global < 0){
+//        int64_t globalAux = -1* global;
+//        uintToBase(globalAux, globalStr, 10);
+//        print("Global: -", inc > 0 ? 0xffffff : 0xffff00, 2);
+//
+//    } else {
+//        uintToBase(global, globalStr, 10);
+//        print("Global: ", inc > 0 ? 0xffffff : 0xffff00, 2);
+//    }
+//    print(globalStr, inc > 0 ? 0xffffff : 0xffff00, 2);
+//    print("\n", 0xffffff, 2);
 }
 
 uint64_t my_process_inc(uint64_t argc, char *argv[]) {
@@ -45,9 +61,6 @@ uint64_t my_process_inc(uint64_t argc, char *argv[]) {
       sys_sem_post(SEM_ID);
   }
 
-  if (use_sem)
-    sys_sem_destroy(SEM_ID);
-
   return 0;
 }
 
@@ -65,18 +78,20 @@ uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
 
   uint64_t i;
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-    pids[i] = sys_createProcess((Main) my_process_inc, argvDec,  "my_process_inc", 3, fdsAux);
+    pids[i] = sys_createProcess((Main) my_process_inc, argvDec,  "my_process_dec", 3, fdsAux);
     pids[i + TOTAL_PAIR_PROCESSES] = sys_createProcess((Main) my_process_inc, argvInc,  "my_process_inc", 0, fdsAux);
   }
 
-  for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-    sys_wait_pid(pids[i]);
-    sys_wait_pid(pids[i + TOTAL_PAIR_PROCESSES]);
+  for (i = 0; i < 2 * TOTAL_PAIR_PROCESSES; i++) {
+    sys_wait_pid(-1); //we change this to -1 since we do not support zombies
   }
+
+  if (satoi(argv[1]))
+        sys_sem_destroy(SEM_ID);
 
   char globalStr[100];
   uintToBase(global, globalStr, 10);
-  print("Final value: ", 0xffffff, 2);
+  print("\nFinal value: ", 0xffffff, 2);
   print(globalStr, 0xffffff, 2);
   print("\n", 0xffffff, 2);
 
