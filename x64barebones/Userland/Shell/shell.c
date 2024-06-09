@@ -305,8 +305,9 @@ char startCommand() {
                 args[0]=(char*)args+ sizeof(char*)*2;
                 uintToBase(m_requested*1024*1024, args[0], 10);
                 char *argsAux[2]={args[0],0};
-                int16_t pid=sys_createProcess((Main) test_mm,argsAux,"test_mm",3, fg_fds);
-                sys_wait_pid(pid);
+                int16_t fdsAux[3] = {DEV_NULL, STDOUT, STDERR};
+                sys_createProcess((Main) test_mm,argsAux,"test_mm",3, fdsAux);
+                //sys_wait_pid(pid);
                 sys_free(args);
             } else {
                 print("\nThe requested memory space must be between 1MB and 128MB", 0xff0000, 2);
@@ -317,8 +318,9 @@ char startCommand() {
             strToInt(arguments[2], &p_requested);
             if (p_requested > 0 && p_requested <= 4000) {
                 char * argsAux[2] = {arguments[2],0};
-                int16_t fdsAux[3] = {DEV_NULL, STDOUT, STDERR};
-                sys_createProcess((Main) test_processes,argsAux,"test_ps",3, fdsAux);
+                int16_t fdsAux[3] = {STDIN, STDOUT, STDERR};
+                sys_wait_pid(sys_createProcess((Main) test_processes,argsAux,"test_ps",3, fdsAux));
+
             } else {
                 print("\nThe requested max processes must be between 1 and 4000", 0xff0000, 2);
             }

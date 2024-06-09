@@ -79,6 +79,6 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
           sys_free(mm_rqs[i].address);
       }
     }
-    // print("sigo corriendo\n", 0xffffff, 2);
+    //print("sigo corriendo\n", 0xffffff, 2);
   }
 }

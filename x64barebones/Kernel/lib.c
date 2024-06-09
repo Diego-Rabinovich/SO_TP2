@@ -215,7 +215,7 @@ void infoRegs(){
         while(g[0] != 0xA9) {
             readOnFile(getFd(STDIN), g, 1);
         }
-
+        turnOffPriority();
         loadScreenState();
 
         shownRegisters = 0;
