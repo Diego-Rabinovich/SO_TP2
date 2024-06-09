@@ -182,11 +182,12 @@ int32_t killCurrent(int32_t ret){
 
 int32_t kill(uint16_t pid, int32_t ret){
     Node *to_kill_node = scheduler.processes[pid];
-	if (to_kill_node == NULL ||  pid <= 2) {
-        char pidStr[4];
-	    uintToBase(pid, pidStr, 10);
-	    drawStringWithColor(pidStr, 3, 0xff0000, 0x000000, 2);
+    if(pid <= 2) {
         //note that if pid <= 2 then p is either sh, user, or trivial
+        return -1;
+    }
+    if (to_kill_node == NULL) {
+        //Process already killed, task succesful :)
         return 0;
     }
 	PCB *to_kill_pcb = (PCB *) to_kill_node->data;
@@ -263,6 +264,7 @@ void yield(){
 }
 
 //TODO implementar con IPC
+//close pipes
 
 void killFG(){
     if(scheduler.fg_pid > 2){

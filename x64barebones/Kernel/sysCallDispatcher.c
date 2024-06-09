@@ -48,8 +48,11 @@ uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t
             return RAX;
         case 7:
             return waitNMillis(arg0);
+
+        //TODO: afuera
         case 8:
             return hardRead(arg0, (char *) arg1, arg2);
+        //TODO: afuera
         case 9:
             beep(arg0,arg1);
             return RAX;
@@ -98,8 +101,6 @@ uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t
     }
 }
 
-
-
 int hardRead(uint64_t fd, char *buf, uint64_t count){
 /*
     switch (fd) {
@@ -116,20 +117,6 @@ int hardRead(uint64_t fd, char *buf, uint64_t count){
     return 0;
 }
 
-int write(uint64_t fd, char *text, uint64_t len, uint32_t font_hexColor, uint32_t fontSize) {
-/*
-    switch (fd) {
-        case 1:
-            drawStringWithColor(text,len,font_hexColor,0x00000000, fontSize);
-            break;
-        case 2:
-            drawStringWithColor(text,len,0x00FF0000,0x00000000, fontSize); //rojo y negro respectivamente
-            break;
-    }
-    */
-
-    return 0;
-}
 
 void printPixel(uint64_t x, uint64_t y, uint32_t color) {
     putPixel(color, x + X_START_OFFSET, y + Y_START_OFFSET);

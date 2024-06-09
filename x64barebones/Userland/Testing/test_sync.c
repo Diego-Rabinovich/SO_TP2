@@ -67,7 +67,7 @@ uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
   }
 
   for (i = 0; i < 2 * TOTAL_PAIR_PROCESSES; i++) {
-    sys_wait_pid(-1); //we change this to -1 since we do not support zombies
+    sys_wait_pid(-1); //we change this to -1 since we do not support zombie processes
   }
 
   if (satoi(argv[1]))

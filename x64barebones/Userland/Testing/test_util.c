@@ -66,7 +66,7 @@ void endless_loop() {
 }
 
 int endless_loop_print(int argc, char * argv[]) {
-  int64_t pid = sys_pid(); //TODO: syscall
+  int64_t pid = sys_pid();
   int wait = 0;
   if (argc > 0){
       strToInt(argv[0], &wait);

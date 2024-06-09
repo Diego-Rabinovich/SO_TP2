@@ -27,7 +27,6 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
   p_rq p_rqs[max_processes];
 
   while (1) {
-      //print("Now creating processes\n", 0xffffff, 2);
     // Create max_processes processes
     for (rq = 0; rq < max_processes; rq++) {
       int16_t* fds = sys_malloc(3*sizeof(int16_t));
@@ -43,7 +42,6 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
         alive++;
       }
     }
-        //print("All processes have been created\n", 0xffffff, 2);
     // Randomly kills, blocks or unblocks processes until every one has been killed
     while (alive > 0) {
 
@@ -57,10 +55,6 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
                 print("test_processes: ERROR killing process\n", 0xff0000, 2);
                 return -1;
               }
-              char pepe[10];
-              uintToBase(p_rqs[rq].pid,pepe,10);
-              print(pepe,0xFFFFFF,2);
-              print("\n",0xFFFFFF,2);
               p_rqs[rq].state = KILLED;
               alive--;
             }
@@ -87,6 +81,5 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
           p_rqs[rq].state = RUNNING;
         }
     }
-     // print("No more processes alive\n", 0xffffff, 2);
   }
 }

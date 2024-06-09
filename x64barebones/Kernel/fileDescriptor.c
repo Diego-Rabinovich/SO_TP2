@@ -36,7 +36,6 @@ typedef struct ProcessWaiting{
 
 void processBuf(unsigned char * buf,int *idx,FileDescriptor fd);
 
-ProcessWaiting processes_wating[MAX_PROCESSES]={0};
 FileDescriptor fds[MAX_FDS]={0};
 int16_t next_fd=0;
 int16_t count_fd=0;
@@ -77,16 +76,6 @@ FileDescriptor initFd(){
     return new_fd;
 }
 
-int getSubscribedAmount(int16_t fd, char r_w) {
-    int ret = 0;
-    for (int i = 0; i < MAX_PROCESSES; ++i) {
-        if(processes_wating[i].fd == fd && processes_wating[i].r_w == r_w) {
-            ret++;
-        }
-    }
-    return ret;
-}
-
 int writeOnFile(FileDescriptor fd,  char * buff, unsigned long len, uint32_t hexFontColor, uint32_t hexBGColor, uint32_t fontSize){
     if(fd==NULL){
         return -1;
@@ -99,42 +88,61 @@ int writeOnFile(FileDescriptor fd,  char * buff, unsigned long len, uint32_t hex
             drawStringWithColor(buff, len, 0xff0000, 0x000000, fontSize);
             break;
         case DEV_NULL: break;
+        case STDIN:
+            for(int i=0;i<len;i++) {
+                semWait(fd->mutexName);
+                fd->buff[fd->writeIdx] = buff[i];
+                fd->writeIdx = (fd->writeIdx + 1) % BUFF_SIZE;
+                i++;
+                if(fd->used < BUFF_SIZE) {
+                    fd->used++;
+                    semPost(fd->semReadName);
+                } else {
+                    fd->readIdx = fd->writeIdx;
+                }
+                semPost(fd->mutexName);
+            }
+            break;
         default:
             for(int i=0;i<len;i++) {
-                if(fd == STDIN && fd->used == BUFF_SIZE){
-                }
                 semWait(fd->semWriteName);
                 semWait(fd->mutexName);
                 fd->buff[fd->writeIdx] = buff[i];
                 fd->writeIdx = (fd->writeIdx + 1) % BUFF_SIZE;
                 i++;
+                fd->used++;
                 semPost(fd->semReadName);
                 semPost(fd->mutexName);
             }
             break;
     }
-    return (int)len;
+    return len;
 }
 
 int readOnFile(FileDescriptor fd, unsigned char * target, unsigned long len){
     if(fd==NULL || fd->fd == DEV_NULL){
         return -1;
     }
-    for(int i=0;i<len;) {
-        semWait(fd->semReadName);
-        semWait(fd->mutexName);
-        if (fd->fd == STDIN){
-            processBuf(target, &i, fd);
+    if(fd->fd == STDIN) {
+        for(int i=0;i<len;) {
+            semWait(fd->semReadName);
+            semWait(fd->mutexName);
+                processBuf(target, &i, fd);
+            semPost(fd->mutexName);
         }
-        else{
+    } else {
+        for(int i=0;i<len;) {
+            semWait(fd->semReadName);
+            semWait(fd->mutexName);
             target[i] = fd->buff[fd->readIdx];
             fd->readIdx = (fd->readIdx + 1) % BUFF_SIZE;
             i++;
+            fd->used--;
+            semPost(fd->semWriteName);
+            semPost(fd->mutexName);
         }
-        semPost(fd->semWriteName);
-        semPost(fd->mutexName);
     }
-    return (int)len;
+    return len;
 }
 
 FileDescriptor getFd(int16_t fd){

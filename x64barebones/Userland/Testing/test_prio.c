@@ -4,13 +4,13 @@
 #include "../User/include/userLibAsm.h"
 #include "../User/include/userLib.h"
 
-#define MINOR_WAIT "15000000" // TODO: Change this value to prevent a process from flooding the screen
-#define WAIT 100000000      // TODO: Change this value to make the wait long enough to see theese processes beeing run at least twice
+#define MINOR_WAIT "20000000"
+#define WAIT 200000000
 
 #define TOTAL_PROCESSES 3
-#define LOWEST 0  // TODO: Change as required
-#define MEDIUM 2  // TODO: Change as required
-#define HIGHEST 3 // TODO: Change as required
+#define LOWEST 0
+#define MEDIUM 2
+#define HIGHEST 3
 
 int64_t prio[TOTAL_PROCESSES] = {LOWEST, MEDIUM, HIGHEST};
 

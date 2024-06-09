@@ -104,6 +104,8 @@ void getCurrentCpuTime(int array[3]){
     array[1] = getFormat(aux[1]);
     array[2] = getFormat(aux[2]);
 }
+
+//TODO bloquear
 int waitNMillis(uint64_t millis){
     int start = ticks_elapsed();
 

@@ -320,8 +320,8 @@ char startCommand() {
             strToInt(arguments[2], &p_requested);
             if (p_requested > 0 && p_requested <= 4000) {
                 char * argsAux[2] = {arguments[2],0};
-                int16_t fdsAux[3] = {STDIN, STDOUT, STDERR};
-                sys_wait_pid(sys_createProcess((Main) test_processes,argsAux,"test_ps",3, fdsAux));
+                int16_t fdsAux[3] = {DEV_NULL, STDOUT, STDERR};
+                sys_createProcess((Main) test_processes,argsAux,"test_ps",3, fdsAux);
 
             } else {
                 print("\nThe requested max processes must be between 1 and 4000", 0xff0000, 2);
