@@ -127,12 +127,7 @@ void* schedule(void* last_rsp) {
     } else{
         first_round = 0;
     }
-//    if(running!=NULL && ((PCB *)running->data)->p_state==TERMINATED){
-//        scheduler.processes[((PCB *)running->data)->pid]=NULL;
-//        freeProcess(running->data);
-//        memFree(running);
-//        scheduler.process_count--;
-//    }
+
     new_P->p_state = RUNNING;
     scheduler.running_pid = new_PID;
     return new_P->rsp;

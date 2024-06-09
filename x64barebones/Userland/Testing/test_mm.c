@@ -47,10 +47,10 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
             // print(totalStr, 0x00ff00, 2);
             // print("\n", 0xffffff, 2);
     }
-      //char rqstr[4];
-      // uintToBase(rq, rqstr, 10);
-      // print("SET with rq: \n", 0xffffff, 2);
-      // print(rqstr, 0xff0000, 2);
+//      char rqstr[4];
+//       uintToBase(rq, rqstr, 10);
+//       print("SET with rq: \n", 0xffffff, 2);
+//       print(rqstr, 0xff0000, 2);
     // Set
     uint32_t i;
     for (i = 0; i < rq; i++){
@@ -79,6 +79,6 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
           sys_free(mm_rqs[i].address);
       }
     }
-    //print("sigo corriendo\n", 0xffffff, 2);
+    print("sigo corriendo\n", 0xffffff, 2);
   }
 }

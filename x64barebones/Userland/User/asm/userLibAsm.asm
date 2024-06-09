@@ -21,6 +21,10 @@ GLOBAL sys_yield
 GLOBAL sys_wait_pid
 GLOBAL sys_ps
 GLOBAL sys_get_FDs
+GLOBAL sys_sem_new
+GLOBAL sys_sem_destroy
+GLOBAL sys_sem_post
+GLOBAL sys_sem_wait
 GLOBAL make_invalid_opCode
 
 section .text
@@ -136,6 +140,26 @@ sys_ps:
 
 sys_get_FDs:
     mov rax, 22
+    int 80h
+    ret
+
+sys_sem_new:
+    mov rax, 23
+    int 80h
+    ret
+
+sys_sem_destroy:
+    mov rax, 24
+    int 80h
+    ret
+
+sys_sem_post:
+    mov rax, 25
+    int 80h
+    ret
+
+sys_sem_wait:
+    mov rax, 26
     int 80h
     ret
 

@@ -308,9 +308,8 @@ char startCommand() {
                 args[0]=(char*)args+ sizeof(char*)*2;
                 uintToBase(m_requested*1024*1024, args[0], 10);
                 char *argsAux[2]={args[0],0};
-                int16_t fdsAux[3] = {DEV_NULL, STDOUT, STDERR};
-                sys_createProcess((Main) test_mm,argsAux,"test_mm",3, fdsAux);
-                //sys_wait_pid(pid);
+                int16_t fdsAux[3] = {STDIN, STDOUT, STDERR};
+                sys_wait_pid(sys_createProcess((Main) test_mm,argsAux,"test_mm",3, fdsAux));
                 sys_free(args);
             } else {
                 print("\nThe requested memory space must be between 1MB and 128MB", 0xff0000, 2);
@@ -332,6 +331,10 @@ char startCommand() {
             char * argsNull[]={0};
             int16_t pid=sys_createProcess((Main)test_prio,argsNull,"test_prio",3, fg_fds);
             sys_wait_pid(pid);
+        }
+        else if(strCmp(arguments[1], "sync") == 0 && argsCount >= 4){
+            char * argsAux[4] = {arguments[2], arguments[3], 0};
+            sys_wait_pid(sys_createProcess((Main) test_sync,argsAux, "test sync", 0, fg_fds));
         }
         else {
             print("\nBad arguments, run <help test> for more info", 0xff0000, 2);

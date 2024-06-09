@@ -4,7 +4,7 @@ GLOBAL getKeyPress
 GLOBAL inb
 GLOBAL outb
 GLOBAL callTimerTick
-
+GLOBAL xchg
 section .text
 
 cpuVendor:
@@ -81,6 +81,10 @@ inb:
 	in	al, dx
 	ret
 
+xchg:
+    mov rax, rsi
+    xchg [rdi], eax
+    ret
 
 section .bss
 
@@ -88,5 +92,4 @@ timeStruct:
     hour resb 4
     min resb 4
     sec resb 4
-
 

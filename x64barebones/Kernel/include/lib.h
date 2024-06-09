@@ -16,5 +16,7 @@ int waitNMillis(uint64_t millis);
 uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base);
 int strLen(const char * s);
 int arrayLen(void **array);
+int strCmp(const char* s1,const char* s2);
+int xchg(int *lock, int value);
 
 #endif

@@ -10,6 +10,7 @@
 #include "include/memoryManager.h"
 #include "include/scheduler.h"
 #include "include/fileDescriptor.h"
+#include "include/semaphores.h"
 
 
 void printPixel(uint64_t x, uint64_t y, uint32_t color);
@@ -83,6 +84,15 @@ uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t
         case 22:
             getFDs((int16_t *)arg0);
             return RAX;
+        case 23:
+            return newSemaphore((char *) arg0, arg1);
+        case 24:
+            semDestroy((char *) arg0);
+            return RAX;
+        case 25:
+            return semPost((char *) arg0);
+        case 26:
+            return semWait((char *) arg0);
         default:
             return -1;
     }
