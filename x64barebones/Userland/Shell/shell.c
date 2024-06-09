@@ -102,7 +102,7 @@ char startCommand() {
                 print("$>", shellFontColor, fontSize);
                 return 1;
             } else if(size <= 0 || size > 10 ){
-                sys_write(2, "ERROR: The font size can only take values between 1 and 10",58, 0, fontSize);
+                sys_write(2, "ERROR: The font size can only take values between 1 and 10",58, 0xffffff ,0, fontSize);
             }
         }
 
@@ -112,7 +112,7 @@ char startCommand() {
                 if (red >= 0 && red < 256 && green >= 0 && green < 256 && blue >= 0 && blue < 256){
                     fontColor = rgbToInt((char)red, (char)green, (char)blue);
                 } else{
-                    sys_write(2, "\nbad RGB arguments", 19,0, fontSize);
+                    sys_write(2, "\nbad RGB arguments", 19,0xffffff, 0, fontSize);
                 }
             }
             else {
@@ -197,7 +197,7 @@ char startCommand() {
 
     else if(strCmp(arguments[0], C_SNAKE) == 0){
         if (argsCount != 2) {
-            sys_write(2, "\nERROR: Se debe senalar la cantidad de jugadores a jugar (1 o 2) como unico argumento\n", 88, 0, fontSize);
+            sys_write(2, "\nERROR: Se debe senalar la cantidad de jugadores a jugar (1 o 2) como unico argumento\n", 88, 0xffffff,0, fontSize);
             return 0;
         } else {
             int players;
@@ -214,7 +214,7 @@ char startCommand() {
                     snake(DUOS);
                     break;
                 default:
-                    sys_write(2, "ERROR: Cantidad de jugadores erronea", 36, 0, fontSize);
+                    sys_write(2, "ERROR: Cantidad de jugadores erronea", 36,0xffffff, 0, fontSize);
                     return 0;
             }
             return 1;
@@ -240,7 +240,7 @@ char startCommand() {
             print(str, shellFontColor, fontSize);
         }
         else{
-            sys_write(2, "\nThere was an error", 19, 0x00FF0000, fontSize);
+            sys_write(2, "\nThere was an error", 19,0xffffff, 0x00FF0000, fontSize);
         }
         return 0;
     }
@@ -303,9 +303,6 @@ char startCommand() {
             if (m_requested > 0 && m_requested <= 128){
                 char ** args= sys_malloc(sizeof (char *)*2+10);
                 args[0]=(char*)args+ sizeof(char*)*2;
-                uintToBase(m_requested*1024*1024, args[0], 10);
-                print("\nnow allocating: ", 0xffffff, 2);
-                print(args[0], 0xffffff, 2);
                 char *argsAux[2]={args[0],0};
                 int16_t pid=sys_createProcess((Main) test_mm,argsAux,"test_mm",3, fg_fds);
                 sys_wait_pid(pid);

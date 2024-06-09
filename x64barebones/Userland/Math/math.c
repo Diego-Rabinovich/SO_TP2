@@ -17,7 +17,7 @@ signed int math(char* operator, char* op1, char* op2, signed int* res){
     //Chequeo que sean numeros o se quiera usar el ans
     if(!strToInt(op1, &num1)){
         if(strCmp(op1, ANS) != 0){
-            sys_write(2, "FIRST OPERAND IS INVALID", 24, 0, 2);
+            sys_write(2, "FIRST OPERAND IS INVALID", 24, 0xffffff , 0, 2);
             return 0;
         } else{
             num1 = ans;
@@ -25,7 +25,7 @@ signed int math(char* operator, char* op1, char* op2, signed int* res){
     }
     if(!strToInt(op2, &num2)){
         if(strCmp(op2, ANS) != 0){
-            sys_write(2, "SECOND OPERAND IS INVALID", 25, 0, 2);
+            sys_write(2, "SECOND OPERAND IS INVALID", 25,0xffffff, 0, 2);
             return 0;
         } else{
             num2 = ans;
@@ -56,7 +56,7 @@ signed int math(char* operator, char* op1, char* op2, signed int* res){
     }
     else{
         //INVALID OP EXCEPTION
-        sys_write(2, "INVALID OPERATION", 17, 0, 2);
+        sys_write(2, "INVALID OPERATION", 17, 0,0xffffff ,  2);
         return 0;
     }
 

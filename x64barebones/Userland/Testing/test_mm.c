@@ -53,20 +53,22 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
       print(rqstr, 0xff0000, 2);
     // Set
     uint32_t i;
-    for (i = 0; i < rq; i++)
+    for (i = 0; i < rq; i++){
       if (mm_rqs[i].address)
         sys_memset(mm_rqs[i].address, i, mm_rqs[i].size);
+    }
 
 
     print("CHECK\n", 0xffffff, 2);
 
     // Check
-    for (i = 0; i < rq; i++)
+    for (i = 0; i < rq; i++){
       if (mm_rqs[i].address)
         if (!memcheck(mm_rqs[i].address, i, mm_rqs[i].size)) {
           print("test_mm ERROR\n", 0xffffff, 2);
           return -1;
         }
+    }
 
       print("FREE\n", 0xffffff, 2);
 

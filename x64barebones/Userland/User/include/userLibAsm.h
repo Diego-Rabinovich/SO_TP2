@@ -21,7 +21,7 @@ void sys_memset(void * dest, char character, uint64_t length);
 void sys_beep(uint32_t frequency, uint32_t millis);
 void make_invalid_opCode();
 void* sys_malloc(unsigned long bytes);
-int sys_write(uint64_t fd, char * text, uint64_t len, uint32_t fontHexColor, uint32_t fontSize);
+int sys_write(uint64_t fd, char * text, uint64_t len, uint32_t fontHexColor, uint32_t bgHexColor,  uint32_t fontSize);
 int sys_read(uint64_t fd,char *buf,uint64_t count);
 int sys_hardRead(uint64_t fd,char * buf,uint64_t count);
 int sys_waitNMillis(uint64_t millis);

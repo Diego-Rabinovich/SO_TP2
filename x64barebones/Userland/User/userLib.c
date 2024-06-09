@@ -76,7 +76,7 @@ int isPrefix(const char * s1, const char * s2, int n){
 }
 
 void print(char *str, uint32_t fontHexColor, uint32_t fontSize){
-    sys_write(1,str, strLen(str), fontHexColor, fontSize);
+    sys_write(1,str, strLen(str), fontHexColor, 0x000000, fontSize);
 }
 char notNumber(char c){
     return c>='0' && c<='9';

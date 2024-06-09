@@ -114,7 +114,6 @@ SECTION .text
 	out 20h, al
 
 	popState
-	sti
 	iretq
 %endmacro
 
@@ -166,7 +165,6 @@ _sti:
 	ret
 
 picMasterMask:
-    cli
 	push rbp
     mov rbp, rsp
 
@@ -174,23 +172,19 @@ picMasterMask:
     out	21h,al
 
     pop rbp
-    sti
     retn
 
 picSlaveMask:
-    cli
 	push    rbp
     mov     rbp, rsp
     mov     ax, di  ; ax = mascara de 16 bits
     out	0A1h,al
     pop     rbp
-    sti
     retn
 
 
 ;8254 Timer (Timer Tick)
 _irq00Handler:
-	cli
 	pushState
 	mov rdi, 0h
 	call irqDispatcher
@@ -200,12 +194,10 @@ _irq00Handler:
     mov al, 20h
     out 20h, al
     popState
-    sti
     iretq
 
 ;Keyboard
 _irq01Handler:
-    cli
     saveRegs
     xor rax, rax
     in al, 0x60
@@ -235,7 +227,6 @@ _irq05Handler:
 
 ;SysCalls
 _irq06Handler:
-    cli
     pushStateNoRAX
 
     push rax
@@ -243,7 +234,6 @@ _irq06Handler:
     add rsp, 8
 
     popStateNoRAX
-    sti
 	iretq
 
 

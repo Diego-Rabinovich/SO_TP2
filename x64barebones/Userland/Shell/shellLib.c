@@ -28,5 +28,5 @@ int parseArgs(const char *buffer, char args[MAX_ARGS][BUFF_SIZE], int size, char
 }
 
 void commandNotFound(uint32_t fontSize){
-    sys_write(2, "\nCommand not found\n",20,0, fontSize);
+    sys_write(2, "\nCommand not found\n",20,0xffffff, 0, fontSize);
 }

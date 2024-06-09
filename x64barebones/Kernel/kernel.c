@@ -4,8 +4,10 @@
 #include "include/videoDriver.h"
 #include "include/interrupts.h"
 #include "include/audioDriver.h"
+#include "include/keyboardDriver.h"
 #include "include/memoryManager.h"
 #include "include/scheduler.h"
+#include "fileDescriptor.h"
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -82,6 +84,9 @@ int main(){
     //startUpMusic();
     resetScreen();
     schedulerInit();
+    initSTDIN();
+    initFd(); // initializing STDOUT
+    initFd(); // initializing STDERR
     char * args[] = {NULL};
     int16_t fds[3] = {STDIN, STDOUT, STDERR};
     createProcess(trivial, args, "trivial", 0, fds);     //Halt process in case of no active processes

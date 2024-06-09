@@ -1,5 +1,8 @@
 #include "include/keyboardDriver.h"
 #include "include/scheduler.h"
+#include "include/videoDriver.h"
+#include "include/fileDescriptor.h"
+
 #define R_SHIFT_PRESS 0x36
 #define L_SHIFT_PRESS 0x2A
 #define R_SHIFT_RELEASE 0xB6
@@ -7,7 +10,6 @@
 #define L_CTRL_PRESS 0x1D
 #define L_CTRL_RELEASE 0x9D
 
-#include "include/fileDescriptor.h"
 #define F1 0xAA
 #define CAPS_LOCK 0x3A
 #define BUFF_SIZE 64
@@ -18,9 +20,11 @@ char shift_enabled = 0;
 char ctrl_enabled = 0;
 
 FileDescriptor fd;
+
 void initSTDIN(){
     fd=initFd();
 }
+
 unsigned char scan_codes[][84] = {
         {//SIN SHIFT
                 NOT_USABLE, ESC, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-',
@@ -84,6 +88,7 @@ void keyboardHandler(){
     setKeyFlags(key[0]);
     if(ctrl_enabled && key[0] == 0x2E){
         killFG();
+        drawString("\n$>", 3, 2);
     }
 }
 

@@ -30,4 +30,5 @@ void keyboardHandler();
 void alignPointers();
 char hasNext();
 char next();
+void initSTDIN();
 #endif //TPEARQUI_KEYBOARDDRIVER_H
