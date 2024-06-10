@@ -5,7 +5,7 @@
 
 typedef struct FileDescriptorCDT *FileDescriptor;
 
-int writeOnFile(FileDescriptor fd,char * buf, unsigned long len, uint32_t hexFontColor, uint32_t hexBGColor, uint32_t fontSize);
+int writeOnFile(FileDescriptor fd,unsigned char * buf, unsigned long len, uint32_t hexFontColor, uint32_t hexBGColor, uint32_t fontSize);
 int readOnFile(FileDescriptor fd, unsigned char * target, unsigned long len);
 FileDescriptor getFdByIdx(int16_t fd);
 FileDescriptor getFdByName(char* name);

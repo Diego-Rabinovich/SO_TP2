@@ -16,7 +16,7 @@
 #define F1 0xAA
 #define CAPS_LOCK 0x3A
 #define BUFF_SIZE 64
-#define EOF (-1)
+#define EOF 0
 
 char getKeyPress();
 
@@ -102,7 +102,7 @@ void keyboardHandler() {
             drawString("\n$>", 3, 2);
         }
         else if (key[0] == 0x20) { //CTRL+D
-            char eof_buf[2] = {EOF, 0};
+            unsigned char eof_buf[2] = {EOF, 0};
             writeOnFile(stdin_fd, eof_buf, 1, 0, 0, 2);
         }
     }

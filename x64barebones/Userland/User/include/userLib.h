@@ -13,7 +13,8 @@ void print(char* str, uint32_t fontHexColor, uint32_t fontSize);
 unsigned int concatenate_bits(unsigned char c1, unsigned char c2);
 int rgbToInt(char red, char green, char blue);
 typedef int (*Main)(int argc, char **args);
-
+void concat(char * left, char * right, char * target);
+void printErr(char *str, uint32_t fontSize);
 
 #define NOT_USABLE 0
 

@@ -7,14 +7,11 @@
 #include "include/memoryManager.h"
 #include "include/lib.h"
 #include "include/scheduler.h"
-#include "include/interrupts.h"
 #include "include/semaphores.h"
 
+#define EOF 0
 #define BUFF_SIZE 128
 #define MAX_FDS 128
-#define WAITING_NOTHING 0
-#define WAITING_WRITE 1
-#define WAITING_READ 2
 
 typedef struct FileDescriptorCDT
 {
@@ -29,11 +26,6 @@ typedef struct FileDescriptorCDT
     char mutexName[MAX_NAME];
 } FileDescriptorCDT;
 
-
-typedef struct ProcessWaiting{
-    int16_t fd;
-    unsigned char r_w;
-}ProcessWaiting;
 
 void processBuf(unsigned char * buf,int *idx,FileDescriptor fd);
 FileDescriptor initFd();
@@ -131,16 +123,16 @@ FileDescriptor initFd(){
     return new_fd;
 }
 
-int writeOnFile(FileDescriptor fd,  char * buff, unsigned long len, uint32_t hexFontColor, uint32_t hexBGColor, uint32_t fontSize){
+int writeOnFile(FileDescriptor fd, unsigned char * buff, unsigned long len, uint32_t hexFontColor, uint32_t hexBGColor, uint32_t fontSize){
     if(fd==NULL){
         return -1;
     }
     switch (fd->fd_idx){
         case STDOUT:
-            drawStringWithColor(buff, len, hexFontColor, hexBGColor, fontSize);
+            drawStringWithColor((char *)buff, len, hexFontColor, hexBGColor, fontSize);
             break;
         case STDERR:
-            drawStringWithColor(buff, len, 0xff0000, 0x000000, fontSize);
+            drawStringWithColor((char *)buff, len, 0xff0000, 0x000000, fontSize);
             break;
         case DEV_NULL: break;
         case STDIN:
@@ -171,7 +163,7 @@ int writeOnFile(FileDescriptor fd,  char * buff, unsigned long len, uint32_t hex
             }
             break;
     }
-    return len;
+    return (int)len;
 }
 
 int readOnFile(FileDescriptor fd, unsigned char * target, unsigned long len){
@@ -197,7 +189,7 @@ int readOnFile(FileDescriptor fd, unsigned char * target, unsigned long len){
             semPost(fd->mutexName);
         }
     }
-    return len;
+    return (int) len;
 }
 
 FileDescriptor getFdByIdx(int16_t fd){
@@ -212,6 +204,10 @@ void processBuf(unsigned char* buf,int *idx,FileDescriptor fd){
     unsigned char code=fd->buff[fd->readIdx];
     fd->readIdx=(fd->readIdx+1)%BUFF_SIZE;
     fd->used--;
+    if (code == EOF){
+        buf[(*idx)++] = code;
+        return;
+    }
     if (code == E_KEYS) {
         code =fd->buff[fd->readIdx];
         fd->readIdx=(fd->readIdx+1)%BUFF_SIZE;

@@ -53,6 +53,17 @@ int strCmp(const char* s1,const char* s2){
     return s1[i] - s2[i];
 }
 
+void concat(char * left, char * right, char * target){
+    int idx = 0;
+    for (int i = 0 ; left[i] != 0; i++, idx++){
+        target[idx] = left[i];
+    }
+    for(int j = 0; right[j] != 0; j++, idx++){
+        target[idx] = right[j];
+    }
+    target[idx] = 0;
+}
+
 void copyStr(const char * origin, char * destiny, int n){
     for (int i = 0; i < n && origin[i]; i++){
         destiny[i] = origin[i];
@@ -76,8 +87,17 @@ int isPrefix(const char * s1, const char * s2, int n){
 }
 
 void print(char *str, uint32_t fontHexColor, uint32_t fontSize){
-    sys_write(1,str, strLen(str), fontHexColor, 0x000000, fontSize);
+    int16_t fds[3];
+    sys_get_FDs(fds);
+    sys_write(fds[STDOUT],str, strLen(str)+1, fontHexColor, 0x000000, fontSize);
 }
+
+void printErr(char *str, uint32_t fontSize){
+    int16_t fds[3];
+    sys_get_FDs(fds);
+    sys_write(fds[STDERR],str, strLen(str)+1, 0xff0000, 0x000000, fontSize);
+}
+
 char notNumber(char c){
     return c>='0' && c<='9';
 }
