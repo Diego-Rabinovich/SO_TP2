@@ -15,6 +15,7 @@ int rgbToInt(char red, char green, char blue);
 typedef int (*Main)(int argc, char **args);
 void concat(char * left, char * right, char * target);
 void printErr(char *str, uint32_t fontSize);
+uint32_t appendStr(char* trgt, char *src, uint32_t old_len);
 
 #define NOT_USABLE 0
 

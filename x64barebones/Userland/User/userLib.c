@@ -64,6 +64,14 @@ void concat(char * left, char * right, char * target){
     target[idx] = 0;
 }
 
+uint32_t appendStr(char* trgt, char *src, uint32_t old_len) {
+    int i = 0;
+    while (src[i]) {
+        trgt[old_len++] = src[i++];
+    }
+    return old_len;
+}
+
 void copyStr(const char * origin, char * destiny, int n){
     for (int i = 0; i < n && origin[i]; i++){
         destiny[i] = origin[i];

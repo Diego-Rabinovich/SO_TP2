@@ -8,7 +8,7 @@
 #include "include/semaphores.h"
 
 #define EOF 0
-#define BUFF_SIZE 1024
+#define BUFF_SIZE 128
 #define MAX_FDS 2048
 
 typedef struct FileDescriptorCDT
@@ -170,7 +170,6 @@ int writeOnFile(FileDescriptor fd, unsigned char *buff, unsigned long len, uint3
                 fd->buff[fd->writeIdx] = buff[i];
                 fd->writeIdx = (fd->writeIdx + 1) % BUFF_SIZE;
                 fd->used++;
-
                 semPost(fd->semReadName);
                 semPost(fd->mutexName);
             }
@@ -188,9 +187,6 @@ int readOnFile(FileDescriptor fd, unsigned char *target, unsigned long len) {
             semWait(fd->semReadName);
             semWait(fd->mutexName);
             processBuf(target, &i, fd);
-
-            //drawStringWithColor((char *)target, BUFF_SIZE, 0x00ffff, 0, 2);
-
             semPost(fd->mutexName);
         }
     } else {
