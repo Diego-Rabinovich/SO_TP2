@@ -12,5 +12,6 @@ FileDescriptor getFd(int16_t fd);
 void freeFd(FileDescriptor fd);
 int16_t openFd();
 void closeFd(int16_t fd);
+void clearSTDIN();
 
 #endif //FILEDESCRIPTOR_H

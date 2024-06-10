@@ -50,6 +50,15 @@ int16_t getNextFd(){
     return next_fd;
 }
 
+void clearSTDIN() {
+    FileDescriptor stdin = fds[0];
+    stdin->readIdx = stdin->writeIdx;
+    for (int i = 0; i < stdin->used; ++i) { //Empty left-overs
+        semWait(stdin->semReadName);
+    }
+    stdin->used = 0;
+}
+
 int16_t openFd() {
     FileDescriptor fd = initFd();
     if(fd == NULL) return -1;
