@@ -40,4 +40,6 @@ uint64_t sys_wait_pid(int16_t pid);
 void sys_get_FDs(int16_t target[3]);
 int16_t sys_openFd();
 void sys_closeFd(int16_t fd);
+int16_t createFd(char* name);
+
 #endif //TPEARQUI_USERLIBASM_H

@@ -272,7 +272,7 @@ void closeFDs() {
 
     for (int i = 0; i < DEFAULT_FDS; ++i) {
         if(fds[i] >= DEFAULT_FDS) {
-            closeFd(fds[i]);
+            closeFdByIdx(fds[i]);
         }
     }
 }

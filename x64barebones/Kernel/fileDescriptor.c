@@ -19,6 +19,7 @@
 typedef struct FileDescriptorCDT
 {
     int16_t fd_idx;
+    char name [MAX_NAME];
     unsigned char buff [BUFF_SIZE];
     unsigned char readIdx;
     unsigned char writeIdx;
@@ -35,12 +36,15 @@ typedef struct ProcessWaiting{
 }ProcessWaiting;
 
 void processBuf(unsigned char * buf,int *idx,FileDescriptor fd);
+FileDescriptor initFd();
+void freeFd(FileDescriptor fd);
 
 FileDescriptor fds[MAX_FDS]={0};
 int16_t next_fd=0;
 int16_t count_fd=0;
 
-int16_t getNextFd(){
+
+int16_t getNextFdIdx(){
     if(count_fd>=MAX_FDS){
         return -1;
     }
@@ -48,6 +52,15 @@ int16_t getNextFd(){
         next_fd=(int16_t)((next_fd+1)%MAX_FDS);
     }
     return next_fd;
+}
+
+FileDescriptor getFdByName(char* name) {
+    for (int i = 0; i < MAX_FDS; i++){
+        if (fds[i] != NULL && strCmp(fds[i]->name, name) == 0){
+            return fds[i];
+        }
+    }
+    return NULL;
 }
 
 void clearSTDIN() {
@@ -59,21 +72,41 @@ void clearSTDIN() {
     stdin->used = 0;
 }
 
-int16_t openFd() {
-    FileDescriptor fd = initFd();
+int16_t createFd(char* name) {
+    uint8_t name_len = strLen(name);
+    if(count_fd >= MAX_FDS || name_len > MAX_NAME || name_len <=0) return -1;
+
+    FileDescriptor fd = getFdByName(name);
+    if(fd == NULL) {
+        fd = initFd();
+        memcpy(fd->name, name, name_len + 1);
+        return fd->fd_idx;
+    }
+    return -1;
+}
+
+int16_t openFd(char * name) {
+    FileDescriptor fd = getFdByName(name);
     if(fd == NULL) return -1;
     return fd->fd_idx;
 }
 
-void closeFd(int16_t fd){
+void closeFdByIdx(int16_t fd){
     FileDescriptor fd_obj;
-    if(fd >= DEFAULT_FDS && (fd_obj = getFd(fd)) != NULL) {
+    if(fd >= DEFAULT_FDS && (fd_obj = getFdByIdx(fd)) != NULL) {
+        freeFd(fd_obj);
+    }
+}
+
+void closeFdByName(char* name){
+    FileDescriptor fd_obj;
+    if((fd_obj = getFdByName(name)) != NULL) {
         freeFd(fd_obj);
     }
 }
 
 FileDescriptor initFd(){
-    int16_t new_fd_idx= getNextFd();
+    int16_t new_fd_idx= getNextFdIdx();
     if(new_fd_idx==-1){
         return NULL;
     }
@@ -167,7 +200,7 @@ int readOnFile(FileDescriptor fd, unsigned char * target, unsigned long len){
     return len;
 }
 
-FileDescriptor getFd(int16_t fd){
+FileDescriptor getFdByIdx(int16_t fd){
     if(fd>=MAX_FDS||fd<0){
         return NULL;
     }

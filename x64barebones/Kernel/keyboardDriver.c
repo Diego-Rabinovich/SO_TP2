@@ -27,7 +27,8 @@ char ctrl_enabled = 0;
 FileDescriptor stdin_fd;
 
 void initSTDIN() {
-    stdin_fd = initFd();
+    createFd("stdin");
+    stdin_fd = getFdByName("stdin");
 }
 
 unsigned char scan_codes[][84] = {

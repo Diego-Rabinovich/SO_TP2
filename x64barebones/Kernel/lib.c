@@ -215,7 +215,7 @@ void infoRegs(){
         unsigned char g[1]={0};
         turnOnPriority();
         while(g[0] != 0xA9) {
-            readOnFile(getFd(STDIN), g, 1);
+            readOnFile(getFdByIdx(STDIN), g, 1);
         }
         turnOffPriority();
         loadScreenState();
