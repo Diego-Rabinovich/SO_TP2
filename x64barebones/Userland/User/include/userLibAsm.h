@@ -41,5 +41,5 @@ void sys_get_FDs(int16_t target[3]);
 int16_t sys_openFd(char* name);
 void sys_closeFd(int16_t fd);
 int16_t sys_createFd(char* name);
-
+void sys_memInfo();
 #endif //TPEARQUI_USERLIBASM_H

@@ -1,12 +1,8 @@
 #include "include/sysCallDispatcher.h"
 #include <stdint.h>
-#include "include/console.h"
-#include "include/keyboardDriver.h"
 #include "include/videoDriver.h"
-#include "include/time.h"
 #include "include/lib.h"
 #include "include/audioDriver.h"
-#include "include/interrupts.h"
 #include "include/memoryManager.h"
 #include "include/scheduler.h"
 #include "include/fileDescriptor.h"
@@ -22,6 +18,7 @@ char stored();
 int hardRead(uint64_t fd, char *buf, uint64_t count);
 void processBuf(char * buf,int *idx);
 void ps();
+void printMemInfo();
 
 uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3,
                       uint64_t arg4, uint64_t arg5, uint64_t RAX) {
@@ -103,6 +100,9 @@ uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t
             return RAX;
         case 29:
             return createFd((char *)arg0);
+        case 30:
+            printMemInfo();
+            return RAX;
         default:
             return -1;
     }
@@ -150,7 +150,7 @@ void ps(){
         uintToBase(p_list->array[i].piority, p_prio, 10);
         uintToBase((uint64_t) p_list->array[i].rsb, p_rsb, 16);
         uintToBase((uint64_t) p_list->array[i].rsp, p_rsp, 16);
-        drawString("Process: ", 10, 2); drawStringWithColor(p_list->array[i].name, strLen(p_list->array[i].name), 0xffff00, 0x000000, 2) ; drawString("\n", 2, 2 );
+        drawString("Process: ", 10, 2); drawStringWithColor(p_list->array[i].name, strLen(p_list->array[i].name)+1, 0xffff00, 0x000000, 2) ; drawString("\n", 2, 2 );
         drawString("    PID: ", 10, 2); drawString(p_pid, 4, 2);
         drawString("        Parent PID: ", 22, 2) ; drawString((p_list->array[i].pid == 0) ? "-" : p_parent_pid, 5, 2) ;drawString("\n", 2, 2 );
         drawString("    Priority: ", 14, 2); drawString((p_list->array[i].pid == 0) ? "-" : p_prio, 2, 2); drawString("\n", 2, 2 );
@@ -176,4 +176,25 @@ void ps(){
     }
     memFree(p_list->array);
     memFree(p_list);
+}
+
+void printMemInfo(){
+    MemoryInfo * info = getMemInfo();
+    int16_t fds[3];
+    getFDs(fds);
+    FileDescriptor fd = getFdByIdx(fds[STDOUT]);
+    char total_str[20], reserved_str[20], free_str[20];
+    uintToBase(info->total, total_str, 10);
+    uintToBase(info->reserved, reserved_str, 10);
+    uintToBase(info->free, free_str, 10);
+    writeOnFile(fd, (unsigned char *)"\nMemory Info: \n", 17, 0xffffff, 0, 2);
+    writeOnFile(fd, (unsigned char *)"TOTAL (b): ", 11, 0xffffff, 0, 2);
+    writeOnFile(fd, (unsigned char *)total_str, strLen(total_str)+1, 0xffffff, 0, 2);
+    writeOnFile(fd, (unsigned char *)"\n", 1, 0xffffff, 0, 2);
+    writeOnFile(fd, (unsigned char *)"RESERVED (b): ", 14, 0xffff00, 0, 2);
+    writeOnFile(fd, (unsigned char *)reserved_str, strLen(reserved_str)+1, 0xffffff, 0, 2);
+    writeOnFile(fd, (unsigned char *)"\n", 1, 0xffffff, 0, 2);
+    writeOnFile(fd, (unsigned char *)"FREE (b): ", 10, 0x00ff00, 0, 2);
+    writeOnFile(fd, (unsigned char *)free_str, strLen(free_str)+1, 0xffffff, 0, 2);
+    writeOnFile(fd, (unsigned char *)"\n", 1, 0xffffff, 0, 2);
 }

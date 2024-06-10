@@ -294,7 +294,10 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
         toReturn.function = wc;
         toReturn.p_name = "wc";
     }
-    else if (strCmp(args[0], C_MEM) == 0) {}
+    else if (strCmp(args[0], C_MEM) == 0) {
+        toReturn.function = (Main) sys_memInfo;
+        toReturn.p_name = "mem_info";
+    }
     else if (strCmp(args[0], C_LOOP) == 0) {}
     else if (strCmp(args[0], C_CAT) == 0) {
         toReturn.function = cat;

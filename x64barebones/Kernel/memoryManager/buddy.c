@@ -11,6 +11,7 @@ typedef struct Block {
 
 static Block *free_lists[MAX_EXP + 1];
 static void * firstAddress;
+MemoryInfo mem_info;
 
 int obtainIndex(unsigned long size) {
     int i = 0;
@@ -42,6 +43,9 @@ void memInit(void *start_ptr, unsigned long size_bytes) {
     free_lists[i] = aligned_start_ptr;
     free_lists[i]->next = NULL;
     free_lists[i]->size = BLOCKSIZE(i);
+    mem_info.total = free_lists[i]->size;
+    mem_info.free = free_lists[i]->size;
+    mem_info.reserved =0;
 }
 
 Block *memAllocRec(unsigned long bytes) {
@@ -109,4 +113,19 @@ void memFreeRec(void* ptr) {
 
 void memFree(void *ptr) {
     memFreeRec(((Block *)ptr) - 1);
+}
+
+MemoryInfo * getMemInfo(){
+    uint64_t free = 0;
+    for (int i = 0; i < MAX_EXP ; i++){
+        Block * current = free_lists[i];
+        while(current != NULL){
+            free += current->size + sizeof (Block);
+            current = current->next;
+        }
+    }
+    mem_info.reserved = mem_info.total - free;
+    mem_info.free = mem_info.free;
+
+    return &mem_info;
 }

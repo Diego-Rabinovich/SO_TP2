@@ -1,4 +1,6 @@
 #include "../include/memoryManager.h"
+#include "../include/infoStructs.h"
+#include "videoDriver.h"
 #define MIN_BLOCK_SIZE 128
 
 typedef struct Node{
@@ -9,12 +11,12 @@ typedef struct Node{
 
 Node * free_list = NULL;
 Node * allocated_list = NULL;
+MemoryInfo mem_info;
 
 void memInit(void* start_ptr, unsigned long size_bytes){
     if(size_bytes < MIN_BLOCK_SIZE ){
         return ;
     }
-
 
     Node* aligned_start_ptr = (Node*)start_ptr;
     if(((unsigned long long)aligned_start_ptr) % 8){
@@ -25,6 +27,9 @@ void memInit(void* start_ptr, unsigned long size_bytes){
     free_list->next = NULL;
     free_list->prev = NULL;
     free_list->size = size_bytes - ((char*)aligned_start_ptr - (char*)start_ptr) - sizeof(Node);
+    mem_info.total = free_list->size;
+    mem_info.free = free_list->size;
+    mem_info.reserved =0;
 }
 
 void * memAllocInner(unsigned long bytes){
@@ -67,6 +72,8 @@ void * memAllocInner(unsigned long bytes){
             allocated_list->prev = best;
         }
         allocated_list = best;
+        mem_info.reserved += best->size;
+        mem_info.free -= best->size;
     }
     return best;
 }
@@ -93,6 +100,9 @@ void* memAlloc(unsigned long bytes){
 
 void memFreeInner(Node *node){
     if(node == NULL) return;
+
+    mem_info.free += node->size;
+    mem_info.reserved -= node->size;
 
     // Saco a node de allocated_list
     if (node->prev != NULL) {
@@ -131,6 +141,8 @@ void memFreeInner(Node *node){
         if (node->next != NULL) {
             node->next->prev = node;
         }
+        mem_info.free += sizeof (Node);
+        mem_info.reserved -= sizeof (Node);
     }
 
     // Merge with previous block if adjacent
@@ -140,10 +152,17 @@ void memFreeInner(Node *node){
         if (node->next != NULL) {
             node->next->prev = node->prev;
         }
+        mem_info.free += sizeof (Node);
+        mem_info.reserved -= sizeof (Node);
     }
+
 }
 
 
 void memFree(void *ptr){
     memFreeInner((Node*)(ptr - sizeof(Node)));    //el ptr q me pasan esta a sizeof(Node) del comienzo del bloque
+}
+
+MemoryInfo * getMemInfo(){
+    return &mem_info;
 }
