@@ -18,7 +18,7 @@
 
 typedef struct FileDescriptorCDT
 {
-    int16_t fd;
+    int16_t fd_idx;
     unsigned char buff [BUFF_SIZE];
     unsigned char readIdx;
     unsigned char writeIdx;
@@ -50,6 +50,19 @@ int16_t getNextFd(){
     return next_fd;
 }
 
+int16_t openFd() {
+    FileDescriptor fd = initFd();
+    if(fd == NULL) return -1;
+    return fd->fd_idx;
+}
+
+void closeFd(int16_t fd){
+    FileDescriptor fd_obj;
+    if(fd >= DEFAULT_FDS && (fd_obj = getFd(fd)) != NULL) {
+        freeFd(fd_obj);
+    }
+}
+
 FileDescriptor initFd(){
     int16_t new_fd_idx= getNextFd();
     if(new_fd_idx==-1){
@@ -57,7 +70,7 @@ FileDescriptor initFd(){
     }
     FileDescriptor new_fd=memAlloc(sizeof (FileDescriptorCDT));
     fds[new_fd_idx]=new_fd;
-    new_fd->fd=new_fd_idx;
+    new_fd->fd_idx=new_fd_idx;
     memset(new_fd->buff,0,BUFF_SIZE);
     new_fd->readIdx=0;
     new_fd->writeIdx=0;
@@ -80,7 +93,7 @@ int writeOnFile(FileDescriptor fd,  char * buff, unsigned long len, uint32_t hex
     if(fd==NULL){
         return -1;
     }
-    switch (fd->fd){
+    switch (fd->fd_idx){
         case STDOUT:
             drawStringWithColor(buff, len, hexFontColor, hexBGColor, fontSize);
             break;
@@ -120,10 +133,10 @@ int writeOnFile(FileDescriptor fd,  char * buff, unsigned long len, uint32_t hex
 }
 
 int readOnFile(FileDescriptor fd, unsigned char * target, unsigned long len){
-    if(fd==NULL || fd->fd == DEV_NULL){
+    if(fd==NULL || fd->fd_idx == DEV_NULL){
         return -1;
     }
-    if(fd->fd == STDIN) {
+    if(fd->fd_idx == STDIN) {
         for(int i=0;i<len;) {
             semWait(fd->semReadName);
             semWait(fd->mutexName);
@@ -209,7 +222,7 @@ void processBuf(unsigned char* buf,int *idx,FileDescriptor fd){
 }
 
 void freeFd(FileDescriptor fd){
-    fds[fd->fd]=NULL;
+    fds[fd->fd_idx]=NULL;
     count_fd--;
     memFree(fd);
 }

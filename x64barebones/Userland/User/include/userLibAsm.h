@@ -38,4 +38,6 @@ int8_t sys_sem_wait(char * name);
 int8_t sys_sem_post(char * name);
 uint64_t sys_wait_pid(int16_t pid);
 void sys_get_FDs(int16_t target[3]);
+int16_t sys_openFd();
+void sys_closeFd(int16_t fd);
 #endif //TPEARQUI_USERLIBASM_H

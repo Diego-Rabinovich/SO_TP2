@@ -25,6 +25,8 @@ GLOBAL sys_sem_new
 GLOBAL sys_sem_destroy
 GLOBAL sys_sem_post
 GLOBAL sys_sem_wait
+GLOBAL sys_openFd
+GLOBAL sys_closeFd
 GLOBAL make_invalid_opCode
 
 section .text
@@ -160,6 +162,16 @@ sys_sem_post:
 
 sys_sem_wait:
     mov rax, 26
+    int 80h
+    ret
+
+sys_openFd:
+    mov rax, 27
+    int 80h
+    ret
+
+sys_closeFd:
+    mov rax, 28
     int 80h
     ret
 

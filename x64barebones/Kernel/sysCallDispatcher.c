@@ -96,6 +96,11 @@ uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t
             return semPost((char *) arg0);
         case 26:
             return semWait((char *) arg0);
+        case 27:
+            return openFd();
+        case 28:
+            closeFd(arg0);
+            return RAX;
         default:
             return -1;
     }
