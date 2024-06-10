@@ -1,5 +1,3 @@
-//
-
 #include "include/fileDescriptor.h"
 
 #include "videoDriver.h"
@@ -11,13 +9,13 @@
 
 #define EOF 0
 #define BUFF_SIZE 128
-#define MAX_FDS 128
+#define MAX_FDS 2048
 
 typedef struct FileDescriptorCDT
 {
     int16_t fd_idx;
-    char name [MAX_NAME];
-    unsigned char buff [BUFF_SIZE];
+    char name[MAX_NAME];
+    unsigned char buff[BUFF_SIZE];
     unsigned char readIdx;
     unsigned char writeIdx;
     unsigned char used;
@@ -26,29 +24,35 @@ typedef struct FileDescriptorCDT
     char mutexName[MAX_NAME];
 } FileDescriptorCDT;
 
+typedef FileDescriptorCDT *FileDescriptor;
 
-void processBuf(unsigned char * buf,int *idx,FileDescriptor fd);
+void processBuf(char *buf, int *idx, FileDescriptor fd);
 FileDescriptor initFd();
 void freeFd(FileDescriptor fd);
 
-FileDescriptor fds[MAX_FDS]={0};
-int16_t next_fd=0;
-int16_t count_fd=0;
+FileDescriptor fds[MAX_FDS] = {0};
+int16_t next_fd = 0;
+int16_t count_fd = 0;
 
+char *printMutex = "print_mutex";
 
-int16_t getNextFdIdx(){
-    if(count_fd>=MAX_FDS){
+void createPrintMutex() {
+    newSemaphore(printMutex, 1);
+}
+
+int16_t getNextFdIdx() {
+    if (count_fd >= MAX_FDS) {
         return -1;
     }
-    while (fds[next_fd]!=NULL){
-        next_fd=(int16_t)((next_fd+1)%MAX_FDS);
+    while (fds[next_fd] != NULL) {
+        next_fd = (int16_t)((next_fd + 1) % MAX_FDS);
     }
     return next_fd;
 }
 
-FileDescriptor getFdByName(char* name) {
-    for (int i = 0; i < MAX_FDS; i++){
-        if (fds[i] != NULL && strCmp(fds[i]->name, name) == 0){
+FileDescriptor getFdByName(char *name) {
+    for (int i = 0; i < MAX_FDS; i++) {
+        if (fds[i] != NULL && strCmp(fds[i]->name, name) == 0) {
             return fds[i];
         }
     }
@@ -64,84 +68,91 @@ void clearSTDIN() {
     stdin->used = 0;
 }
 
-int16_t createFd(char* name) {
+int16_t createFd(char *name) {
     uint8_t name_len = strLen(name);
-    if(count_fd >= MAX_FDS || name_len > MAX_NAME || name_len <=0) return -1;
+
+    if (count_fd >= MAX_FDS || name_len > MAX_NAME || name_len <= 0) return -1;
 
     FileDescriptor fd = getFdByName(name);
-    if(fd == NULL) {
+    if (fd == NULL) {
         fd = initFd();
+        if (fd == NULL) return -1;
         memcpy(fd->name, name, name_len + 1);
         return fd->fd_idx;
     }
     return -1;
 }
 
-int16_t openFd(char * name) {
+int16_t openFd(char *name) {
     FileDescriptor fd = getFdByName(name);
-    if(fd == NULL) return -1;
+    if (fd == NULL) return -1;
     return fd->fd_idx;
 }
 
-void closeFdByIdx(int16_t fd){
+void closeFdByIdx(int16_t fd) {
     FileDescriptor fd_obj;
-    if(fd >= DEFAULT_FDS && (fd_obj = getFdByIdx(fd)) != NULL) {
+    if (fd >= DEFAULT_FDS && (fd_obj = getFdByIdx(fd)) != NULL) {
         freeFd(fd_obj);
     }
 }
 
-void closeFdByName(char* name){
+void closeFdByName(char *name) {
     FileDescriptor fd_obj;
-    if((fd_obj = getFdByName(name)) != NULL) {
+    if ((fd_obj = getFdByName(name)) != NULL) {
         freeFd(fd_obj);
     }
 }
 
-FileDescriptor initFd(){
-    int16_t new_fd_idx= getNextFdIdx();
-    if(new_fd_idx==-1){
+FileDescriptor initFd() {
+    int16_t new_fd_idx = getNextFdIdx();
+    if (new_fd_idx == -1) {
         return NULL;
     }
-    FileDescriptor new_fd=memAlloc(sizeof (FileDescriptorCDT));
-    fds[new_fd_idx]=new_fd;
-    new_fd->fd_idx=new_fd_idx;
-    memset(new_fd->buff,0,BUFF_SIZE);
-    new_fd->readIdx=0;
-    new_fd->writeIdx=0;
-    new_fd->used=0;
+    FileDescriptor new_fd = memAlloc(sizeof(FileDescriptorCDT));
+    if (new_fd == NULL) return NULL;
+    fds[new_fd_idx] = new_fd;
+    new_fd->fd_idx = new_fd_idx;
+    memset(new_fd->buff, 0, BUFF_SIZE);
+    new_fd->readIdx = 0;
+    new_fd->writeIdx = 0;
+    new_fd->used = 0;
     char idxStr[10];
     uintToBase(new_fd_idx, idxStr, 10);
     memcpy(new_fd->mutexName, "mutex_fd_", 9);
-    memcpy((void *) new_fd->mutexName + 9, idxStr, strLen(idxStr)+1);
+    memcpy((void *) new_fd->mutexName + 9, idxStr, strLen(idxStr) + 1);
     memcpy(new_fd->semReadName, "read_fd_", 8);
-    memcpy((void *) new_fd->semReadName + 8, idxStr, strLen(idxStr)+1);
-    memcpy(new_fd->mutexName, "write_fd_", 9);
-    memcpy((void *) new_fd->mutexName + 9, idxStr, strLen(idxStr)+1);
+    memcpy((void *) new_fd->semReadName + 8, idxStr, strLen(idxStr) + 1);
+    memcpy(new_fd->semWriteName, "write_fd_", 9);
+    memcpy((void *) new_fd->semWriteName + 9, idxStr, strLen(idxStr) + 1);
     newSemaphore(new_fd->mutexName, 1);
     newSemaphore(new_fd->semReadName, 0);
     newSemaphore(new_fd->semWriteName, BUFF_SIZE);
     return new_fd;
 }
 
-int writeOnFile(FileDescriptor fd, unsigned char * buff, unsigned long len, uint32_t hexFontColor, uint32_t hexBGColor, uint32_t fontSize){
-    if(fd==NULL){
+int writeOnFile(FileDescriptor fd, char *buff, unsigned long len, uint32_t hexFontColor, uint32_t hexBGColor, uint32_t fontSize) {
+    if (fd == NULL) {
         return -1;
     }
-    switch (fd->fd_idx){
+    switch (fd->fd_idx) {
         case STDOUT:
+            semWait(printMutex);
             drawStringWithColor((char *)buff, len, hexFontColor, hexBGColor, fontSize);
+            semPost(printMutex);
             break;
         case STDERR:
+            semWait(printMutex);
             drawStringWithColor((char *)buff, len, 0xff0000, 0x000000, fontSize);
+            semPost(printMutex);
             break;
-        case DEV_NULL: break;
+        case DEV_NULL:
+            break;
         case STDIN:
-            for(int i=0;i<len;i++) {
+            for (int i = 0; i < len; i++) {
                 semWait(fd->mutexName);
                 fd->buff[fd->writeIdx] = buff[i];
                 fd->writeIdx = (fd->writeIdx + 1) % BUFF_SIZE;
-                i++;
-                if(fd->used < BUFF_SIZE) {
+                if (fd->used < BUFF_SIZE) {
                     fd->used++;
                     semPost(fd->semReadName);
                 } else {
@@ -151,13 +162,13 @@ int writeOnFile(FileDescriptor fd, unsigned char * buff, unsigned long len, uint
             }
             break;
         default:
-            for(int i=0;i<len;i++) {
+            for (int i = 0; i < len; i++) {
                 semWait(fd->semWriteName);
                 semWait(fd->mutexName);
                 fd->buff[fd->writeIdx] = buff[i];
                 fd->writeIdx = (fd->writeIdx + 1) % BUFF_SIZE;
-                i++;
                 fd->used++;
+
                 semPost(fd->semReadName);
                 semPost(fd->mutexName);
             }
@@ -166,19 +177,20 @@ int writeOnFile(FileDescriptor fd, unsigned char * buff, unsigned long len, uint
     return (int)len;
 }
 
-int readOnFile(FileDescriptor fd, unsigned char * target, unsigned long len){
-    if(fd==NULL || fd->fd_idx == DEV_NULL){
+int readOnFile(FileDescriptor fd, char *target, unsigned long len) {
+    if (fd == NULL ) {
+        drawChar('E', 2);
         return -1;
     }
-    if(fd->fd_idx == STDIN) {
-        for(int i=0;i<len;) {
+    if (fd->fd_idx == STDIN) {
+        for (int i = 0; i < len;) {
             semWait(fd->semReadName);
             semWait(fd->mutexName);
-                processBuf(target, &i, fd);
+            processBuf(target, &i, fd);
             semPost(fd->mutexName);
         }
     } else {
-        for(int i=0;i<len;) {
+        for (int i = 0; i < len;) {
             semWait(fd->semReadName);
             semWait(fd->mutexName);
             target[i] = fd->buff[fd->readIdx];
@@ -189,61 +201,25 @@ int readOnFile(FileDescriptor fd, unsigned char * target, unsigned long len){
             semPost(fd->mutexName);
         }
     }
-    return (int) len;
+    return (int)len;
 }
 
-FileDescriptor getFdByIdx(int16_t fd){
-    if(fd>=MAX_FDS||fd<0){
+FileDescriptor getFdByIdx(int16_t fd) {
+    if (fd >= MAX_FDS || fd < 0) {
         return NULL;
     }
     return fds[fd];
 }
 
-
-void processBuf(unsigned char* buf,int *idx,FileDescriptor fd){
-    unsigned char code=fd->buff[fd->readIdx];
-    fd->readIdx=(fd->readIdx+1)%BUFF_SIZE;
+void processBuf(char *buf, int *idx, FileDescriptor fd) {
+    unsigned char code = fd->buff[fd->readIdx];
+    fd->readIdx = (fd->readIdx + 1) % BUFF_SIZE;
     fd->used--;
-    if (code == EOF){
+    if (code == EOF) {
         buf[(*idx)++] = code;
         return;
     }
-    if (code == E_KEYS) {
-        code =fd->buff[fd->readIdx];
-        fd->readIdx=(fd->readIdx+1)%BUFF_SIZE;
-        fd->used--;
-        char flag = 0;
-        if (code & RELEASE) {
-            flag = 1;
-            code -= RELEASE;
-        }
-        switch (code) {
-            case GREY_UP_SCAN:
-                code = UP_ARROW;
-                break;
-            case GREY_LEFT_SCAN:
-                code = LEFT_ARROW;
-                break;
-            case GREY_RIGHT_SCAN:
-                code = RIGHT_ARROW;
-                break;
-            case GREY_DOWN_SCAN:
-                code = DOWN_ARROW;
-                break;
-            case (R_CTRL_SCAN | R_ALT_SCAN):
-                code = getStringFromCode(code);
-                break;
-            default:
-                code = 0;
-                break;
-        }
-        if (code) {
-            if (flag) {
-                code += RELEASE;
-            }
-            buf[(*idx)++] = code;
-        }
-    } else {
+    if (code != E_KEYS) {
         char flag = 0;
         if (code & RELEASE) {
             flag = 1;
@@ -259,8 +235,11 @@ void processBuf(unsigned char* buf,int *idx,FileDescriptor fd){
     }
 }
 
-void freeFd(FileDescriptor fd){
-    fds[fd->fd_idx]=NULL;
+void freeFd(FileDescriptor fd) {
+    semDestroy(fd->mutexName);
+    semDestroy(fd->semReadName);
+    semDestroy(fd->semWriteName);
+    fds[fd->fd_idx] = NULL;
     count_fd--;
     memFree(fd);
 }

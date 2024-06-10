@@ -2,6 +2,7 @@
 #include "lib.h"
 #include "memoryManager.h"
 #include "scheduler.h"
+#include "videoDriver.h"
 #define MAX_SEMS 1024
 
 Semaphore * sems[MAX_SEMS] = {0};

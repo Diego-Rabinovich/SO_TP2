@@ -58,6 +58,7 @@ void concat(char * left, char * right, char * target){
     for (int i = 0 ; left[i] != 0; i++, idx++){
         target[idx] = left[i];
     }
+    printErr(right, 2);
     for(int j = 0; right[j] != 0; j++, idx++){
         target[idx] = right[j];
     }
@@ -72,9 +73,7 @@ void copyStr(const char * origin, char * destiny, int n){
 
 int strLen(const char * s){
     int i ;
-    for (i = 0; s[i]; i++){
-        i++;
-    }
+    for (i = 0; s[i]; i++);
     return i;
 }
 

@@ -135,6 +135,7 @@ char startCommand() {
         char fdName[24];
         uintToBase(fdCounter, idxFdStr, 10);
         concat("sh_fd_", idxFdStr, fdName);
+        fdCounter++;
         int16_t fd  = sys_createFd(fdName);
         commands[0].fds[STDOUT] = fd;
         commands[1].fds[STDIN] = fd;
@@ -429,16 +430,15 @@ int time(int argc, char **argv) {
 int filter(int argc, char **argv) {
     int i = 0, j = 0;
     char c;
-    char chain[100] = {0};
+    char chain[256] = {0};
     int16_t fds[3];
-    char toReturn[100] = {0};
+    char toReturn[256] = {0};
     sys_get_FDs(fds);
     sys_read(fds[STDIN], (char *) chain , 1);
-    while((c = chain[i]) != EOF && i < 3){
+    while((c = chain[i]) != EOF && i < 256){
         if (!(c & 0x80) && c != 'a' && c != 'A' && c != 'e' && c != 'E' && c != 'i' && c != 'I' && c != 'o' && c != 'O' && c != 'u' && c != 'U') {
             toReturn[j++] = chain[i];
         }
-//        print(toReturn, 0xffffff, 2);
         i++;
         sys_read(fds[STDIN], chain + i, 1);
     }
@@ -453,10 +453,12 @@ int killWrapper(int argc, char ** argv){
     int pid;
     strToInt(argv[0], &pid);
      if (sys_kill(pid) == 0) {
-         print("\nKilled: ", 0xffffff, 2);
-         print(argv[0], 0xffffff, 2);
+         char msg[20] = {0};
+         concat("Killed: ", argv[0], msg);
+         print(msg, 0xffffff, 2);
+
      }else {
-         printErr("\nKill fail", 2);
+         printErr("Failed to kill: ", 2);
          return -1;
      }
      return 0;

@@ -196,7 +196,6 @@ int32_t kill(uint16_t pid, int32_t ret) {
     }
     PCB* to_kill_pcb = (PCB*)to_kill_node->data;
 
-    closeFDs();
 
     if (to_kill_pcb->p_state != BLOCKED) {
         remove(scheduler.ready_processes, to_kill_node);
@@ -264,17 +263,6 @@ void yield() {
     scheduler.remaining_rounds = 0;
     _sti();
     callTimerTick();
-}
-
-void closeFDs() {
-    int16_t fds[DEFAULT_FDS];
-    getFDs(fds);
-
-    for (int i = 0; i < DEFAULT_FDS; ++i) {
-        if(fds[i] >= DEFAULT_FDS) {
-            closeFdByIdx(fds[i]);
-        }
-    }
 }
 
 void killFG() {

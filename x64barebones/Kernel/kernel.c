@@ -84,6 +84,7 @@ int main(){
     //startUpMusic();
     resetScreen();
     schedulerInit();
+    createPrintMutex();
     initSTDIN();
     createFd("stdout"); // initializing STDOUT
     createFd("stderr"); // initializing STDERR
