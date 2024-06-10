@@ -58,7 +58,6 @@ void concat(char * left, char * right, char * target){
     for (int i = 0 ; left[i] != 0; i++, idx++){
         target[idx] = left[i];
     }
-    printErr(right, 2);
     for(int j = 0; right[j] != 0; j++, idx++){
         target[idx] = right[j];
     }

@@ -3,7 +3,6 @@
 #include "include/shellLib.h"
 #include "include/shellMain.h"
 #include "include/commands.h"
-#include "../Snake/include/snakeMain.h"
 #include "../Math/include/math.h"
 #include "../Testing/testing.h"
 
@@ -31,15 +30,18 @@ typedef struct Command {
 } Command;
 
 // region signatures
+Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]);
+int prepareCommands(Command commands[2]);
+
 int filter(int argc, char **argv);
 int help(int argc, char **argsv);
 int mathWrapper(int argc, char **argv);
 int time(int argc, char **argv);
-Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]);
-int prepareCommands(Command commands[2]);
 int killWrapper(int argc, char ** argv);
 int blockWrapper(int argc, char ** argv);
 int niceWrapper(int argc, char ** argv);
+int cat(int argc, char **argv);
+int wc(int argc, char **argv);
 //end-region
 
 
@@ -123,7 +125,7 @@ char startCommand() {
             return 0;
         }
     }
-
+    print("\n", 0, 2);
     if (cmd == 1){
         int16_t pid = sys_createProcess(commands[0].function, commands[0].args, commands[0].p_name, 3, commands[0].fds);
         if (commands[0].fds[STDIN] == STDIN){
@@ -168,7 +170,7 @@ int prepareCommands(Command commands[2]){
     int pipe = hasPipe(argsCount);
     if (pipe > 0){
         commands[0] = getCommand(pipe,  arguments);
-        commands[1] = getCommand(argsCount-pipe,  arguments + pipe + 1);
+        commands[1] = getCommand(argsCount-pipe-1,  arguments + pipe + 1);
     } else {
         commands[0] = getCommand(argsCount, arguments);
     }
@@ -274,7 +276,8 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
         toReturn.p_name = "filter";
     }
     else if (strCmp(args[0], C_WC) == 0) {
-
+        toReturn.function = wc;
+        toReturn.p_name = "wc";
     }
     else if (strCmp(args[0], C_MEM) == 0) {
 
@@ -283,7 +286,8 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
 
     }
     else if (strCmp(args[0], C_CAT) == 0) {
-
+        toReturn.function = cat;
+        toReturn.p_name = "cat";
     }
     else if (strCmp(args[0], C_PHYLO) == 0) {
 
@@ -354,6 +358,7 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
 }
 
 int help(int argc, char **argsv) {
+    print("\n\n\n\n", 0xffffff, 2);
     if (argc == 0) { //general help
         print("\nHelp Menu:\n", shellFontColor, fontSize);
         print("To execute a command write the command and press enter\n", shellFontColor, fontSize);
@@ -444,8 +449,50 @@ int filter(int argc, char **argv) {
     }
 
     toReturn[j] = '\0';
-    print("\n", 0xffffff, 2);
     print(toReturn, 0xffffff, 2);
+    return 0;
+}
+
+int cat(int argc, char **argv) {
+    int i = 0, j = 0;
+    char c;
+    char chain[256] = {0};
+    int16_t fds[3];
+    char toReturn[256] = {0};
+    sys_get_FDs(fds);
+    sys_read(fds[STDIN], (char *) chain , 1);
+    while((c = chain[i]) != EOF && i < 256){
+        if (!(c & 0x80)) {
+            toReturn[j++] = chain[i];
+        }
+        i++;
+        sys_read(fds[STDIN], chain + i, 1);
+    }
+
+    toReturn[j] = '\0';
+    print(toReturn, 0xffffff, 2);
+    return 0;
+}
+
+int wc(int argc, char **argv) {
+    int i = 0;
+    char c;
+    char chain[2] = {0};
+
+    int16_t fds[3];
+    sys_get_FDs(fds);
+
+    sys_read(fds[STDIN], chain , 1);
+    while((c = chain[0]) != EOF){
+        if (c == '\n') {
+            i++;
+        }
+        sys_read(fds[STDIN], chain, 1);
+    }
+
+    char ret[25] = {0};
+    uintToBase(i, ret, 10);
+    print(ret, 0xffffff, 2);
     return 0;
 }
 

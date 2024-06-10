@@ -8,7 +8,7 @@
 #include "include/semaphores.h"
 
 #define EOF 0
-#define BUFF_SIZE 128
+#define BUFF_SIZE 1024
 #define MAX_FDS 2048
 
 typedef struct FileDescriptorCDT
@@ -26,7 +26,7 @@ typedef struct FileDescriptorCDT
 
 typedef FileDescriptorCDT *FileDescriptor;
 
-void processBuf(char *buf, int *idx, FileDescriptor fd);
+void processBuf(unsigned char *buf, int *idx, FileDescriptor fd);
 FileDescriptor initFd();
 void freeFd(FileDescriptor fd);
 
@@ -130,7 +130,7 @@ FileDescriptor initFd() {
     return new_fd;
 }
 
-int writeOnFile(FileDescriptor fd, char *buff, unsigned long len, uint32_t hexFontColor, uint32_t hexBGColor, uint32_t fontSize) {
+int writeOnFile(FileDescriptor fd, unsigned char *buff, unsigned long len, uint32_t hexFontColor, uint32_t hexBGColor, uint32_t fontSize) {
     if (fd == NULL) {
         return -1;
     }
@@ -158,6 +158,8 @@ int writeOnFile(FileDescriptor fd, char *buff, unsigned long len, uint32_t hexFo
                 } else {
                     fd->readIdx = fd->writeIdx;
                 }
+                semWait(printMutex);
+                semPost(printMutex);
                 semPost(fd->mutexName);
             }
             break;
@@ -177,9 +179,8 @@ int writeOnFile(FileDescriptor fd, char *buff, unsigned long len, uint32_t hexFo
     return (int)len;
 }
 
-int readOnFile(FileDescriptor fd, char *target, unsigned long len) {
+int readOnFile(FileDescriptor fd, unsigned char *target, unsigned long len) {
     if (fd == NULL ) {
-        drawChar('E', 2);
         return -1;
     }
     if (fd->fd_idx == STDIN) {
@@ -187,6 +188,9 @@ int readOnFile(FileDescriptor fd, char *target, unsigned long len) {
             semWait(fd->semReadName);
             semWait(fd->mutexName);
             processBuf(target, &i, fd);
+
+            //drawStringWithColor((char *)target, BUFF_SIZE, 0x00ffff, 0, 2);
+
             semPost(fd->mutexName);
         }
     } else {
@@ -211,7 +215,7 @@ FileDescriptor getFdByIdx(int16_t fd) {
     return fds[fd];
 }
 
-void processBuf(char *buf, int *idx, FileDescriptor fd) {
+void processBuf(unsigned char *buf, int *idx, FileDescriptor fd) {
     unsigned char code = fd->buff[fd->readIdx];
     fd->readIdx = (fd->readIdx + 1) % BUFF_SIZE;
     fd->used--;
@@ -219,7 +223,42 @@ void processBuf(char *buf, int *idx, FileDescriptor fd) {
         buf[(*idx)++] = code;
         return;
     }
-    if (code != E_KEYS) {
+    if (code == E_KEYS) {
+        code =fd->buff[fd->readIdx];
+        fd->readIdx=(fd->readIdx+1)%BUFF_SIZE;
+        fd->used--;
+        char flag = 0;
+        if (code & RELEASE) {
+            flag = 1;
+            code -= RELEASE;
+        }
+        switch (code) {
+            case GREY_UP_SCAN:
+                code = UP_ARROW;
+                break;
+            case GREY_LEFT_SCAN:
+                code = LEFT_ARROW;
+                break;
+            case GREY_RIGHT_SCAN:
+                code = RIGHT_ARROW;
+                break;
+            case GREY_DOWN_SCAN:
+                code = DOWN_ARROW;
+                break;
+            case (R_CTRL_SCAN | R_ALT_SCAN):
+                code = getStringFromCode(code);
+                break;
+            default:
+                code = 0;
+                break;
+        }
+        if (code) {
+            if (flag) {
+                code += RELEASE;
+            }
+            buf[(*idx)++] = code;
+        }
+    } else {
         char flag = 0;
         if (code & RELEASE) {
             flag = 1;

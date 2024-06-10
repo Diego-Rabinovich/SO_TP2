@@ -1,7 +1,6 @@
 #include "include/scheduler.h"
 
 #include "fileDescriptor.h"
-#include "videoDriver.h"
 #include "include/process.h"
 #include "include/memoryManager.h"
 #include "include/linkedList.h"
@@ -81,7 +80,6 @@ uint8_t setState(uint16_t pid, uint8_t new_state) {
     pcb->p_state = new_state;
     if (new_state == BLOCKED) {
         remove(scheduler.ready_processes, node);
-        //drawStringWithColor("Blocked", 8, 0xffff00, 0x0000ff, 2);
         if (pid == scheduler.running_pid) {
             yield();
         }
