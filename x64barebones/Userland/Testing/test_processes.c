@@ -28,14 +28,15 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
   if ((max_processes = satoi(argv[0])) <= 0)
     return -1;
 
+  int16_t fds[3];
+  sys_get_FDs(fds);
+  fds[0] = DEV_NULL;
+
   p_rq p_rqs[max_processes];
 
   while (1) {
     // Create max_processes processes
     for (rq = 0; rq < max_processes; rq++) {
-      int16_t* fds = sys_malloc(3*sizeof(int16_t));
-      sys_get_FDs(fds);
-      fds[0] = DEV_NULL;
       p_rqs[rq].pid = sys_createProcess((Main) endless_loop,argvAux,"endless_loop", 0, fds);
       if (p_rqs[rq].pid == -1) {
         print("test_processes: ERROR creating process\n", 0xff0000, 2);

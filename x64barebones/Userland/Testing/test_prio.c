@@ -23,10 +23,11 @@ void test_prio() {
   char *argv[] = {MINOR_WAIT, 0};
   uint64_t i;
 
+  int16_t fds[3];
+  sys_get_FDs(fds);
+  fds[0] = DEV_NULL;
+
   for (i = 0; i < TOTAL_PROCESSES; i++) {
-    int16_t* fds = sys_malloc(3*sizeof(int16_t));
-    sys_get_FDs(fds);
-    fds[0] = DEV_NULL;
 
     pids[i] = sys_createProcess(endless_loop_print, argv,"endless_loop_print", 0, fds);
   }
