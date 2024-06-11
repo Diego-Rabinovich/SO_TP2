@@ -7,7 +7,7 @@
 #include "include/scheduler.h"
 #include "include/semaphores.h"
 
-#define EOF 0
+#define EOF 1
 #define BUFF_SIZE 128
 #define MAX_FDS 2048
 

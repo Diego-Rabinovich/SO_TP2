@@ -16,7 +16,7 @@
 #define F1 0xAA
 #define CAPS_LOCK 0x3A
 #define BUFF_SIZE 64
-#define EOF 0
+#define EOF 1
 
 char getKeyPress();
 
@@ -91,9 +91,6 @@ void setKeyFlags(unsigned char key) {
 void keyboardHandler() {
     _cli();
     char key[1] = {getKeyPress()};
-    if (key[0] == 0x2C) { //APRIETO Z
-        ps();
-    }
     setKeyFlags(key[0]);
     if (ctrl_enabled) {
         if (key[0] == 0x2E) { //CTRL+C

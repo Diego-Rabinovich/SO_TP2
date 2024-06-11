@@ -98,6 +98,15 @@ void print(char *str, uint32_t fontHexColor, uint32_t fontSize){
     sys_write(fds[STDOUT],str, strLen(str)+1, fontHexColor, 0x000000, fontSize);
 }
 
+void printUpToEOF(char *str, uint32_t fontHexColor, uint32_t fontSize){
+    int16_t fds[3];
+    sys_get_FDs(fds);
+    while(*str != 1){
+        sys_write(fds[STDOUT],str, 1, fontHexColor, 0x000000, fontSize);
+        str += 1;
+    }
+}
+
 void printErr(char *str, uint32_t fontSize){
     int16_t fds[3];
     sys_get_FDs(fds);

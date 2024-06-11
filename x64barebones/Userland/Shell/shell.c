@@ -9,7 +9,7 @@
 #define CTRL_PRESS 2
 #define CTRL_RELEASE 0x82
 #define NULL 0x00000000
-#define EOF 0
+#define EOF 1
 
 unsigned char buffer[BUFF_SIZE] = {0};
 char arguments[MAX_ARGS][BUFF_SIZE];
@@ -208,13 +208,13 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
     if (strCmp(args[0], C_HELP) == 0) {
         toReturn.p_name = "help";
         toReturn.function = help;
-        if (argsCount >= 2) {
-            if (strCmp(args[1], "math") == 0) { // || other options)
+        if (argsCount >= 2 && strCmp(args[1], "&") != 0) {
+            if (strCmp(args[1], "math") == 0 || strCmp(args[1], "test") == 0) { // || other options)
                 toReturn.args[0] = args[1];
             }
             else {
                 toReturn.function = NULL;
-                toReturn.errMsg = "bad request. valid options: 'math'";
+                toReturn.errMsg = "bad request. valid options: 'math', 'test'";
                 return toReturn;
             }
         }
@@ -385,7 +385,7 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
     }
     else {
         toReturn.function = NULL;
-        toReturn.errMsg = "Comand not found";
+        toReturn.errMsg = "\nCommand not found";
         return toReturn;
     }
 
@@ -397,48 +397,65 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
 }
 
 int help(int argc, char** argsv) {
-    char buff[1024] = {0};
-    uint32_t len = 0;
-    if (argc == 0) { //general help
-        len = appendStr(buff, "Help Menu:\n", len);
-        len = appendStr(buff, "To execute a command write the command and press enter\n", len);
-        len = appendStr(buff, "(opt:type1) means that argument is of type type1, and it is optional\n", len);
-        len = appendStr(
-            buff, "(type1) means that argument is of type type1, and the argument must appear in the call\n", len);
-        len = appendStr(
-            buff,
-            "(opt:type) ... means that command accepts different numbers of arguments, and so they are always optionals\n\n",
-            len);
-        len = appendStr(buff, "ID - SYNTAX - ARGUMENTS - DESCRIPTION \n\n", len);
-        len = appendStr(buff, "1 - help", len);
-        len = appendStr(
-            buff,
-            " (opt:command) arg1  - provides info about the arg1 or about the shell when called without arguments\n\n",
-            len);
-        len = appendStr(buff, "2 - math", len);
-        len = appendStr(
-            buff, " - (binary operation) op, (val) left, (val) right - aplies the op to left and right \n\n", len);
-        len = appendStr(buff, "3 - clear", len);
-        len = appendStr(buff, "- NONE - reset shell\n\n", len);
-        len = appendStr(buff, "4 - fun", len);
-        len = appendStr(buff, " - NONE - throws an invalid opCode exception, just for fun\n", len);
-        len = appendStr(buff, "5 - time", len);
-        len = appendStr(buff, " - NONE - prints the current local time\n", len);
-    }
-    else if (argc == 1) {
+    if (argc == 0) {
+        print("\nHelp Menu:\n", 0xffffff, fontSize);
+        print("To send a process 'p' to background use: p &\n", 0xff00ff, fontSize);
+        print("To pipe process 'p1' into 'p2' use: p1 | p2\n", 0xff00ff, fontSize);
+        print("Separate arguments with spaces\n", 0xffffff, fontSize);
+        print("ID - SYNTAX - DESC\n", 0xffffff, fontSize);
+        print("1 - help (optional) arg1 (options: math, test)\n", 0xffffff, fontSize);
+        print("2 - math op left right - applies the op to left and right \n",shellFontColor, fontSize);
+        print("3 - clear\n", 0xffffff, fontSize);
+        print("4 - fun - throws an invalid opCode exception\n", 0xffffff, fontSize);
+        print("5 - time", 0xffffff, fontSize);
+        print("6 - test arg0 (options: mm, sync, priority, processes) \n", 0xffffff, fontSize);
+        print("7 - mem - shows mem state\n", 0xffffff, fontSize);
+        print("8 - block pid arg1 (arg1 options: 0 (unblock), 1 (block))\n", 0xffffff, fontSize);
+        print("8 - kill pid\n", 0xffffff, fontSize);
+        print("8 - nice pid prio (prio options: 0-3)\n", 0xffffff, fontSize);
+        print("9 - ps - list processes\n", 0xffffff, fontSize);
+        print("10 - phylo - run phylo game\n", 0xffffff, fontSize);
+        print("11 - ps - list processes\n", 0xffffff, fontSize);
+        print("12 - cat\n", 0xffffff, fontSize);
+        print("13 - filter - filter vocals\n", 0xffffff, fontSize);
+        print("14 - wc - line count\n", 0xffffff, fontSize);
+        print("15 - loop - prints pid and msg\n", 0xffffff, fontSize);
+    } else if (argc == 1) {
         if (strCmp(argsv[0], "math") == 0) {
-            len = appendStr(buff, "Help Menu: Math\n\n", len);
-            len = appendStr(buff, "Use: ans as left or/and right to operate with the last calculated result\n\n", len);
-            len = appendStr(buff, "List of valid operations: \n", len);
-            len = appendStr(buff, "mul - ex: math mul 1 3, returns 1*3=3\n", len);
-            len = appendStr(buff, "sub - ex: math sub ans 3, returns (if ans = 3): 3-3=0\n", len);
-            len = appendStr(buff, "sum - ex: math sum 1 3, returns 1+3=4\n", len);
-            len = appendStr(buff, "div - ex: math div 3 3, returns 3/3=1. Note: div x 0 will throw exception\n", len);
-            len = appendStr(buff, "pot - ex: math pot 1 3, returns 2^3=8\n", len);
-            len = appendStr(buff, "mod - ex: math mod 10 5, returns 10%5=0\n", len);
+            print("\n Help Menu: Math\n\n", shellFontColor, fontSize);
+            print("Use:", shellFontColor, fontSize);
+            print(" ", shellFontColor, fontSize);
+            print("ans", 0x12345678, fontSize);
+            print(" as left or/and right to operate with the last calculated result\n\n", shellFontColor, fontSize);
+            print("List of valid operations: \n", shellFontColor, fontSize);
+            print("mul", 0x000000ff, fontSize);
+            print(" - ex: math mul 1 3, returns 1*3=3\n", shellFontColor, fontSize);
+            print("sub", 0x000000ff, fontSize);
+            print(" - ex: math sub ans 3, returns (if ans = 3): 3-3=0\n", shellFontColor, fontSize);
+            print("sum", 0x000000ff, fontSize);
+            print(" - ex: math sum 1 3, returns 1+3=4\n", shellFontColor, fontSize);
+            print("div", 0x000000ff, fontSize);
+            print(" - ex: math div 3 3, returns 3/3=1. Note: div x 0 will throw exception\n", shellFontColor, fontSize);
+            print("pot", 0x000000ff, fontSize);
+            print(" - ex: math pot 1 3, returns 2^3=8\n", shellFontColor, fontSize);
+            print("mod", 0x000000ff, fontSize);
+            print(" - ex: math mod 10 5, returns 10%5=0\n", shellFontColor, fontSize);
+        } else if (strCmp(argsv[0], "test") == 0){
+            print("\nTest help Menu:\n", 0xffffff, fontSize);
+            print("1 - test mm:\n", 0x00ff00, fontSize);
+            print("Argument 1: request size (in MB)\n", 0xffffff, fontSize);
+            print("Example: test mm 10\n", 0xffffff, fontSize);
+            print("2 - test processes:\n", 0x00ff00, fontSize);
+            print("Argument 1: process qty\n", 0xffffff, fontSize);
+            print("Example: test processes 5\n", 0xffffff, fontSize);
+            print("3 - test sync:\n", 0x00ff00, fontSize);
+            print("Argument 1: increments\n", 0xffffff, fontSize);
+            print("Argument 2: useSem? (0 or 1)\n", 0xffffff, fontSize);
+            print("Example: test sync 5000 1\n", 0xffffff, fontSize);
+            print("4 - test priority:\n", 0x00ff00, fontSize);
+            print("Example: test priority\n", 0xffffff, fontSize);
         }
     }
-    print(buff, 0xffffff, 2);
     return 0;
 }
 
@@ -497,7 +514,7 @@ int filter(int argc, char** argv) {
     }
 
     toReturn[j] = '\0';
-    print(toReturn, 0xffffff, 2);
+    printUpToEOF(toReturn, 0xffffff, 2);
     return 0;
 }
 
@@ -518,7 +535,7 @@ int cat(int argc, char** argv) {
     }
 
     toReturn[j] = '\0';
-    print(toReturn, 0xffffff, 2);
+    printUpToEOF(toReturn, 0xffffff, 2);
     return 0;
 }
 

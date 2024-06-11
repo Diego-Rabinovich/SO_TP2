@@ -135,14 +135,16 @@ void getScreenDimensions(coords *ret) {
 }
 
 void ps(){
-    drawString("\n", 2, 2 );
+    int16_t fds[3];
+    getFDs(fds);
+    FileDescriptor fd = getFdByIdx(fds[STDOUT]);
+    writeOnFile(fd,(unsigned char *) "\n", 2, 0xffffff,0,2 );
     ProcessInfoArray * p_list = getProcessArray();
-    drawString("Active processes: ", 19, 2);
+    writeOnFile(fd, (unsigned char *) "Active processes: ", 19,0xffffff,0, 2);
     char ps_len[5];
     uintToBase(p_list->length, ps_len, 10);
-    drawString(ps_len, 5, 2);
-    drawString("\n", 2, 2 );
-
+    writeOnFile(fd,(unsigned char *) ps_len, 5,0xffffff,0, 2);
+    writeOnFile(fd, (unsigned char *)"\n", 2,0xffffff,0, 2 );
     char p_pid[5], p_parent_pid[5], p_prio[2], p_rsb[17], p_rsp[17];
     for (int i = 0; i < p_list->length ; i++){
         uintToBase(p_list->array[i].pid, p_pid, 10);
@@ -150,28 +152,38 @@ void ps(){
         uintToBase(p_list->array[i].piority, p_prio, 10);
         uintToBase((uint64_t) p_list->array[i].rsb, p_rsb, 16);
         uintToBase((uint64_t) p_list->array[i].rsp, p_rsp, 16);
-        drawString("Process: ", 10, 2); drawStringWithColor(p_list->array[i].name, strLen(p_list->array[i].name)+1, 0xffff00, 0x000000, 2) ; drawString("\n", 2, 2 );
-        drawString("    PID: ", 10, 2); drawString(p_pid, 4, 2);
-        drawString("        Parent PID: ", 22, 2) ; drawString((p_list->array[i].pid == 0) ? "-" : p_parent_pid, 5, 2) ;drawString("\n", 2, 2 );
-        drawString("    Priority: ", 14, 2); drawString((p_list->array[i].pid == 0) ? "-" : p_prio, 2, 2); drawString("\n", 2, 2 );
-        drawString("    RSB: #",11, 2); drawString(p_rsb, 16, 2);
-        drawString("        RSP: #",16, 2); drawString(p_rsp, 16, 2); drawString("\n", 2, 2 );
-        drawString(p_list->array[i].fg ? "    Foreground"  : "    Background", 15, 2);
-        drawString("        State: ", 17, 2);
+        writeOnFile(fd, (unsigned char *)"Process: ", 10, 0xffffff, 0, 2);
+        writeOnFile(fd,(unsigned  char *) p_list->array[i].name, strLen(p_list->array[i].name)+1, 0xffff00, 0x000000, 2);
+        writeOnFile(fd,(unsigned  char *)"\n", 1, 0xffffff, 0, 2);
+        writeOnFile(fd,(unsigned  char *) "    PID: ", 10, 0xffffff, 0, 2);
+        writeOnFile(fd,(unsigned  char *) p_pid, strLen(p_pid) +1, 0xffffff, 0, 2);
+        writeOnFile(fd,(unsigned  char *) "        Parent PID: ", 21, 0xffffff , 0, 2) ;
+        writeOnFile(fd, (p_list->array[i].pid == 0) ? (unsigned  char *) "-" :(unsigned  char *) p_parent_pid, (p_list->array[i].pid == 0) ? 2 : strLen(p_parent_pid),0xffffff,0, 2) ;
+        writeOnFile(fd,(unsigned  char *) "\n", 2, 0xffffff, 0, 2 );
+        writeOnFile(fd,(unsigned  char *)"    Priority: ",14, 0xffffff ,0, 2);
+        writeOnFile(fd, (p_list->array[i].pid == 0) ? (unsigned  char *)"-" : (unsigned  char *)p_prio, 2, 0xffffff,0,2);
+        writeOnFile(fd, (unsigned  char *)"\n", 2, 0xffffff, 0, 2);
+        writeOnFile(fd,(unsigned  char *)"    RSB: #",11,0xffffff,0, 2);
+        writeOnFile(fd,(unsigned  char *) p_rsb, strLen(p_rsb)+1, 0xffffff, 0, 2);
+        writeOnFile(fd,(unsigned  char *) "        RSP: #",15,0xffffff,0, 2);
+        writeOnFile(fd, (unsigned  char *) p_rsp, strLen(p_rsp)+1,0xffffff,0, 2);
+        writeOnFile(fd, (unsigned  char *)"\n", 2,0xffffff,0, 2 );
+        writeOnFile(fd, p_list->array[i].fg ? (unsigned  char *)"    Foreground"  : (unsigned  char *)"    Background", 15,0xffffff,0, 2);
+        writeOnFile(fd,(unsigned  char *) "        State: ", 16,0xffffff,0, 2);
         switch (p_list->array[i].p_state) {
             case READY:
-                drawStringWithColor("READY", 6,0x00ff00,0x000000 , 2);
+                writeOnFile(fd,(unsigned  char *) "READY", 6,0x00ff00,0x000000 , 2);
                 break;
             case RUNNING:
-                drawStringWithColor("RUNNING", 8,0x0000ff,0x000000 , 2);
+                writeOnFile(fd,(unsigned  char *) "RUNNING", 8,0x0000ff,0x000000 , 2);
                 break;
             case BLOCKED:
-                drawStringWithColor("BLOCKED", 8,0xff0000,0x000000 , 2);
+                writeOnFile(fd,(unsigned  char *) "BLOCKED", 8,0xff0000,0x000000 , 2);
                 break;
             default:
-                drawString("TERMINATED", 10, 2);
+                writeOnFile(fd,(unsigned  char *) "TERMINATED", 10,0xffffff, 0, 2);
         }
-        drawString("\n", 2, 2 );
+        writeOnFile(fd, (unsigned  char *) "\n", 2,0xfffff,0, 2 );
         memFree(p_list->array[i].name);
     }
     memFree(p_list->array);

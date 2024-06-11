@@ -202,12 +202,6 @@ _irq01Handler:
     saveRegs
     xor rax, rax
     in al, 0x60
-    cmp rax,0x29 ;scan code de `
-    jne .continue
-    mov al, 20h
-    out 20h, al
-    call infoRegs
-    .continue:
 	irqHandlerMaster 1
 
 ;Cascade pic never called

@@ -3,9 +3,7 @@
 #define TPEARQUI_COMMANDS_H
 
 //defines de comandos
-#define C_SET "set"
 #define C_HELP "help"
-#define C_SNAKE "snake"
 #define C_MATH "math"
 #define C_CLEAR "clear"
 #define C_FUN "fun"
@@ -19,7 +17,6 @@
 #define C_BLOCK "block"
 #define C_CAT "cat"
 #define C_WC "wc"
-#define C_CAT "cat"
 #define C_FILTER "filter"
 #define C_PHYLO "phylo"
 #endif //TPEARQUI_COMMANDS_H

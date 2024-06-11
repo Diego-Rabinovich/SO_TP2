@@ -193,7 +193,9 @@ int32_t kill(uint16_t pid, int32_t ret) {
         return 0;
     }
     PCB* to_kill_pcb = (PCB*)to_kill_node->data;
-
+    if (to_kill_pcb->fds[STDOUT] != STDOUT){
+        writeOnFile(getFdByIdx(to_kill_pcb->fds[STDOUT]), (unsigned char *) "\1", 1, 0, 0, 0);
+    }
 
     if (to_kill_pcb->p_state != BLOCKED) {
         remove(scheduler.ready_processes, to_kill_node);
