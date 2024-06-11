@@ -5,7 +5,7 @@
 #include "include/commands.h"
 #include "include/userApps.h"
 #include "../Testing/testing.h"
-
+#include "../Philosophers/include/philosophers.h"
 #define CTRL_PRESS 2
 #define CTRL_RELEASE 0x82
 #define NULL 0x00000000
@@ -311,7 +311,10 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
         toReturn.function = cat;
         toReturn.p_name = "cat";
     }
-    else if (strCmp(args[0], C_PHYLO) == 0) {}
+    else if (strCmp(args[0], C_PHYLO) == 0) {
+        toReturn.function=(Main)initPhilosopher;
+        toReturn.p_name="philosophers";
+    }
     else if (strCmp(args[0], C_TEST) == 0 && argsCount > 1) {
         if (strCmp(args[1], "mm") == 0) {
             if (argsCount >= 3) {
