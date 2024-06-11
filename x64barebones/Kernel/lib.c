@@ -199,28 +199,6 @@ void printRegs(){
     drawString("\n", 1, 2);
 }
 
-void infoRegs(){
-    if(stored() && !shownRegisters) {
-        shownRegisters = 1;
-
-        saveScreenState();
-
-        blankArea(0, 249, 0, 349, 0);
-        resetCursor();
-        printRegs();
-
-        unsigned char g[1]={0};
-        turnOnPriority();
-        while(g[0] != 0xA9) {
-            readOnFile(getFdByIdx(STDIN), g, 1);
-        }
-        turnOffPriority();
-        loadScreenState();
-
-        shownRegisters = 0;
-    }
-}
-
 int strLen(const char * s){
     int i ;
     for (i = 0; s[i]; i++);

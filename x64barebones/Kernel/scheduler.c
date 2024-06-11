@@ -1,11 +1,12 @@
 #include "include/scheduler.h"
-
 #include "fileDescriptor.h"
 #include "include/process.h"
 #include "include/memoryManager.h"
 #include "include/linkedList.h"
 #include "include/lib.h"
 #include "include/interrupts.h"
+#include "videoDriver.h"
+#include "semaphores.h"
 #define TRIVIAL_PID 0
 #define INIT 1
 #define QTY_PRIORITIES 4
@@ -21,6 +22,7 @@ typedef struct Scheluler {
     uint16_t process_count;
     uint16_t fg_pid;
     int8_t remaining_rounds;
+    char mutex_pid[10];
 } Scheduler;
 
 Scheduler scheduler;
@@ -81,7 +83,7 @@ uint8_t setState(uint16_t pid, uint8_t new_state) {
     if (new_state == BLOCKED) {
         remove(scheduler.ready_processes, node);
         if (pid == scheduler.running_pid) {
-            yield();
+            yieldNoSti();
         }
     }
     else if (new_state == READY) {
@@ -141,9 +143,7 @@ int16_t createProcess(Main main_func, char** args, char* name, uint8_t priority,
         is_priority = 0;
         return -1;
     }
-    setNextPID();
     PCB* pcb = (PCB*)memAlloc(sizeof(PCB));
-
     if (scheduler.next_pid != TRIVIAL_PID && fds[0] == STDIN) {
         PCB* parent = (PCB*)scheduler.processes[scheduler.running_pid]->data;
         if (parent->isFg) {
@@ -159,11 +159,9 @@ int16_t createProcess(Main main_func, char** args, char* name, uint8_t priority,
 
     initializeProcess(pcb, scheduler.next_pid, scheduler.running_pid, main_func, args, name, priority, fds);
 
-
     Node* process_node;
     process_node = memAlloc(sizeof(Node));
     process_node->data = (void*)pcb;
-
 
     if (pcb->pid != TRIVIAL_PID) {
         queue(scheduler.ready_processes, process_node);
@@ -175,6 +173,7 @@ int16_t createProcess(Main main_func, char** args, char* name, uint8_t priority,
     scheduler.processes[pcb->pid] = process_node;
     scheduler.process_count++;
     is_priority = 0;
+    setNextPID();
     return pcb->pid;
 }
 
@@ -183,6 +182,9 @@ int32_t killCurrent(int32_t ret) {
 }
 
 int32_t kill(uint16_t pid, int32_t ret) {
+    char pid_str[5] = {0};
+    uintToBase(pid, pid_str, 10);
+    //drawStringWithColor(pid_str, strLen(pid_str), 0xff0000, 0, 2);
     Node* to_kill_node = scheduler.processes[pid];
     if (pid <= 2) {
         //note that if pid <= 2 then p is either sh, user, or trivial
@@ -202,7 +204,6 @@ int32_t kill(uint16_t pid, int32_t ret) {
     }
 
     to_kill_pcb->ret = ret;
-
     to_kill_pcb->p_state = TERMINATED;
 
     Node* parent_node = scheduler.processes[to_kill_pcb->parent_pid];
@@ -231,7 +232,6 @@ int32_t kill(uint16_t pid, int32_t ret) {
     scheduler.process_count--;
     scheduler.processes[pid] = NULL;
 
-
     if (pid == scheduler.running_pid) {
         yield();
     }
@@ -254,16 +254,39 @@ ProcessInfoArray* getProcessArray() {
         }
     }
 
-    info_array->length = scheduler.process_count;
     info_array->array = array;
+    info_array->length = scheduler.process_count;
     return info_array;
+}
+
+int64_t wait(uint16_t pid) {
+    if (pid == 1 || scheduler.processes[pid] == NULL) {
+        return -1;
+    }
+    if (pid != -1 && scheduler.processes[pid] == NULL) {
+        return -1;
+    }
+    PCB* running_pcb = (PCB*)scheduler.processes[scheduler.running_pid]->data;
+    running_pcb->waiting_pid = pid;
+    setState(scheduler.running_pid, BLOCKED);
+    yield();
+    return running_pcb->ret;
 }
 
 void yield() {
     scheduler.remaining_rounds = 0;
     _sti();
     callTimerTick();
+    while (scheduler.remaining_rounds == 0);  // Esperar hasta que se programe el siguiente proceso
 }
+
+void getFDs(int16_t target[3]) {
+    int16_t* fds = ((PCB*)scheduler.processes[scheduler.running_pid]->data)->fds;
+    for (int i = 0; i < 3; ++i) {
+        target[i] = fds[i];
+    }
+}
+
 void yieldNoSti() {
     scheduler.remaining_rounds = 0;
     callTimerTick();
@@ -279,19 +302,4 @@ uint64_t waitPid(int16_t pid) {
     ((PCB*)scheduler.processes[scheduler.running_pid]->data)->waiting_pid = pid;
     setState(scheduler.running_pid, BLOCKED);
     return ((PCB*)scheduler.processes[scheduler.running_pid]->data)->ret;
-}
-
-void getFDs(int16_t target[3]) {
-    int16_t* fds = ((PCB*)scheduler.processes[scheduler.running_pid]->data)->fds;
-    for (int i = 0; i < 3; ++i) {
-        target[i] = fds[i];
-    }
-}
-
-void turnOnPriority() {
-    is_priority = 1;
-}
-
-void turnOffPriority() {
-    is_priority = 0;
 }

@@ -33,7 +33,6 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
       sys_get_FDs(fds);
       fds[0] = DEV_NULL;
       p_rqs[rq].pid = sys_createProcess((Main) endless_loop,argvAux,"endless_loop", 0, fds);
-
       if (p_rqs[rq].pid == -1) {
         print("test_processes: ERROR creating process\n", 0xff0000, 2);
         return -1;
@@ -44,7 +43,6 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
     }
     // Randomly kills, blocks or unblocks processes until every one has been killed
     while (alive > 0) {
-
       for (rq = 0; rq < max_processes; rq++) {
         action = GetUniform(100) % 2;
 
@@ -55,7 +53,7 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
                 print("test_processes: ERROR killing process\n", 0xff0000, 2);
                 return -1;
               }
-              p_rqs[rq].state = KILLED;
+                p_rqs[rq].state = KILLED;
               alive--;
             }
             break;
@@ -70,8 +68,7 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
             break;
         }
       }
-
-      // Randomly unblocks processes
+        // Randomly unblocks processes
       for (rq = 0; rq < max_processes; rq++)
         if (p_rqs[rq].state == BLOCKED && GetUniform(100) % 2) {
           if (sys_unblock(p_rqs[rq].pid) == -1) {

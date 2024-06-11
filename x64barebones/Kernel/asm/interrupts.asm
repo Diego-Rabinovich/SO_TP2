@@ -198,11 +198,17 @@ _irq00Handler:
 
 ;Keyboard
 _irq01Handler:
-    cli
-    saveRegs
+    push rax
     xor rax, rax
     in al, 0x60
-	irqHandlerMaster 1
+	pushState
+    mov rdi, 1
+    call irqDispatcher
+    mov al, 20h
+    out 20h, al
+    popState
+    pop rax
+    iretq
 
 ;Cascade pic never called
 _irq02Handler:

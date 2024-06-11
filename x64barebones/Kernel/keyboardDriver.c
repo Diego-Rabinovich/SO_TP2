@@ -89,7 +89,7 @@ void setKeyFlags(unsigned char key) {
 }
 
 void keyboardHandler() {
-    _cli();
+//    _cli();
     char key[1] = {getKeyPress()};
     setKeyFlags(key[0]);
     if (ctrl_enabled) {

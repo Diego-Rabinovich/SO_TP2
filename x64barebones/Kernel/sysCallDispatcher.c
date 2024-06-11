@@ -22,7 +22,7 @@ void printMemInfo();
 
 uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3,
                       uint64_t arg4, uint64_t arg5, uint64_t RAX) {
-
+    int pid;
     switch (RAX) {
         case 0:
             return readOnFile(getFdByIdx(arg0), (char *) arg1, arg2);
@@ -74,7 +74,7 @@ uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t
         case 18:
             return getPid();
         case 19:
-            yield();
+            yieldNoSti();
             return RAX;
         case 20:
             return waitPid(arg0);
