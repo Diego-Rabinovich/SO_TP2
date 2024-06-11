@@ -49,7 +49,6 @@ uint64_t my_process_inc(uint64_t argc, char *argv[]) {
 }
 
 uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
-  uint64_t pids[2 * TOTAL_PAIR_PROCESSES];
   int16_t fdsAux[3] = {DEV_NULL, STDOUT, STDERR};
 
     if (argc != 2)
@@ -62,8 +61,8 @@ uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
 
   uint64_t i;
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-    pids[i] = sys_createProcess((Main) my_process_inc, argvDec,  "my_process_dec", 3, fdsAux);
-    pids[i + TOTAL_PAIR_PROCESSES] = sys_createProcess((Main) my_process_inc, argvInc,  "my_process_inc", 0, fdsAux);
+    sys_createProcess((Main) my_process_inc, argvDec,  "my_process_dec", 3, fdsAux);
+    sys_createProcess((Main) my_process_inc, argvInc,  "my_process_inc", 0, fdsAux);
   }
 
   for (i = 0; i < 2 * TOTAL_PAIR_PROCESSES; i++) {

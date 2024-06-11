@@ -13,23 +13,27 @@
 #define EATING 1
 #define EOFILE 1
 
-char palillos[MAX_PHILOS][SEM_NAME] = {"sem_philo00\0", "sem_philo01\0",
-                                       "sem_philo02\0", "sem_philo03\0",
-                                       "sem_philo04\0", "sem_philo05\0",
-                                       "sem_philo06\0", "sem_philo07\0",
-                                       "sem_philo08\0", "sem_philo09\0",
-                                       "sem_philo10\0", "sem_philo11\0",
-                                       "sem_philo12\0", "sem_philo13\0",
-                                       "sem_philo14\0", "sem_philo15\0"};
+char palillos[MAX_PHILOS][SEM_NAME] = {
+    "sem_philo00\0", "sem_philo01\0",
+    "sem_philo02\0", "sem_philo03\0",
+    "sem_philo04\0", "sem_philo05\0",
+    "sem_philo06\0", "sem_philo07\0",
+    "sem_philo08\0", "sem_philo09\0",
+    "sem_philo10\0", "sem_philo11\0",
+    "sem_philo12\0", "sem_philo13\0",
+    "sem_philo14\0", "sem_philo15\0"
+};
 
-char philos[MAX_PHILOS][PHILO_NAME] = {"philo00\0", "philo01\0",
-                                       "philo02\0", "philo03\0",
-                                       "philo04\0", "philo05\0",
-                                       "philo06\0", "philo07\0",
-                                       "philo08\0", "philo09\0",
-                                       "philo10\0", "philo11\0",
-                                       "philo12\0", "philo13\0",
-                                       "philo14\0", "philo15\0"};
+char philos[MAX_PHILOS][PHILO_NAME] = {
+    "philo00\0", "philo01\0",
+    "philo02\0", "philo03\0",
+    "philo04\0", "philo05\0",
+    "philo06\0", "philo07\0",
+    "philo08\0", "philo09\0",
+    "philo10\0", "philo11\0",
+    "philo12\0", "philo13\0",
+    "philo14\0", "philo15\0"
+};
 int philos_pid[MAX_PHILOS];
 char philo_state[MAX_PHILOS];
 int philos_amount;
@@ -38,7 +42,6 @@ int16_t bg_fds[3] = {DEV_NULL, STDOUT, STDERR};
 int16_t my_fds[3];
 
 void initPhilosopher() {
-
     sys_sem_destroy(PHILOS_STATE);
     sys_sem_destroy(PHILOS_AMOUNT);
 
@@ -52,9 +55,9 @@ void initPhilosopher() {
     philos_amount = INITIAL_PHILOS;
 
     char philosopher_num[4];
-    char **argv = (char **) sys_malloc(4*sizeof (char *));
-    for(int j=0;j<INITIAL_PHILOS;j++){
-        philo_state[j]=THINKING;
+    char** argv = (char**)sys_malloc(4 * sizeof(char*));
+    for (int j = 0; j < INITIAL_PHILOS; j++) {
+        philo_state[j] = THINKING;
     }
 
     for (int i = 0; i < INITIAL_PHILOS; i++) {
@@ -62,7 +65,7 @@ void initPhilosopher() {
         uintToBase(i, philosopher_num, 10);
         argv[1] = philosopher_num;
         argv[2] = 0;
-        philos_pid[i] = sys_createProcess((Main) philosopher, argv, philos[i], 3, bg_fds);
+        philos_pid[i] = sys_createProcess((Main)philosopher, argv, philos[i], 3, bg_fds);
     }
 
     sys_free(argv);
@@ -72,7 +75,8 @@ void initPhilosopher() {
     while (c != EOFILE) {
         if (c == 'a') {
             addPhilosopher();
-        } else if (c == 'r') {
+        }
+        else if (c == 'r') {
             removePhilosopher();
         }
         sys_read(my_fds[STDIN], &c, 1);
@@ -89,18 +93,9 @@ void initPhilosopher() {
     sys_sem_post(PHILOS_STATE);
     sys_sem_destroy(PHILOS_STATE);
     print("\nFin\n", 0xFFFFFF, 2);
-
 }
 
-int get_random_number_using_time() {
-    int current_time ; sys_getCpuTime(&current_time);
-    current_time=current_time* 1000000; // Assuming microseconds
-    unsigned int random_number = (unsigned int) current_time % 100001;
-    return (int)random_number;
-}
-
-
-void philosopher(int argc, char **argv) {
+void philosopher(int argc, char** argv) {
     int philosopher_num;
     strToInt(argv[1], &philosopher_num);
 
@@ -112,11 +107,12 @@ void philosopher(int argc, char **argv) {
 
     int right;
     while (1) {
-        right=(philosopher_num+ 1) % philos_amount;
+        right = (philosopher_num + 1) % philos_amount;
         if (philosopher_num % 2) { //odd philosopher
             sys_sem_wait(palillos[philosopher_num]);
             sys_sem_wait(palillos[right]);
-        } else { //even philosopher
+        }
+        else { //even philosopher
             sys_sem_wait(palillos[right]);;
             sys_sem_wait(palillos[philosopher_num]);
         }
@@ -125,17 +121,18 @@ void philosopher(int argc, char **argv) {
         sys_sem_post(palillos[philosopher_num]);
         sys_sem_post(palillos[right]);
         philo_state[philosopher_num] = THINKING;
-        for (int i = 0; i < 9999*GetUint()*GetUint(); i++);
+        for (int i = 0; i < 9999 * GetUint() * GetUint(); i++);
     }
 }
 
 void eat(int philosopher_num) {
-    int idx=philos_amount;
+    int idx = philos_amount;
     sys_sem_wait(PHILOS_STATE);
-    for (int i = 0; i <idx; i++) {
+    for (int i = 0; i < idx; i++) {
         if (philo_state[i] == EATING) {
             print("E", 0xFFFFFF, 2);
-        } else {
+        }
+        else {
             print(".", 0xFFFFFF, 2);
         }
     }
@@ -151,23 +148,23 @@ void addPhilosopher() {
         sys_sem_post(PHILOS_STATE);
         return;
     }
-    int idx=philos_amount;
+    int idx = philos_amount;
     philos_amount++;
     philo_state[idx] = THINKING;
-    char **argv = (char **) sys_malloc(4*sizeof (char *));
+    char** argv = (char**)sys_malloc(4 * sizeof(char*));
     argv[0] = philos[idx];
     char philo_num[4];
     uintToBase(idx, philo_num, 10);
     argv[1] = philo_num;
     argv[2] = 0;
-    philos_pid[idx] = sys_createProcess((Main) philosopher, argv, philos[idx], 3, bg_fds);
+    philos_pid[idx] = sys_createProcess((Main)philosopher, argv, philos[idx], 3, bg_fds);
     sys_free(argv);
     sys_sem_post(PHILOS_STATE);
 }
 
 void removePhilosopher() {
     sys_sem_wait(PHILOS_STATE);
-    int idx=philos_amount;
+    int idx = philos_amount;
     if (idx == MIN_PHILO) {
         printErr("\nThere should be at least 5 philosophers\n", 2);
         return;
