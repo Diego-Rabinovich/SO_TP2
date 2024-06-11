@@ -1,5 +1,7 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "include/process.h"
 #include "include/interrupts.h"
 #include "include/lib.h"
@@ -21,6 +23,7 @@ void initializeProcess(PCB *process_pcb, uint16_t pid, uint16_t parent_pid,
   int name_len = strLen(name)+1;
   process_pcb->name = memAlloc(name_len);
   memcpy(process_pcb->name, name, name_len);
+  process_pcb->name[name_len-1]=0;
   process_pcb->waiting_pid = 0;
   process_pcb->p_state = READY;
   process_pcb->ret = NULL;

@@ -1,5 +1,7 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 //
 // Created by ghigl on 11/06/2024.
 //
@@ -119,7 +121,7 @@ int filter(int argc, char** argv) {
     char toReturn[1024] = {0};
     sys_get_FDs(fds);
     sys_read(fds[STDIN], (char*)chain, 1);
-    while ((c = chain[i]) != EOF && i < 1024) {
+    while (i < 1024&&(c = chain[i]) != EOF) {
         if (!(c & 0x80) && c != 'a' && c != 'A' && c != 'e' && c != 'E' && c != 'i' && c != 'I' && c != 'o' && c != 'O'
             && c != 'u' && c != 'U') {
             toReturn[j++] = chain[i];
@@ -141,7 +143,7 @@ int cat(int argc, char** argv) {
     char toReturn[1024] = {0};
     sys_get_FDs(fds);
     sys_read(fds[STDIN], (char*)chain, 1);
-    while ((c = chain[i]) != EOF && i < 1024) {
+    while (i < 1024 && (c = chain[i]) != EOF ) {
         if (!(c & 0x80)) {
             toReturn[j++] = chain[i];
         }

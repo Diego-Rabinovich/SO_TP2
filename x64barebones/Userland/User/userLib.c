@@ -1,5 +1,7 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "../User/include/userLib.h"
 
 uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base){
@@ -88,7 +90,7 @@ int strLen(const char * s){
 
 int isPrefix(const char * s1, const char * s2, int n){
     int cmp = 0;
-    for (int i = 0; s1[i] && s2[i] && i < n && cmp == 0; ++i) {
+    for (int i = 0; i < n && s1[i] && s2[i] && cmp == 0; ++i) {
         cmp = s1[i] - s2[i];
     }
     return cmp == 0;

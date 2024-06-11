@@ -1,5 +1,7 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "include/fileDescriptor.h"
 
 #include "videoDriver.h"
@@ -73,7 +75,7 @@ void clearSTDIN() {
 int16_t createFd(char *name) {
     uint8_t name_len = strLen(name);
 
-    if (count_fd >= MAX_FDS || name_len > MAX_NAME || name_len <= 0) return -1;
+    if (count_fd >= MAX_FDS || name_len >= MAX_NAME || name_len <= 0) return -1;
 
     FileDescriptor fd = getFdByName(name);
     if (fd == NULL) {

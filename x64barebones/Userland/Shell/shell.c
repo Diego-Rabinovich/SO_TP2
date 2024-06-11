@@ -1,5 +1,7 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /* shell.c */
 #include "../User/include/userLib.h"
 #include "include/shellLib.h"
@@ -236,7 +238,6 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
             toReturn.args[2] = args[3];
         }
         else {
-            toReturn.function = NULL;
             toReturn.errMsg = "\nBad arguments. Signature: math op l_val r_val";
             return toReturn;
         }
@@ -336,13 +337,11 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
                     toReturn.function = (Main)test_mm;
                 }
                 else {
-                    toReturn.function = NULL;
                     toReturn.errMsg = "\nbad request. min: 1MB, max: 128MB";
                     return toReturn;
                 }
             }
             else {
-                toReturn.function = NULL;
                 toReturn.errMsg = "\nbad arguments. Signature: test mm qty";
                 return toReturn;
             }
@@ -357,13 +356,11 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
                     toReturn.function = (Main)test_processes;
                 }
                 else {
-                    toReturn.function = NULL;
                     toReturn.errMsg = "\nbad request. min: 1, max: 100";
                     return toReturn;
                 }
             }
             else {
-                toReturn.function = NULL;
                 toReturn.errMsg = "\nbad arguments. Signature: test processes qty";
                 return toReturn;
             }
@@ -380,19 +377,16 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
                 toReturn.args[1] = args[3];
             }
             else {
-                toReturn.function = NULL;
                 toReturn.errMsg = "\nbad arguments. Signature: test sync inc useSem?";
                 return toReturn;
             }
         }
         else {
-            toReturn.function = NULL;
             toReturn.errMsg = "\nbad arguments. \nSignature: test (options: mm, processes, priority, sync)";
             return toReturn;
         }
     }
     else {
-        toReturn.function = NULL;
         toReturn.errMsg = "\nCommand not found";
         return toReturn;
     }
