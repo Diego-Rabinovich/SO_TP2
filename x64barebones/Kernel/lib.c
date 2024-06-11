@@ -105,16 +105,13 @@ void getCurrentCpuTime(int array[3]){
     array[2] = getFormat(aux[2]);
 }
 
-//TODO bloquear
-int waitNMillis(uint64_t millis){
-    int start = ticks_elapsed();
-
-    int waited = 0;
-    while (waited < millis){
-        waited = (double)(ticks_elapsed()-start)*55.56;
-    }
-    return waited;
+int waitNMillis(const uint64_t millis){
+    const uint64_t limit = millis_elapsed() + millis;
+    _sti();
+    while (millis_elapsed() < limit) {}
+    return limit;
 }
+
 
 char shownRegisters = 0;
 

@@ -42,6 +42,7 @@ int blockWrapper(int argc, char** argv);
 int niceWrapper(int argc, char** argv);
 int cat(int argc, char** argv);
 int wc(int argc, char** argv);
+int loop(int argc, char** argv);
 //end-region
 
 
@@ -213,7 +214,7 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
             }
             else {
                 toReturn.function = NULL;
-                toReturn.errMsg = "\nbad request. valid options: 'math'";
+                toReturn.errMsg = "bad request. valid options: 'math'";
                 return toReturn;
             }
         }
@@ -236,7 +237,7 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
         }
         else {
             toReturn.function = NULL;
-            toReturn.errMsg = "\nBad arguments. Signature: math op l_val r_val";
+            toReturn.errMsg = "Bad arguments. Signature: math op l_val r_val";
             return toReturn;
         }
     }
@@ -256,7 +257,7 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
         }
         else {
             toReturn.function = NULL;
-            toReturn.errMsg = "\nbad args. Signature: kill pid";
+            toReturn.errMsg = "bad args. Signature: kill pid";
             return toReturn;
         }
     }
@@ -269,7 +270,7 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
         }
         else {
             toReturn.function = NULL;
-            toReturn.errMsg = "\nbad args. Signature: nice pid priority";
+            toReturn.errMsg = "bad args. Signature: nice pid priority";
             return toReturn;
         }
     }
@@ -282,7 +283,7 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
         }
         else {
             toReturn.function = NULL;
-            toReturn.errMsg = "\nbad args. Signature: block pid opt\n(opt = 1 : block, opt = 0 : unblock)";
+            toReturn.errMsg = "bad args. Signature: block pid opt\n(opt = 1 : block, opt = 0 : unblock)";
             return toReturn;
         }
     }
@@ -298,7 +299,24 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
         toReturn.function = (Main) sys_memInfo;
         toReturn.p_name = "mem_info";
     }
-    else if (strCmp(args[0], C_LOOP) == 0) {}
+    else if (strCmp(args[0], C_LOOP) == 0) {
+        toReturn.function = loop;
+        toReturn.p_name = "loop";
+        if (argsCount >= 2) {
+            int m_requested;
+            if (!strToInt(args[1], &m_requested) || m_requested <= 0) {
+                toReturn.function = NULL;
+                toReturn.errMsg = "bad request. millis_to_wait needs to be a positive number";
+                return toReturn;
+            }
+            toReturn.args[0] = args[1];
+        }
+        else {
+            toReturn.function = NULL;
+            toReturn.errMsg = "bad args. Signature: loop millis_to_wait";
+            return toReturn;
+        }
+    }
     else if (strCmp(args[0], C_CAT) == 0) {
         toReturn.function = cat;
         toReturn.p_name = "cat";
@@ -316,13 +334,13 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
                 }
                 else {
                     toReturn.function = NULL;
-                    toReturn.errMsg = "\nbad request. min: 1MB, max: 128MB";
+                    toReturn.errMsg = "bad request. min: 1MB, max: 128MB";
                     return toReturn;
                 }
             }
             else {
                 toReturn.function = NULL;
-                toReturn.errMsg = "\nbad arguments. Signature: test mm qty";
+                toReturn.errMsg = "bad arguments. Signature: test mm qty";
                 return toReturn;
             }
         }
@@ -337,13 +355,13 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
                 }
                 else {
                     toReturn.function = NULL;
-                    toReturn.errMsg = "\nbad request. min: 1, max: 100";
+                    toReturn.errMsg = "bad request. min: 1, max: 100";
                     return toReturn;
                 }
             }
             else {
                 toReturn.function = NULL;
-                toReturn.errMsg = "\nbad arguments. Signature: test processes qty";
+                toReturn.errMsg = "bad arguments. Signature: test processes qty";
                 return toReturn;
             }
         }
@@ -360,14 +378,14 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
             }
             else {
                 toReturn.function = NULL;
-                toReturn.errMsg = "\nbad arguments. Signature: test sync inc useSem?";
+                toReturn.errMsg = "bad arguments. Signature: test sync inc useSem?";
                 return toReturn;
             }
         }
     }
     else {
         toReturn.function = NULL;
-        toReturn.errMsg = "\nComand not found";
+        toReturn.errMsg = "Comand not found";
         return toReturn;
     }
 
@@ -382,7 +400,7 @@ int help(int argc, char** argsv) {
     char buff[1024] = {0};
     uint32_t len = 0;
     if (argc == 0) { //general help
-        len = appendStr(buff, "\nHelp Menu:\n", len);
+        len = appendStr(buff, "Help Menu:\n", len);
         len = appendStr(buff, "To execute a command write the command and press enter\n", len);
         len = appendStr(buff, "(opt:type1) means that argument is of type type1, and it is optional\n", len);
         len = appendStr(
@@ -409,7 +427,7 @@ int help(int argc, char** argsv) {
     }
     else if (argc == 1) {
         if (strCmp(argsv[0], "math") == 0) {
-            len = appendStr(buff, "\n Help Menu: Math\n\n", len);
+            len = appendStr(buff, "Help Menu: Math\n\n", len);
             len = appendStr(buff, "Use: ans as left or/and right to operate with the last calculated result\n\n", len);
             len = appendStr(buff, "List of valid operations: \n", len);
             len = appendStr(buff, "mul - ex: math mul 1 3, returns 1*3=3\n", len);
@@ -432,7 +450,7 @@ int mathWrapper(int argc, char** argv) {
 
         char buff[256] = {0};
         int len = 0;
-        len = appendStr(buff, "\nResult: ", len);
+        len = appendStr(buff, "Result: ", len);
         appendStr(buff, str, len);
         print(buff, 0xffffff, 2);
     }
@@ -587,4 +605,18 @@ int niceWrapper(int argc, char** argv) {
         return -1;
     }
     return 0;
+}
+
+int loop(int argc, char** argv) {
+    int millis;
+    strToInt(argv[0], &millis);
+
+    char pid_str[4];
+    uintToBase(sys_pid(), pid_str, 10);
+    char msg [50];
+    concat("\nHello, I'm process number ", pid_str, msg);
+    while (1) {
+        print(msg, 0xffffff, 2);
+        sys_waitNMillis(millis);
+    }
 }

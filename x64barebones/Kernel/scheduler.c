@@ -262,6 +262,10 @@ void yield() {
     _sti();
     callTimerTick();
 }
+void yieldNoSti() {
+    scheduler.remaining_rounds = 0;
+    callTimerTick();
+}
 
 void killFG() {
     if (scheduler.fg_pid > 2) {
