@@ -106,7 +106,7 @@ void keyboardHandler() {
         }
     }
     else {
-        writeOnFile(stdin_fd, key, 1, 0x000000, 0x000000, 2);
+        writeOnFile(stdin_fd, (unsigned char*)key, 1, 0x000000, 0x000000, 2);
     }
 }
 

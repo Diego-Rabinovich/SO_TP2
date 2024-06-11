@@ -14,7 +14,7 @@
 #define UP_ARROW 12
 #define DOWN_ARROW 13
 #define BUFF_SIZE 128 //tiene que ser par
-#define MAX_ARGS ( BUFF_SIZE / 2 )
+#define MAX_ARGS ( 24 )
 void newLine(uint32_t fontSize);
 char isSpecial(char c);
 int parseArgs(const unsigned char *buffer,char args[MAX_ARGS][BUFF_SIZE], int size, char parser, char end);

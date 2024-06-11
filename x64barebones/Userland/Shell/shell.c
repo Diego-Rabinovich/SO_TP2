@@ -171,8 +171,16 @@ int prepareCommands(Command commands[2]) {
     int argsCount = parseArgs(buffer, arguments, MAX_ARGS, ' ', '\n');
     int pipe = hasPipe(argsCount);
     if (pipe > 0) {
+        char argAux[MAX_ARGS][BUFF_SIZE];
+        for (int i = 0, j=pipe + 1; i < MAX_ARGS && arguments[j][0] != 0 ; i++, j++) {
+            int k = 0;
+            for (k = 0; arguments[j][k]; k++) {
+                argAux[i][k] = arguments[j][k];
+            }
+            argAux[i][k] = 0;
+        }
         commands[0] = getCommand(pipe, arguments);
-        commands[1] = getCommand(argsCount - pipe - 1, arguments + pipe + 1);
+        commands[1] = getCommand(argsCount - pipe - 1, argAux);
     }
     else {
         commands[0] = getCommand(argsCount, arguments);
@@ -206,7 +214,7 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
             }
             else {
                 toReturn.function = NULL;
-                toReturn.errMsg = "bad request. valid options: 'math', 'test'";
+                toReturn.errMsg = "\nbad request. valid options: 'math', 'test'";
                 return toReturn;
             }
         }
@@ -229,7 +237,7 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
         }
         else {
             toReturn.function = NULL;
-            toReturn.errMsg = "Bad arguments. Signature: math op l_val r_val";
+            toReturn.errMsg = "\nBad arguments. Signature: math op l_val r_val";
             return toReturn;
         }
     }
@@ -249,7 +257,7 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
         }
         else {
             toReturn.function = NULL;
-            toReturn.errMsg = "bad args. Signature: kill pid";
+            toReturn.errMsg = "\nbad args. Signature: kill pid";
             return toReturn;
         }
     }
@@ -262,7 +270,7 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
         }
         else {
             toReturn.function = NULL;
-            toReturn.errMsg = "bad args. Signature: nice pid priority";
+            toReturn.errMsg = "\nbad args. Signature: nice pid priority";
             return toReturn;
         }
     }
@@ -275,7 +283,7 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
         }
         else {
             toReturn.function = NULL;
-            toReturn.errMsg = "bad args. Signature: block pid opt\n(opt = 1 : block, opt = 0 : unblock)";
+            toReturn.errMsg = "\nbad args. Signature: block pid opt\n(opt = 1 : block, opt = 0 : unblock)";
             return toReturn;
         }
     }
@@ -298,14 +306,14 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
             int m_requested;
             if (!strToInt(args[1], &m_requested) || m_requested <= 0) {
                 toReturn.function = NULL;
-                toReturn.errMsg = "bad request. millis_to_wait needs to be a positive number";
+                toReturn.errMsg = "\nbad request. millis_to_wait needs to be a positive number";
                 return toReturn;
             }
             toReturn.args[0] = args[1];
         }
         else {
             toReturn.function = NULL;
-            toReturn.errMsg = "bad args. Signature: loop millis_to_wait";
+            toReturn.errMsg = "\nbad args. Signature: loop millis_to_wait";
             return toReturn;
         }
     }
@@ -329,13 +337,13 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
                 }
                 else {
                     toReturn.function = NULL;
-                    toReturn.errMsg = "bad request. min: 1MB, max: 128MB";
+                    toReturn.errMsg = "\nbad request. min: 1MB, max: 128MB";
                     return toReturn;
                 }
             }
             else {
                 toReturn.function = NULL;
-                toReturn.errMsg = "bad arguments. Signature: test mm qty";
+                toReturn.errMsg = "\nbad arguments. Signature: test mm qty";
                 return toReturn;
             }
         }
@@ -350,13 +358,13 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
                 }
                 else {
                     toReturn.function = NULL;
-                    toReturn.errMsg = "bad request. min: 1, max: 100";
+                    toReturn.errMsg = "\nbad request. min: 1, max: 100";
                     return toReturn;
                 }
             }
             else {
                 toReturn.function = NULL;
-                toReturn.errMsg = "bad arguments. Signature: test processes qty";
+                toReturn.errMsg = "\nbad arguments. Signature: test processes qty";
                 return toReturn;
             }
         }
@@ -373,9 +381,14 @@ Command getCommand(int argsCount, char args[MAX_ARGS][BUFF_SIZE]) {
             }
             else {
                 toReturn.function = NULL;
-                toReturn.errMsg = "bad arguments. Signature: test sync inc useSem?";
+                toReturn.errMsg = "\nbad arguments. Signature: test sync inc useSem?";
                 return toReturn;
             }
+        }
+        else {
+            toReturn.function = NULL;
+            toReturn.errMsg = "\nbad arguments. \nSignature: test (options: mm, processes, priority, sync)";
+            return toReturn;
         }
     }
     else {

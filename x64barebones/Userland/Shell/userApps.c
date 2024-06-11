@@ -5,7 +5,7 @@
 //
 
 #include "include/userApps.h"
-#include "math.h"
+#include "../Math/include/math.h"
 #include "../User/include/userLib.h"
 #include "../User/include/userLibAsm.h"
 

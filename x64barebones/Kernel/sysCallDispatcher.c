@@ -24,12 +24,11 @@ void printMemInfo();
 
 uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3,
                       uint64_t arg4, uint64_t arg5, uint64_t RAX) {
-    int pid;
     switch (RAX) {
         case 0:
-            return readOnFile(getFdByIdx(arg0), (char *) arg1, arg2);
+            return readOnFile(getFdByIdx(arg0), (unsigned char *) arg1, arg2);
         case 1:
-            return writeOnFile(getFdByIdx(arg0), (char *) arg1, arg2, arg3, arg4, arg5);
+            return writeOnFile(getFdByIdx(arg0), (unsigned char *) arg1, arg2, arg3, arg4, arg5);
         case 2:
             printPixel(arg0, arg1, (uint32_t) arg2);
             return RAX;
