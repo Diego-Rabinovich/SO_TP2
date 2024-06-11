@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "include/philosophers.h"
 #include "../Testing/test_util.h"
 #include "../User/include/userLib.h"
@@ -170,6 +172,7 @@ void removePhilosopher() {
     int idx=philos_amount;
     if (idx == MIN_PHILO) {
         printErr("\nThere should be at least 5 philosophers\n", 2);
+        sys_sem_post(PHILOS_STATE);
         return;
     }
     philos_amount--;
