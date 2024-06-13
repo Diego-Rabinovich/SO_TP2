@@ -15,6 +15,10 @@
 #define BUFF_SIZE 128
 #define MAX_FDS 2048
 
+#define WRITER 'w'
+#define READER 'r'
+
+
 typedef struct FileDescriptorCDT
 {
     int16_t fd_idx;
@@ -26,6 +30,8 @@ typedef struct FileDescriptorCDT
     char semReadName[MAX_NAME];
     char semWriteName[MAX_NAME];
     char mutexName[MAX_NAME];
+    int16_t writer_pid;
+    int16_t reader_pid;
 } FileDescriptorCDT;
 
 typedef FileDescriptorCDT *FileDescriptor;
@@ -33,6 +39,9 @@ typedef FileDescriptorCDT *FileDescriptor;
 void processBuf(unsigned char *buf, int *idx, FileDescriptor fd);
 FileDescriptor initFd();
 void freeFd(FileDescriptor fd);
+FileDescriptor getFdByIdx(int16_t fd);
+FileDescriptor getFdByName(char* name);
+int16_t createFd(char *name);
 
 FileDescriptor fds[MAX_FDS] = {0};
 int16_t next_fd = 0;
@@ -40,8 +49,11 @@ int16_t count_fd = 0;
 
 char *printMutex = "print_mutex";
 
-void createPrintMutex() {
+void initiateFDs() {
     newSemaphore(printMutex, 1);
+    openFdForPID("stdin", 0, 'w');
+    openFdForPID("stdout", 0, 'r');
+    openFdForPID("stderr", 0, 'r');
 }
 
 int16_t getNextFdIdx() {
@@ -87,22 +99,63 @@ int16_t createFd(char *name) {
     return -1;
 }
 
-int16_t openFd(char *name) {
+int16_t openFdForPID(char *name, int16_t pid, char mode) {
     FileDescriptor fd = getFdByName(name);
-    if (fd == NULL) return -1;
+    if (fd == NULL) {
+        int16_t idx;
+        if((idx = createFd(name)) == -1) {
+            return -1;
+        }
+        fd = getFdByIdx(idx);
+    }
+
+    if((fd->writer_pid != -1 && mode==WRITER) || (fd->reader_pid != -1 && mode==READER)) {  //PIPE ALREADY OCCUPIED
+        return -1;
+    }
+
+    if(mode == WRITER) {
+        fd->writer_pid = pid;
+    } else if(mode == READER) {
+        fd->reader_pid = pid;
+    } else {
+        return -1;   //INVALID MODE
+    }
+
     return fd->fd_idx;
 }
 
-void closeFdByIdx(int16_t fd) {
-    FileDescriptor fd_obj;
-    if (fd >= DEFAULT_FDS && (fd_obj = getFdByIdx(fd)) != NULL) {
-        freeFd(fd_obj);
-    }
+void changeFdReader(int16_t fd, int16_t new_pid) {
+    FileDescriptor fd_obj = getFdByIdx(fd);
+    if(fd_obj == NULL) return;
+    fd_obj->reader_pid = new_pid;
 }
 
-void closeFdByName(char *name) {
-    FileDescriptor fd_obj;
-    if ((fd_obj = getFdByName(name)) != NULL) {
+void changeFdWriter(int16_t fd, int16_t new_pid) {
+    FileDescriptor fd_obj = getFdByIdx(fd);
+    if(fd_obj == NULL) return;
+    fd_obj->writer_pid = new_pid;
+}
+
+int16_t openFd(char* name, char mode) {
+    return openFdForPID(name, getPid(), mode);
+}
+
+void closeFd(int16_t fd) {
+    closeFdForPID(fd, getPid());
+}
+
+void closeFdForPID(int16_t fd, int16_t pid) {
+    FileDescriptor fd_obj = getFdByIdx(fd);
+    if(fd_obj == NULL) return;
+    if(fd_obj->writer_pid  == pid) {
+        writeOnFile(fd_obj->fd_idx, "\1", 1, 0,0,0);
+        fd_obj->writer_pid = -1;
+    }
+    if(fd_obj->reader_pid == pid) {
+        fd_obj->reader_pid = -1;
+    }
+
+    if(fd_obj->reader_pid == -1 && fd_obj->writer_pid == -1) {
         freeFd(fd_obj);
     }
 }
@@ -120,6 +173,8 @@ FileDescriptor initFd() {
     new_fd->readIdx = 0;
     new_fd->writeIdx = 0;
     new_fd->used = 0;
+    new_fd->writer_pid = -1;
+    new_fd->reader_pid = -1;
     char idxStr[10];
     uintToBase(new_fd_idx, idxStr, 10);
     memcpy(new_fd->mutexName, "mutex_fd_", 9);
@@ -134,8 +189,9 @@ FileDescriptor initFd() {
     return new_fd;
 }
 
-int writeOnFile(FileDescriptor fd, unsigned char *buff, unsigned long len, uint32_t hexFontColor, uint32_t hexBGColor, uint32_t fontSize) {
-    if (fd == NULL) {
+int writeOnFile(int16_t fd_idx, unsigned char *buff, unsigned long len, uint32_t hexFontColor, uint32_t hexBGColor, uint32_t fontSize) {
+    FileDescriptor fd = getFdByIdx(fd_idx);
+    if (fd == NULL || len == 0) {
         return -1;
     }
     switch (fd->fd_idx) {
@@ -168,6 +224,8 @@ int writeOnFile(FileDescriptor fd, unsigned char *buff, unsigned long len, uint3
             }
             break;
         default:
+            if(fd->writer_pid != getPid()) return -1;
+
             for (int i = 0; i < len; i++) {
                 semWait(fd->semWriteName);
                 semWait(fd->mutexName);
@@ -182,8 +240,10 @@ int writeOnFile(FileDescriptor fd, unsigned char *buff, unsigned long len, uint3
     return (int)len;
 }
 
-int readOnFile(FileDescriptor fd, unsigned char *target, unsigned long len) {
-    if (fd == NULL ) {
+int readOnFile(int16_t fd_idx, unsigned char *target, unsigned long len) {
+    FileDescriptor fd = getFdByIdx(fd_idx);
+
+    if (fd == NULL || fd->reader_pid != getPid()) {
         return -1;
     }
     if (fd->fd_idx == STDIN) {

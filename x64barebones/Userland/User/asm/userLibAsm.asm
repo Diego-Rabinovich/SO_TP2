@@ -27,8 +27,11 @@ GLOBAL sys_sem_post
 GLOBAL sys_sem_wait
 GLOBAL sys_openFd
 GLOBAL sys_closeFd
-GLOBAL sys_createFd
+GLOBAL sys_openFdForPID
+GLOBAL sys_closeFdForPID
 GLOBAL sys_memInfo
+GLOBAL sys_changeFdReader
+GLOBAL sys_changeFdWriter
 GLOBAL make_invalid_opCode
 
 section .text
@@ -177,13 +180,28 @@ sys_closeFd:
     int 80h
     ret
 
-sys_createFd:
+sys_openFdForPID:
     mov rax, 29
     int 80h
     ret
 
 sys_memInfo:
     mov rax, 30
+    int 80h
+    ret
+
+sys_closeFdForPID:
+    mov rax, 31
+    int 80h
+    ret
+
+sys_changeFdWriter:
+    mov rax, 32
+    int 80h
+    ret
+
+sys_changeFdReader:
+    mov rax, 33
     int 80h
     ret
 

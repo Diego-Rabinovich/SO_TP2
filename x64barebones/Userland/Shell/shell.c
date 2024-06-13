@@ -140,7 +140,7 @@ char startCommand() {
         uintToBase(fdCounter, idxFdStr, 10);
         concat("sh_fd_", idxFdStr, fdName);
         fdCounter++;
-        int16_t fd = sys_createFd(fdName);
+        int16_t fd = sys_openFd(fdName, 'w');
         commands[0].fds[STDOUT] = fd;
         commands[1].fds[STDIN] = fd;
         sys_createProcess(commands[0].function, commands[0].args, commands[0].p_name, 3, commands[0].fds);

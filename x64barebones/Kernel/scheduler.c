@@ -186,9 +186,7 @@ int32_t killCurrent(int32_t ret) {
 }
 
 int32_t kill(uint16_t pid, int32_t ret) {
-    char pid_str[5] = {0};
-    uintToBase(pid, pid_str, 10);
-    //drawStringWithColor(pid_str, strLen(pid_str), 0xff0000, 0, 2);
+
     Node* to_kill_node = scheduler.processes[pid];
     if (pid <= 2) {
         //note that if pid <= 2 then p is either sh, user, or trivial
@@ -198,10 +196,8 @@ int32_t kill(uint16_t pid, int32_t ret) {
         //Process already killed, task succesful :)
         return 0;
     }
+
     PCB* to_kill_pcb = (PCB*)to_kill_node->data;
-    if (to_kill_pcb->fds[STDOUT] != STDOUT){
-        writeOnFile(getFdByIdx(to_kill_pcb->fds[STDOUT]), (unsigned char *) "\1", 1, 0, 0, 0);
-    }
 
     if (to_kill_pcb->p_state != BLOCKED) {
         remove(scheduler.ready_processes, to_kill_node);
@@ -218,9 +214,16 @@ int32_t kill(uint16_t pid, int32_t ret) {
             ((PCB*)parent_node->data)->ret = ret;
         }
         if (to_kill_pcb->isFg) {
-            scheduler.fg_pid = to_kill_pcb->parent_pid;
+            scheduler.fg_pid = parent_pcb->pid;
             parent_pcb->isFg = 1;
             parent_pcb->fds[0] = STDIN;
+            changeFdReader(STDIN, parent_pcb->pid);
+        }
+    }
+
+    for (int i = 0; i < DEFAULT_FDS; ++i) {
+        if(to_kill_pcb->fds[i] >= DEFAULT_FDS) {
+            closeFd(to_kill_pcb->fds[i]);
         }
     }
 

@@ -28,9 +28,9 @@ uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t
                       uint64_t arg4, uint64_t arg5, uint64_t RAX) {
     switch (RAX) {
         case 0:
-            return readOnFile(getFdByIdx(arg0), (unsigned char *) arg1, arg2);
+            return readOnFile((int16_t)arg0, (unsigned char *) arg1, arg2);
         case 1:
-            return writeOnFile(getFdByIdx(arg0), (unsigned char *) arg1, arg2, arg3, arg4, arg5);
+            return writeOnFile((int16_t)arg0, (unsigned char *) arg1, arg2, arg3, arg4, arg5);
         case 2:
             printPixel(arg0, arg1, (uint32_t) arg2);
             return RAX;
@@ -48,11 +48,8 @@ uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t
             return RAX;
         case 7:
             return waitNMillis(arg0);
-
-        //TODO: afuera
         case 8:
-            return hardRead(arg0, (char *) arg1, arg2);
-        //TODO: afuera
+            return RAX;
         case 9:
             beep(arg0,arg1);
             return RAX;
@@ -97,34 +94,27 @@ uint64_t sysCallDispatcher(uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t
         case 26:
             return semWait((char *) arg0);
         case 27:
-            return openFd((char*)arg0);
+            return openFd((char*)arg0, arg1);
         case 28:
-            closeFdByName((char*)arg0);
+            closeFd(arg0);
             return RAX;
         case 29:
-            return createFd((char *)arg0);
+            return openFdForPID((char *)arg0, arg1, arg2);
         case 30:
             printMemInfo();
+            return RAX;
+        case 31:
+            closeFdForPID(arg0, arg1);
+            return RAX;
+        case 32:
+            changeFdWriter(arg0, arg1);
+            return RAX;
+        case 33:
+            changeFdReader(arg0, arg1);
             return RAX;
         default:
             return -1;
     }
-}
-
-int hardRead(uint64_t fd, char *buf, uint64_t count){
-/*
-    switch (fd) {
-        case 1:{
-            int idx = 0;
-            while (idx < count && hasNext()) {
-                processBuf(buf, &idx);
-            }
-            //alignPointers();
-            return idx;
-        }
-    }
-    */
-    return 0;
 }
 
 
@@ -140,7 +130,7 @@ void getScreenDimensions(coords *ret) {
 void ps(){
     int16_t fds[3];
     getFDs(fds);
-    FileDescriptor fd = getFdByIdx(fds[STDOUT]);
+    int16_t fd = fds[STDOUT];
     writeOnFile(fd,(unsigned char *) "\n", 2, 0xffffff,0,2 );
     ProcessInfoArray * p_list = getProcessArray();
     writeOnFile(fd, (unsigned char *) "Active processes: ", 19,0xffffff,0, 2);
@@ -197,7 +187,7 @@ void printMemInfo(){
     MemoryInfo * info = getMemInfo();
     int16_t fds[3];
     getFDs(fds);
-    FileDescriptor fd = getFdByIdx(fds[STDOUT]);
+    int16_t fd = fds[STDOUT];
     char total_str[20], reserved_str[20], free_str[20];
     uintToBase(info->total, total_str, 10);
     uintToBase(info->reserved, reserved_str, 10);
