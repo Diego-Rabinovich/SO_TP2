@@ -143,7 +143,7 @@ void* schedule(void* last_rsp) {
 
 int16_t createProcess(Main main_func, char** args, char* name, uint8_t priority, int16_t fds[]) {
     is_priority = 1;
-    if (scheduler.process_count >= MAX_PROCESSES || main_func == NULL || priority < 0 || priority > 3 || fds == NULL) {
+    if (scheduler.process_count >= MAX_PROCESSES || main_func == NULL || priority > 3 || fds == NULL) {
         is_priority = 0;
         return -1;
     }
@@ -263,19 +263,6 @@ ProcessInfoArray* getProcessArray() {
     return info_array;
 }
 
-int64_t wait(uint16_t pid) {
-    if (pid == 1 || scheduler.processes[pid] == NULL) {
-        return -1;
-    }
-    if (pid != -1 && scheduler.processes[pid] == NULL) {
-        return -1;
-    }
-    PCB* running_pcb = (PCB*)scheduler.processes[scheduler.running_pid]->data;
-    running_pcb->waiting_pid = pid;
-    setState(scheduler.running_pid, BLOCKED);
-    yield();
-    return running_pcb->ret;
-}
 
 void yield() {
     scheduler.remaining_rounds = 0;

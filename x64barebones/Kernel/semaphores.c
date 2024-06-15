@@ -15,7 +15,7 @@ uint32_t nextID = 0;
 
 static void setNextIdx(){
     nextID = 0;
-    while(sems[nextID] != NULL && nextID < MAX_SEMS){
+    while(nextID < MAX_SEMS && sems[nextID] != NULL){
         nextID++;
     }
 }
