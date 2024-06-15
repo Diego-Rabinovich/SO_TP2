@@ -42,6 +42,9 @@ void initializeProcess(PCB* process_pcb, uint16_t pid, uint16_t parent_pid,
     if (fds[STDIN] == STDIN) {
         process_pcb->isFg = 1; // if p interacts with user stdin then is fg.
     }
+    else {
+        process_pcb->isFg = 0;
+    }
     if(fds[STDIN] != DEV_NULL) {
         changeFdReader(fds[STDIN], pid);
     }

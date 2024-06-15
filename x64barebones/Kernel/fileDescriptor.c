@@ -148,7 +148,7 @@ void closeFdForPID(int16_t fd, int16_t pid) {
     FileDescriptor fd_obj = getFdByIdx(fd);
     if(fd_obj == NULL) return;
     if(fd_obj->writer_pid  == pid) {
-        writeOnFile(fd_obj->fd_idx, "\1", 1, 0,0,0);
+        writeOnFile(fd_obj->fd_idx, (unsigned char *)"\1", 1, 0,0,0);
         fd_obj->writer_pid = -1;
     }
     if(fd_obj->reader_pid == pid) {
