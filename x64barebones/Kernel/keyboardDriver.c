@@ -4,8 +4,6 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "include/keyboardDriver.h"
 
-#include "interrupts.h"
-#include "sysCallDispatcher.h"
 #include "include/scheduler.h"
 #include "include/videoDriver.h"
 #include "include/fileDescriptor.h"
@@ -27,13 +25,6 @@ char getKeyPress();
 char caps_enabled = 0;
 char shift_enabled = 0;
 char ctrl_enabled = 0;
-
-FileDescriptor stdin_fd;
-
-void initSTDIN() {
-    createFd("stdin");
-    stdin_fd = getFdByName("stdin");
-}
 
 unsigned char scan_codes[][84] = {
     { //SIN SHIFT
@@ -65,9 +56,8 @@ unsigned char getStringFromCode(unsigned char code) {
 }
 
 unsigned char checkAlternate(unsigned char code) {
-    unsigned char alternate = 0;
     char isLetter = (code >= 0x10 && code <= 0x19) || (code >= 0x1E && code <= 0x26) || (code >= 0x2C && code <= 0x32);
-    alternate = (isLetter && caps_enabled);
+    unsigned char alternate = (isLetter && caps_enabled);
     if (shift_enabled) {
         alternate = !alternate;
     }
@@ -93,22 +83,20 @@ void setKeyFlags(unsigned char key) {
 }
 
 void keyboardHandler() {
-//    _cli();
     char key[1] = {getKeyPress()};
     setKeyFlags(key[0]);
     if (ctrl_enabled) {
         if (key[0] == 0x2E) { //CTRL+C
             clearSTDIN();
             killFG();
-            drawString("\n$>", 3, 2);
         }
         else if (key[0] == 0x20) { //CTRL+D
             unsigned char eof_buf[2] = {EOF, 0};
-            writeOnFile(stdin_fd, eof_buf, 1, 0, 0, 2);
+            writeOnFile(STDIN, eof_buf, 1, 0, 0, 2);
         }
     }
     else {
-        writeOnFile(stdin_fd, (unsigned char*)key, 1, 0x000000, 0x000000, 2);
+        writeOnFile(STDIN, (unsigned char*)key, 1, 0x000000, 0x000000, 2);
     }
 }
 

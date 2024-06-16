@@ -3,17 +3,17 @@
 
 #include "stdint.h"
 
-typedef struct FileDescriptorCDT *FileDescriptor;
 
-int writeOnFile(FileDescriptor fd, unsigned char * buf, unsigned long len, uint32_t hexFontColor, uint32_t hexBGColor, uint32_t fontSize);
-int readOnFile(FileDescriptor fd, unsigned char * target, unsigned long len);
-FileDescriptor getFdByIdx(int16_t fd);
-FileDescriptor getFdByName(char* name);
-int16_t openFd(char* name);
-int16_t createFd(char* name);
-void closeFdByIdx(int16_t fd);
-void closeFdByName(char* name);
+int writeOnFile(int16_t fd, unsigned char * buf, unsigned long len, uint32_t hexFontColor, uint32_t hexBGColor, uint32_t fontSize);
+int readOnFile(int16_t fd, unsigned char * target, unsigned long len);
+int16_t openFd(char *name, char mode);
+int16_t openFdForPID(char *name, int16_t pid, char mode);
+void closeFd(int16_t fd);
+void closeFdForPID(int16_t fd, int16_t pid);
+void changeFdWriter(int16_t fd, int16_t new_pid);
+void changeFdReader(int16_t fd, int16_t new_pid);
+
 void clearSTDIN();
-void createPrintMutex();
+void initiateFDs();
 
 #endif //FILEDESCRIPTOR_H

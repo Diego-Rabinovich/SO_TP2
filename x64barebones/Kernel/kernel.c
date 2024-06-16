@@ -76,7 +76,6 @@ int trivial(int argc, char **args){
     getFDs(fds);
     createProcess(userCodeAddress, argv, "init", 0, fds);
     memFree(fds);
-    // callTimerTick();
     while (1) {
         _hlt();
     }
@@ -85,13 +84,9 @@ int trivial(int argc, char **args){
 
 
 int main(){
-    //startUpMusic();
     resetScreen();
     schedulerInit();
-    createPrintMutex();
-    initSTDIN();
-    createFd("stdout"); // initializing STDOUT
-    createFd("stderr"); // initializing STDERR
+    initiateFDs();
     char * args[] = {NULL};
     int16_t fds[3] = {STDIN, STDOUT, STDERR};
     createProcess(trivial, args, "trivial", 0, fds);     //Halt process in case of no active processes
