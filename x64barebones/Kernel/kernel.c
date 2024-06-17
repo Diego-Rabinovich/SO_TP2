@@ -59,15 +59,7 @@ void * initializeKernelBinary()
 }
 
 void startUpMusic(){
-    beep(1318,250);
-    beep(1245,250);
-    beep(1318,250);
-    beep(1245,250);
-    beep(1318,250);
-    beep(987,250);
-    beep(1175,250);
-    beep(1046,250);
-    beep(880,500);
+    beep(450,500);
 }
 
 int trivial(int argc, char **args){
